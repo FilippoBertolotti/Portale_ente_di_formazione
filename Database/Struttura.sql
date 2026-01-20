@@ -1,7 +1,7 @@
 CREATE DATABASE PortaleEnteDiFormazione;
 
 USE PortaleEnteDiFormazione;
-
+--\c "PortaleEnteDiFormazione";   uso db in postgre
 #TODO: CREAZIONE UTENZE E SUOI DISCENDENTI
 
 CREATE TABLE PROGETTO
