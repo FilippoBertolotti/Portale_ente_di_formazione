@@ -1,4 +1,3 @@
-
 -- \c PortaleEnteDiFormazione;
 
 -- INSERIMENTO DATI MOCK
