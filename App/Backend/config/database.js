@@ -46,22 +46,15 @@ export const query = async (text, params) => {
 
 export const getClient = async () => {
   const client = await pool.connect();
-  const query = client.query;
   const release = client.release;
   
   const timeout = setTimeout(() => {
     console.error('Client è rimasto in checkout per più di 5 secondi!');
   }, 5000);
   
-  client.query = (...args) => {
-    return query.apply(client, args);
-  };
-  
   client.release = () => {
     clearTimeout(timeout);
-    client.query = query;
-    client.release = release;
-    return release.apply(client);
+    release.call(client);
   };
   
   return client;
