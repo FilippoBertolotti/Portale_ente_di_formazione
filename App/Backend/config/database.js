@@ -7,8 +7,7 @@ const { Pool } = pg;
 
 // Configurazione SSL per Azure PostgreSQL
 const sslConfig = {
-  rejectUnauthorized: true,
-  // Azure PostgreSQL richiede SSL ma accetta connessioni con questo setting
+  rejectUnauthorized: true,    // Azure PostgreSQL richiede SSL ma accetta connessioni con questo setting
 };
 
 const pool = new Pool({
