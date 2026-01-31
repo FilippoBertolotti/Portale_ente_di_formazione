@@ -5,9 +5,8 @@ dotenv.config();
 
 const { Pool } = pg;
 
-// Configurazione SSL per Azure PostgreSQL
 const sslConfig = {
-  rejectUnauthorized: true,    // Azure PostgreSQL richiede SSL ma accetta connessioni con questo setting
+  rejectUnauthorized: true,
 };
 
 const pool = new Pool({
@@ -16,13 +15,13 @@ const pool = new Pool({
   database: process.env.DB_NAME,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  ssl: sslConfig, // SSL obbligatorio per Azure
+  ssl: sslConfig,
   max: 20,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000, // Aumentato per connessioni remote
+  connectionTimeoutMillis: 10000,
 });
 
-pool.on('connect', (client) => {
+pool.on('connect', () => {
   console.log('✅ Database Azure connesso con successo');
 });
 
@@ -46,15 +45,15 @@ export const query = async (text, params) => {
 
 export const getClient = async () => {
   const client = await pool.connect();
-  const release = client.release;
+  const originalRelease = client.release;
   
   const timeout = setTimeout(() => {
-    console.error('Client è rimasto in checkout per più di 5 secondi!');
+    console.error('⚠️ Client checkout da più di 5 secondi!');
   }, 5000);
   
   client.release = () => {
     clearTimeout(timeout);
-    release.call(client);
+    originalRelease.call(client);
   };
   
   return client;
