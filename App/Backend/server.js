@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import pool from './config/database.js';
+import authRoutes from "./routes/auth.js";
+import progettiRoutes from "./routes/progetti.js";
 
 dotenv.config();
 
@@ -65,6 +67,8 @@ app.get('/', (req, res) => {
 // import corsiRoutes from './routes/corsi.js';
 // app.use('/api/auth', authRoutes);
 // app.use('/api/corsi', corsiRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/progetti', progettiRoutes);
 
 // Gestione errori 404
 app.use((req, res) => {
