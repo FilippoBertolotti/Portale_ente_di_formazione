@@ -38,11 +38,11 @@ export const checkLevel = (minLevel) => {
 };
 
 // Livelli:
-// 0 = Studente
-// 1 = Docente  
-// 2 = Coordinatore
-// 3 = Amministratore
-export const isStudente = checkLevel(0);
-export const isDocente = checkLevel(1);
-export const isCoordinatore = checkLevel(2);
-export const isAdmin = checkLevel(3);
+// 3 = Studente
+// 2 = Docente  
+// 1 = Coordinatore
+// 0 = Amministratore
+export const isStudente = checkLevel(3);
+export const isDocente = checkLevel(2);
+export const isCoordinatore = checkLevel(1);
+export const isAdmin = checkLevel(0);
