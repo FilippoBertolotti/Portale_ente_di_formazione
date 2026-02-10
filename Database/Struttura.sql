@@ -1,3 +1,4 @@
+DROP DATABASE IF EXISTS PortaleEnteDiFormazione;
 CREATE DATABASE IF NOT EXISTS PortaleEnteDiFormazione;
 
 \c PortaleEnteDiFormazione;
