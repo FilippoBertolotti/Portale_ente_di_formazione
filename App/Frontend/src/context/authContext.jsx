@@ -1,3 +1,4 @@
+// src/context/AuthContext.jsx
 import { createContext, useState, useEffect } from 'react';
 import { authService } from '../services/authService';
 
@@ -14,12 +15,12 @@ export const AuthProvider = ({ children }) => {
   const checkAuth = async () => {
     try {
       if (authService.isAuthenticated()) {
-        const userData = authService.getCurrentUser();
+        // AGGIUNGI QUI await !!!
+        const userData = await authService.getCurrentUser();
         setUser(userData);
       }
     } catch (error) {
       console.error('Auth check failed:', error);
-      logout();
     } finally {
       setLoading(false);
     }
@@ -44,5 +45,9 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated: !!user,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 };

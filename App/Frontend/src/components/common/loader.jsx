@@ -1,15 +1,12 @@
-import './Loader.css';
+import './Loader.css'; // Creerai tu il CSS
 
-const Loader = ({ size = 'medium', fullScreen = false }) => {
-  if (fullScreen) {
-    return (
-      <div className="loader-fullscreen">
-        <div className={`loader loader-${size}`}></div>
-      </div>
-    );
-  }
-
-  return <div className={`loader loader-${size}`}></div>;
+const Loader = () => {
+  return (
+    <div className="loader-container">
+      <div className="spinner"></div>
+      <p>Caricamento in corso...</p>
+    </div>
+  );
 };
 
 export default Loader;
