@@ -87,6 +87,12 @@ app.use((err, req, res, next) => {
   });
 });
 
+app.use(cors({
+  origin: 'http://localhost:5173',  // ← Aggiungi questa riga
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
+
 // Avvio del server
 app.listen(PORT, () => {
   console.log(`🚀 Server avviato sulla porta ${PORT}`);
