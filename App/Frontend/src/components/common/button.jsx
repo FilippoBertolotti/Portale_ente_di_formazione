@@ -34,7 +34,7 @@ const Button = forwardRef(({
       ref={ref}
       type={type}
       className={`
-        border-none rounded-lg cursor-pointer font-semibold 
+        border-none cursor-pointer font-semibold 
         inline-flex items-center justify-center gap-2 
         transition-all duration-300 ease-in-out font-sans
         ${variants[variant]} 

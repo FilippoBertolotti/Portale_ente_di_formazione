@@ -19,6 +19,7 @@ const LoginForm = ({ onSubmit, loading, error }) => {
       [name]: value
     }));
     
+    // Rimuovi errore del campo quando l'utente scrive
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -30,12 +31,14 @@ const LoginForm = ({ onSubmit, loading, error }) => {
   const validate = () => {
     const newErrors = {};
 
-    if (!formData.email) {
+    // Validazione email
+    if (!formData.email.trim()) {
       newErrors.email = 'Email obbligatoria';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email non valida';
     }
 
+    // Validazione password
     if (!formData.password) {
       newErrors.password = 'Password obbligatoria';
     } else if (formData.password.length < 6) {
@@ -47,19 +50,24 @@ const LoginForm = ({ onSubmit, loading, error }) => {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault(); 
+  e.stopPropagation();
     if (validate()) {
       onSubmit(formData);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-full">
+    <form 
+      onSubmit={handleSubmit} 
+      className="flex flex-col gap-5 w-full"
+      noValidate  // ✅ DISATTIVA validazione HTML5
+    >
       
-      {/* Campo Email */}
+      {/* Campo Email - type="text" ✅ */}
       <Input
         label="Email"
-        type="email"
+        type="text"  // ✅ CAMBIATO DA "email" A "text"
         name="email"
         value={formData.email}
         onChange={handleChange}

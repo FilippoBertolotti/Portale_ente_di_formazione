@@ -59,9 +59,7 @@ const Input = forwardRef(({
       </div>
       
       {/* Messaggio errore */}
-      {error && (
-        <span className="text-red-500 text-sm">{error}</span>
-      )}
+        <span className="text-red-500 text-sm">{error ? error : '\u00A0'}</span>
     </div>
   );
 });

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import LoginForm from '../../components/forms/loginForm';
 import Image  from '../../components/common/image';
+import Logo from '../../assets/images/logo.png';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -17,9 +18,8 @@ const Login = () => {
 
     try {
       await login(formData.email, formData.password);
-      alert('✅ Login riuscito!');
       console.log('Token salvato:', localStorage.getItem('token'));
-      navigate('/progetti');
+      navigate('/progetti',{ replace: true });
     } catch (err) {
       setError(err.response?.data?.message || 'Errore durante il login');
       console.error('Login error:', err);
@@ -34,7 +34,7 @@ const Login = () => {
         <div className="bg-[#F5F7F9] rounded-[30px] p-10 md:p-10 sm:p-6">
           <div className="text-center mb-8">
             <div className="mb-5">
-              <Image className="w-[40%] mx-auto" src="../../assets/images/logo.png" />
+              <Image className="w-[40%] mx-auto" src={Logo} />
             </div>
             <h1 className="text-gray-900 text-xl font-semibold">
               Tutta la scuola, in un solo portale
