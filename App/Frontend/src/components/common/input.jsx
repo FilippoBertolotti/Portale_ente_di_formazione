@@ -1,6 +1,6 @@
-import './Input.css';
+import { forwardRef } from 'react';
 
-const Input = ({
+const Input = forwardRef(({
   label,
   type = 'text',
   name,
@@ -10,19 +10,31 @@ const Input = ({
   error,
   required = false,
   disabled = false,
-  icon
-}) => {
+  icon,
+  className = ''
+}, ref) => {
   return (
-    <div className="input-group">
+    <div className="flex flex-col gap-2 w-full">
+      
+      {/* Label */}
       {label && (
-        <label htmlFor={name} className="input-label">
+        <label htmlFor={name} className="text-[#777777] font-bold text-sm ml-[30px]">
           {label}
-          {required && <span className="required">*</span>}
+          {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
-      <div className="input-wrapper">
-        {icon && <span className="input-icon">{icon}</span>}
+      
+      {/* Wrapper con icona */}
+      <div className="relative w-full">
+        {icon && (
+          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 flex items-center">
+            {icon}
+          </span>
+        )}
+        
+        {/* Input field */}
         <input
+          ref={ref}
           type={type}
           id={name}
           name={name}
@@ -31,12 +43,29 @@ const Input = ({
           placeholder={placeholder}
           disabled={disabled}
           required={required}
-          className={`input-field ${icon ? 'input-with-icon' : ''} ${error ? 'input-error' : ''}`}
+          className={`
+            w-full px-4 py-3 border-2 rounded-[30px] text-base
+            transition-all duration-300 ease-in-out font-sans
+            focus:outline-none
+            disabled:bg-gray-100 disabled:cursor-not-allowed
+            ${icon ? 'pl-11' : ''}
+            ${error 
+              ? 'border-red-500 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.1)]' 
+              : 'border-gray-200 focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)]'
+            }
+            ${className}
+          `}
         />
       </div>
-      {error && <span className="error-message">{error}</span>}
+      
+      {/* Messaggio errore */}
+      {error && (
+        <span className="text-red-500 text-sm">{error}</span>
+      )}
     </div>
   );
-};
+});
+
+Input.displayName = 'Input';
 
 export default Input;

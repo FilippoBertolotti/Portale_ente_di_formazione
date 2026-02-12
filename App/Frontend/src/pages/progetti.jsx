@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
-import { progettiService } from '../../services/progettiService';
-import './Progetti.css';
+import { useState, useEffect } from 'react'; 
+import { progettiService } from '../services/progettiService';
 
 const Progetti = () => {
   const [progetti, setProgetti] = useState([]);
@@ -11,12 +10,38 @@ const Progetti = () => {
     const fetchProgetti = async () => {
       try {
         setLoading(true);
-        const data = await progettiService.getAll();
-        setProgetti(data);
+        const response = await progettiService.getAll();
+        
+        // 📦 Debug
+        console.log('📦 Risposta API:', response);
+
+        // ✅ FORZA progetti a essere SEMPRE un array
+        let progettiData = [];
+
+        if (Array.isArray(response)) {
+          progettiData = response;
+        } else if (response?.data && Array.isArray(response.data)) {
+          progettiData = response.data;
+        } else if (response?.progetti && Array.isArray(response.progetti)) {
+          progettiData = response.progetti;
+        } else if (response?.results && Array.isArray(response.results)) {
+          progettiData = response.results;
+        } else {
+          console.warn('Formato dati non riconosciuto:', response);
+          progettiData = [];
+        }
+
+        progettiData = progettiData.map((progetto, index) => {
+          return progetto;
+        });
+
+        setProgetti(progettiData);
         setError('');
+
       } catch (err) {
         setError('Errore nel caricamento dei progetti');
-        console.error(err);
+        console.error('❌ Errore fetch:', err);
+        setProgetti([]);
       } finally {
         setLoading(false);
       }
@@ -25,50 +50,84 @@ const Progetti = () => {
     fetchProgetti();
   }, []);
 
+  // LOADING
   if (loading) {
     return (
-      <div className="progetti-container">
-        <h1>📋 Elenco Progetti</h1>
-        <div className="loading">Caricamento progetti in corso...</div>
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-3xl font-bold text-gray-900 mb-8">📋 Elenco Progetti</h1>
+          <div className="text-center py-12">
+            <div className="text-gray-600">Caricamento progetti in corso...</div>
+          </div>
+        </div>
       </div>
     );
   }
 
+  // ERROR
   if (error) {
     return (
-      <div className="progetti-container">
-        <h1>📋 Elenco Progetti</h1>
-        <div className="error">{error}</div>
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-3xl font-bold text-gray-900 mb-8">📋 Elenco Progetti</h1>
+          <div className="bg-red-50 border-l-4 border-red-500 p-4">
+            <div className="text-red-700">{error}</div>
+          </div>
+        </div>
       </div>
     );
   }
 
+  // MAIN RENDER
   return (
-    <div className="progetti-container">
-      <h1>📋 Elenco Progetti</h1>
-      
-      {progetti.length === 0 ? (
-        <div className="no-progetti">
-          <p>Nessun progetto trovato</p>
-        </div>
-      ) : (
-        <div className="progetti-grid">
-          {progetti.map((progetto) => (
-            <div key={progetto.id} className="progetto-card">
-              <h3>{progetto.nome}</h3>
-              <p className="descrizione">{progetto.descrizione}</p>
-              <div className="info">
-                <span>📅 Inizio: {new Date(progetto.data_inizio).toLocaleDateString('it-IT')}</span>
-                <span>🏁 Fine: {new Date(progetto.data_fine).toLocaleDateString('it-IT')}</span>
-              </div>
-              <div className="footer">
-                <span className="stato">{progetto.stato || 'Attivo'}</span>
-                <button className="dettagli-btn">Visualizza</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+    <div className="min-h-screen bg-gray-50 p-8">
+      <div className="max-w-7xl mx-auto">
+
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">📋 Elenco Progetti</h1>
+
+        {!Array.isArray(progetti) || progetti.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-lg shadow">
+            <p className="text-gray-600">Nessun progetto trovato</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {progetti.map((progetto) => {
+              const keyId = progetto?.codice || `fallback-${Math.random()}-${Date.now()}`;
+              
+              return (
+                <div 
+                  key={keyId}  // ✅ CHIAVE SICURA AL 100%
+                  className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6"
+                >
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                    {progetto?.descrizione || 'Nessuna descrizione'}
+                  </h3>
+
+                  <div className="space-y-2 mb-4 text-sm text-gray-500">
+                    <div className="flex items-center gap-2">
+                      <span>📅</span>
+                      <span>Inizio: {progetto?.annoinizio || 'N/D'}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span>🏁</span>
+                      <span>Fine: {progetto?.annofine || 'N/D'}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                      {progetto?.stato || 'Attivo'}
+                    </span>
+                    <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                      Visualizza
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

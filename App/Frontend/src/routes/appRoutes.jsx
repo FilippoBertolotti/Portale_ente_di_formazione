@@ -1,16 +1,16 @@
-import { Routes, Route } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth'; // Se hai questo hook
-
-const TestPage = () => <h1>Test funziona!</h1>;
+import { useAuth } from '../hooks/useAuth';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import Login from '../pages/auth/login';
+import Progetti from '../pages/progetti';
 
 const AppRoutes = () => {
-  console.log('AppRoutes rendering');
-  
+  const { user } = useAuth();
   return (
-    <Routes>
-      <Route path="/" element={<TestPage />} />
-      <Route path="*" element={<TestPage />} />
-    </Routes>
+        <Routes>
+          <Route path="/login" element={user ? <Navigate to="/progetti" /> : <Navigate to="/login" />} />
+          <Route path="/progetti" element={<Progetti />} />
+          <Route path="/" element={user ? <Navigate to="/progetti" /> : <Navigate to="/login" />} />
+        </Routes>
   );
 };
 

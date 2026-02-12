@@ -21,7 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Middleware per logging delle richieste
 app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  console.log('-' +  req.method + ' ' + req.path);
   next();
 });
 
