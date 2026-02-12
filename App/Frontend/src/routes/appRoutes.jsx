@@ -7,9 +7,9 @@ const AppRoutes = () => {
   const { user } = useAuth();
   return (
         <Routes>
-          <Route path="/login" element={user ? <Navigate to="/progetti" /> : <Navigate to="/login" />} />
-          <Route path="/progetti" element={<Progetti />} />
           <Route path="/" element={user ? <Navigate to="/progetti" /> : <Navigate to="/login" />} />
+          <Route path="/progetti" element={user ? <Progetti /> : <Navigate to="/login" />} />
+          <Route path="/login" element={user ? <Navigate to="/progetti" /> : <Login />} />
         </Routes>
   );
 };
