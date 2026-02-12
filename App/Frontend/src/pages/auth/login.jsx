@@ -34,7 +34,7 @@ const Login = () => {
         <div className="bg-[#F5F7F9] rounded-[30px] p-10 md:p-10 sm:p-6">
           <div className="text-center mb-8">
             <div className="mb-5">
-              <Image className="w-[40%] mx-auto" src="/logo.png" />
+              <Image className="w-[40%] mx-auto" src="../../assets/images/logo.png" />
             </div>
             <h1 className="text-gray-900 text-xl font-semibold">
               Tutta la scuola, in un solo portale
