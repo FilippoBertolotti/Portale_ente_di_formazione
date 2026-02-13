@@ -76,6 +76,7 @@ const LoginForm = ({ onSubmit, loading, error }) => {
         error={errors.email}
         required
         disabled={loading}
+        classNameLa = "text-[#777777] font-bold ml-[30px]"
       />
 
       {/* Campo Password */}
@@ -90,6 +91,8 @@ const LoginForm = ({ onSubmit, loading, error }) => {
         error={errors.password}
         required
         disabled={loading}
+        classNameLa = "text-[#777777] font-bold ml-[30px]"
+        classNameEr = "ml-[30px]"
       />
 
       {/* Errore generale dal server */}

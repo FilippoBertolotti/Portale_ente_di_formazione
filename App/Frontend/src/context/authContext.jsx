@@ -14,8 +14,7 @@ export const AuthProvider = ({ children }) => {
   const checkAuth = async () => {
     try {
       if (authService.isAuthenticated()) {
-        // AGGIUNGI QUI await !!!
-        const userData = await authService.getCurrentUser();
+        const userData = authService.getCurrentUser();
         setUser(userData);
       }
     } catch (error) {

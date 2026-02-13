@@ -11,14 +11,16 @@ const Input = forwardRef(({
   required = false,
   disabled = false,
   icon,
-  className = ''
+  classNameIn = '',
+  classNameLa = '',
+  classNameEr = ''
 }, ref) => {
   return (
     <div className="flex flex-col gap-2 w-full">
       
       {/* Label */}
       {label && (
-        <label htmlFor={name} className="text-[#777777] font-bold text-sm ml-[30px]">
+        <label htmlFor={name} className={`text-sm ${classNameLa}`}>
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
@@ -53,13 +55,13 @@ const Input = forwardRef(({
               ? 'border-red-500 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.1)]' 
               : 'border-gray-200 focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)]'
             }
-            ${className}
+            ${classNameIn}
           `}
         />
       </div>
       
       {/* Messaggio errore */}
-        <span className="text-red-500 text-sm">{error ? error : '\u00A0'}</span>
+        <span className={`text-red-500 text-sm ${classNameEr}`}>{error ? error : '\u00A0'}</span>
     </div>
   );
 });
