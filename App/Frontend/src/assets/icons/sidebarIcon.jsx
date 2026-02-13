@@ -5,6 +5,7 @@ const SidebarIcon = ({ width = 48, height = 48, color = '#000000', path1, path2 
         width={width}
         height={height}
         viewBox="0 0 30 30"
+        preserveAspectRatio="xMidYMid meet"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
