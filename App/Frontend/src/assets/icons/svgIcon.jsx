@@ -1,4 +1,4 @@
-const SidebarIcon = ({ width = 48, height = 48, color = '#000000', path1, path2 }) => {
+const SvgIcon = ({ width = 48, height = 48, color = '#000000', path1, path2 }) => {
   
   return (
       <svg
@@ -23,4 +23,4 @@ const SidebarIcon = ({ width = 48, height = 48, color = '#000000', path1, path2 
   );
 };
 
-export default SidebarIcon;
+export default SvgIcon;
