@@ -14,12 +14,13 @@ const Button = forwardRef(({
   
   // Mappa delle varianti
   const variants = {
-    primary: 'bg-[#EFA134] text-white hover:translate-y-[-2px] rounded-[30px]',
-    secondary: 'bg-[#76A1CF] text-white hover:translate-y-[-2px] rounded-[30px]',
-    tertiary: 'bg-[#F07F13] text-white hover:translate-y-[-2px] rounded-[30px]',
-    quaternary: 'bg-[#9BC4E8] text-white hover:translate-y-[-2px] rounded-[30px]',
-    modify: 'bg-[#2B7BB4] text-white hover:translate-y-[-2px] rounded-[30px]',
-    danger: 'bg-[#D64541] text-white hover:translate-y-[-2px] rounded-[30px]',
+    primary: 'bg-[#EFA134] text-white rounded-[30px] hover:bg-opacity-90',
+    secondary: 'bg-[#76A1CF] text-white rounded-[30px] hover:bg-opacity-90',
+    tertiary: 'bg-[#F07F13] text-white rounded-[30px] hover:bg-opacity-90',
+    quaternary: 'bg-[#9BC4E8] text-white rounded-[30px] hover:bg-opacity-90',
+    modify: 'bg-[#2B7BB4] text-white rounded-[30px] hover:bg-opacity-90',
+    danger: 'bg-[#D64541] text-white rounded-[30px] hover:bg-opacity-90',
+    border: 'border border-[#777777] text-[#777777] hover:bg-[#777777] hover:bg-opacity-10 rounded-[30px]'
   };
 
   // Mappa delle dimensioni
@@ -34,7 +35,7 @@ const Button = forwardRef(({
       ref={ref}
       type={type}
       className={`
-        border-none cursor-pointer font-semibold 
+        cursor-pointer font-semibold 
         inline-flex items-center justify-center gap-2 
         transition-all duration-300 ease-in-out font-sans
         ${variants[variant]} 

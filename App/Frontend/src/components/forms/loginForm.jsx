@@ -77,6 +77,7 @@ const LoginForm = ({ onSubmit, loading, error }) => {
         required
         disabled={loading}
         classNameLa = "text-[#777777] font-bold ml-[30px]"
+        classNameEr = "ml-[30px]"
       />
 
       {/* Campo Password */}
@@ -107,7 +108,7 @@ const LoginForm = ({ onSubmit, loading, error }) => {
       <Button
         type="submit"
         variant="primary"
-        size="small"
+        size="medium"
         className="w-[40%] self-center mt-[60px]"
         loading={loading}
       >

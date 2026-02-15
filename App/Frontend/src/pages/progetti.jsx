@@ -12,10 +12,8 @@ const Progetti = () => {
         setLoading(true);
         const response = await progettiService.getAll();
         
-        // 📦 Debug
         console.log('📦 Risposta API:', response);
 
-        // ✅ FORZA progetti a essere SEMPRE un array
         let progettiData = [];
 
         if (Array.isArray(response)) {
@@ -30,10 +28,6 @@ const Progetti = () => {
           console.warn('Formato dati non riconosciuto:', response);
           progettiData = [];
         }
-
-        progettiData = progettiData.map((progetto, index) => {
-          return progetto;
-        });
 
         setProgetti(progettiData);
         setError('');
@@ -53,12 +47,11 @@ const Progetti = () => {
   // LOADING
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">📋 Elenco Progetti</h1>
-          <div className="text-center py-12">
-            <div className="text-gray-600">Caricamento progetti in corso...</div>
-          </div>
+      <div className="w-full h-full bg-gray-50 p-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">📋 Elenco Progetti</h1>
+        <div className="text-center py-12">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <p className="text-gray-600 mt-4">Caricamento progetti in corso...</p>
         </div>
       </div>
     );
@@ -67,11 +60,12 @@ const Progetti = () => {
   // ERROR
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">📋 Elenco Progetti</h1>
-          <div className="bg-red-50 border-l-4 border-red-500 p-4">
-            <div className="text-red-700">{error}</div>
+      <div className="w-full h-full bg-gray-50 p-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">📋 Elenco Progetti</h1>
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+          <div className="flex items-center">
+            <span className="text-2xl mr-3">⚠️</span>
+            <div className="text-red-700 font-medium">{error}</div>
           </div>
         </div>
       </div>
@@ -80,54 +74,51 @@ const Progetti = () => {
 
   // MAIN RENDER
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="w-full h-full bg-gray-50 p-8 overflow-auto">
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">📋 Elenco Progetti</h1>
 
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">📋 Elenco Progetti</h1>
+      {!Array.isArray(progetti) || progetti.length === 0 ? (
+        <div className="text-center py-12 bg-white rounded-lg shadow">
+          <p className="text-gray-500 text-lg">📭 Nessun progetto trovato</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {progetti.map((progetto) => {
+            const keyId = progetto?.codice || `fallback-${Math.random()}-${Date.now()}`;
+            
+            return (
+              <div 
+                key={keyId}
+                className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 p-6 flex flex-col"
+              >
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                  {progetto?.descrizione || 'Nessuna descrizione'}
+                </h3>
 
-        {!Array.isArray(progetti) || progetti.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg shadow">
-            <p className="text-gray-600">Nessun progetto trovato</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {progetti.map((progetto) => {
-              const keyId = progetto?.codice || `fallback-${Math.random()}-${Date.now()}`;
-              
-              return (
-                <div 
-                  key={keyId}  // ✅ CHIAVE SICURA AL 100%
-                  className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6"
-                >
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                    {progetto?.descrizione || 'Nessuna descrizione'}
-                  </h3>
-
-                  <div className="space-y-2 mb-4 text-sm text-gray-500">
-                    <div className="flex items-center gap-2">
-                      <span>📅</span>
-                      <span>Inizio: {progetto?.annoinizio || 'N/D'}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span>🏁</span>
-                      <span>Fine: {progetto?.annofine || 'N/D'}</span>
-                    </div>
+                <div className="space-y-2 mb-4 text-sm text-gray-500 flex-grow">
+                  <div className="flex items-center gap-2">
+                    <span>📅</span>
+                    <span>Inizio: {progetto?.annoinizio || 'N/D'}</span>
                   </div>
-
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                    <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                      {progetto?.stato || 'Attivo'}
-                    </span>
-                    <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
-                      Visualizza
-                    </button>
+                  <div className="flex items-center gap-2">
+                    <span>🏁</span>
+                    <span>Fine: {progetto?.annofine || 'N/D'}</span>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+
+                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                  <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                    {progetto?.stato || 'Attivo'}
+                  </span>
+                  <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                    Visualizza
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
