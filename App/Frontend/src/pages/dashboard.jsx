@@ -2,9 +2,100 @@ import Loader from '../components/common/Loader';
 import Header from '../components/common/header';
 import Card from '../components/common/card';
 import { useAuth } from '../hooks/useAuth';
+import { progettiService } from '../services/progettiService';
+import { studentiService } from '../services/studentiService';
+import { docentiService } from '../services/docentiService';
+import { auleService } from '../services/auleService';
+import { useEffect, useState } from 'react';
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
+
+  const [corsiCount, setCorsiCount] = useState(null);
+  const [studentiCount, setStudentiCount] = useState(null);
+  const [auleCount, setAuleCount] = useState(null);
+  const [sediCount, setSediCount] = useState(null);
+  const [docentiCount, setDocentiCount] = useState(null);
+  const [loadingCorsi, setLoadingCorsi] = useState(true);
+  const [loadingStudenti, setLoadingStudenti] = useState(true);
+  const [loadingDocenti, setLoadingDocenti] = useState(true);
+  const [loadingAule, setLoadingAule] = useState(true);
+  const [loadingSedi, setLoadingSedi] = useState(true);
+
+  useEffect(() => {
+    const fetchCorsiCount = async () => {
+      try {
+        setLoadingCorsi(true);
+        const response = await progettiService.getCount();
+        setCorsiCount(response.data);
+      } catch (error) {
+        console.error('Errore nel caricamento del conteggio corsi:', error);
+        setCorsiCount('N/D');
+      } finally {
+        setLoadingCorsi(false);
+      }
+    };
+
+    const fetchStudentiCount = async () => {
+      try {
+        setLoadingStudenti(true);
+        const response = await studentiService.getCount();
+        setStudentiCount(response.data);
+      } catch (error) {
+        console.error('Errore nel caricamento del conteggio studenti:', error);
+        setStudentiCount('N/D');
+      } finally {
+        setLoadingStudenti(false);
+      }
+    };
+
+    const fetchDocentiCount = async () => {
+      try {
+        setLoadingDocenti(true);
+        const response = await docentiService.getCount();
+        setDocentiCount(response.data);
+      } catch (error) {
+        console.error('Errore nel caricamento del conteggio docenti:', error);
+        setDocentiCount('N/D');
+      } finally {
+        setLoadingDocenti(false);
+      }
+    };
+
+    const fetchAuleCount = async () => {
+      try {
+        setLoadingAule(true);
+        const response = await auleService.getCountA();
+        setAuleCount(response.data);
+      } catch (error) {
+        console.error('Errore nel caricamento del conteggio delle aule:', error);
+        setAuleCount('N/D');
+      } finally {
+        setLoadingAule(false);
+      }
+    };
+
+    const fetchSediCount = async () => {
+      try {
+        setLoadingSedi(true);
+        const response = await auleService.getCountS();
+        setSediCount(response.data);
+      } catch (error) {
+        console.error('Errore nel caricamento del conteggio delle sedi:', error);
+        setSediCount('N/D');
+      } finally {
+        setLoadingSedi(false);
+      }
+    };
+
+    if (!loading) {
+      fetchCorsiCount();
+      fetchStudentiCount();
+      fetchDocentiCount();
+      fetchAuleCount();
+      fetchSediCount();
+    }
+  }, [loading]);
 
   if (loading) {
     return (
@@ -23,7 +114,7 @@ const Dashboard = () => {
         {/* Card Informative */}
         <Card
           title="Totale Studenti"
-          value="1250"
+          value={loadingStudenti ? '...' : studentiCount}
           subtitle={
             <>
               <span className='text-black'>+12%</span> vs Anno scorso
@@ -35,24 +126,24 @@ const Dashboard = () => {
 
         <Card
           title="Totale Docenti"
-          value="84"
+          value={loadingDocenti ? '...' : docentiCount}
           iconPath="M27.0047 19.2343H15.5766C16.8733 19.1229 18.0757 18.534 18.9339 17.59C19.792 16.646 20.2401 15.4194 20.1849 14.1651C20.1297 12.9108 19.5755 11.7252 18.6374 10.8547C17.6994 9.98423 16.4496 9.49572 15.1478 9.49071H11.4147C11.9728 8.76701 12.372 7.94114 12.5878 7.06359C12.8037 6.18604 12.8317 5.27526 12.6701 4.38693C12.5085 3.49859 12.1607 2.65138 11.648 1.89709C11.1353 1.1428 10.4684 0.497281 9.68817 0L27.0047 0C27.7995 0.00113554 28.5614 0.306419 29.123 0.848812C29.6846 1.3912 30 2.12637 30 2.89286V16.3479C30 17.9421 28.6579 19.2364 27.0047 19.2364V19.2343ZM5.88623 9.495C6.43338 9.50728 6.97755 9.41395 7.48676 9.22052C7.99597 9.02708 8.45994 8.73743 8.85142 8.36859C9.24289 7.99976 9.55395 7.55918 9.76633 7.07275C9.97871 6.58632 10.0881 6.06386 10.0881 5.53607C10.0881 5.00828 9.97871 4.48582 9.76633 3.99939C9.55395 3.51297 9.24289 3.07239 8.85142 2.70355C8.45994 2.33471 7.99597 2.04506 7.48676 1.85163C6.97755 1.65819 6.43338 1.56487 5.88623 1.57714C4.81399 1.6012 3.79406 2.02886 3.04453 2.76869C2.29501 3.50851 1.87538 4.50177 1.87538 5.53607C1.87538 6.57038 2.29501 7.56363 3.04453 8.30346C3.79406 9.04328 4.81399 9.47094 5.88623 9.495ZM17.4298 14.3721C17.4298 13.155 16.4077 12.1693 15.1478 12.1693H5.88845C5.11509 12.169 4.34925 12.3157 3.63469 12.601C2.92014 12.8862 2.27089 13.3045 1.72404 13.8319C1.17719 14.3592 0.743456 14.9853 0.447637 15.6744C0.151818 16.3635 -0.000291581 17.1021 4.19611e-07 17.8479V20.43C4.19611e-07 21.57 0.959929 22.4936 2.14206 22.4936H2.52426L3.15088 28.0864C3.20948 28.6116 3.46712 29.0973 3.87434 29.4505C4.28157 29.8036 4.8097 29.9993 5.35738 30H6.47285C7.00889 29.9998 7.52678 29.8127 7.93105 29.4732C8.33532 29.1338 8.59872 28.6648 8.67269 28.1529L10.3459 16.5729H15.1455C16.4055 16.5729 17.4276 15.5871 17.4276 14.3721H17.4298Z"
           bgColor="[#EFA134]"
         />
 
         <Card
           title="Corsi Attivi"
-          value="12"
+          value={loadingCorsi ? '...' : corsiCount}
           iconPath="M24.9482 5C24.8035 4.97118 24.6733 4.89448 24.5799 4.78286C24.4864 4.67125 24.4354 4.53158 24.4354 4.3875V2.5C24.4354 1.83696 24.1653 1.20107 23.6844 0.732233C23.2036 0.263392 22.5514 0 21.8714 0L5.84607 0C4.82603 0 3.84777 0.395088 3.12649 1.09835C2.40521 1.80161 2 2.75544 2 3.75V26.25C2 27.2446 2.40521 28.1984 3.12649 28.9017C3.84777 29.6049 4.82603 30 5.84607 30H24.4354C25.1155 30 25.7676 29.7366 26.2485 29.2678C26.7293 28.7989 26.9995 28.163 26.9995 27.5V7.5C27.0116 6.91513 26.8129 6.34465 26.4381 5.88786C26.0633 5.43106 25.5361 5.11688 24.9482 5ZM21.2304 16.5625C21.2265 16.623 21.2053 16.6812 21.1693 16.7306C21.1332 16.78 21.0837 16.8185 21.0264 16.8419C20.9691 16.8653 20.9062 16.8726 20.8448 16.863C20.7834 16.8534 20.726 16.8272 20.6791 16.7875L18.2561 14.4125C18.1926 14.3572 18.1105 14.3266 18.0253 14.3266C17.9402 14.3266 17.858 14.3572 17.7945 14.4125L15.3715 16.7875C15.3179 16.8209 15.2556 16.8386 15.192 16.8386C15.1284 16.8386 15.0661 16.8209 15.0125 16.7875C14.9552 16.7631 14.9065 16.7229 14.8723 16.6718C14.8381 16.6207 14.82 16.561 14.8202 16.5V7.1875C14.8202 7.10462 14.854 7.02513 14.9141 6.96653C14.9742 6.90792 15.0557 6.875 15.1408 6.875H20.9099C20.9949 6.875 21.0764 6.90792 21.1365 6.96653C21.1966 7.02513 21.2304 7.10462 21.2304 7.1875V16.5625ZM21.8714 4.6375C21.8789 4.68252 21.8762 4.7286 21.8634 4.77249C21.8507 4.81638 21.8283 4.85702 21.7978 4.89157C21.7672 4.92611 21.7293 4.95372 21.6866 4.97245C21.644 4.99119 21.5976 5.00059 21.5509 5H5.84607C5.50606 5 5.17997 4.8683 4.93955 4.63388C4.69912 4.39946 4.56405 4.08152 4.56405 3.75C4.56405 3.41848 4.69912 3.10054 4.93955 2.86612C5.17997 2.6317 5.50606 2.5 5.84607 2.5H21.5509C21.6359 2.5 21.7174 2.53292 21.7775 2.59153C21.8376 2.65013 21.8714 2.72962 21.8714 2.8125V4.6375Z"
           bgColor="[#9BC4E8]"
         />
 
         <Card
           title="Aule Disponibili"
-          value="134"
+          value={ loadingAule ? '...' : auleCount }
           subtitle={
             <>
-              In <span className='text-black'>4</span> Sedi
+              In <span className='text-black'>{ loadingSedi ? '...' : sediCount }</span> Sedi
             </>
           }
           iconPath="M19.8313 0.0677923C18.1761 -0.0225975 16.6826 -0.0225975 15.0273 0.0677923C14.2622 0.109573 13.6302 0.699133 13.5126 1.48065C13.3977 2.24518 13.3605 2.97002 13.401 3.70884C13.3985 3.74531 13.3973 3.7821 13.3973 3.81919V8.74084C10.639 9.35139 8.23869 11.5935 8.07141 15.4899C8.06171 15.6482 8.05239 15.8053 8.04343 15.9613V29.9329C9.60351 29.9672 11.2216 29.9897 12.8573 30L12.8571 29.9704V25.5407C12.8571 24.3572 13.8165 23.3979 15 23.3979C16.1834 23.3979 17.1428 24.3572 17.1428 25.5407V29.9704L17.1426 30C18.7783 29.9897 20.3964 29.9672 21.9564 29.9329V15.845L21.936 15.5028C21.7706 11.6447 19.3703 9.38771 16.6116 8.75443V6.25802C17.6773 6.27902 18.7177 6.25914 19.8313 6.19832C20.5964 6.15654 21.2284 5.56697 21.3459 4.78545C21.516 3.65494 21.516 2.61118 21.3459 1.48065C21.2284 0.699135 20.5964 0.109573 19.8313 0.0677923ZM24.6349 16.4934V29.8603C25.3299 29.8376 26.0068 29.8121 26.6612 29.7842C28.2549 29.7159 29.5211 28.4177 29.7186 26.7684C29.9014 25.2426 30 24.2139 30 23.1699C30 22.1256 29.9014 21.0969 29.7186 19.5713C29.5211 17.922 28.2549 16.6237 26.6612 16.5555C26.1396 16.5331 25.4124 16.5124 24.6349 16.4934ZM5.36486 29.8603V16.4935C4.58698 16.5125 3.85967 16.5332 3.33872 16.5555C1.74523 16.6237 0.478903 17.922 0.281372 19.5713C0.098658 21.0969 0 22.1256 0 23.1699C0 24.2139 0.0986584 25.2426 0.281372 26.7684C0.478903 28.4177 1.74523 29.7159 3.33872 29.7842C3.99324 29.8121 4.67001 29.8376 5.36486 29.8603ZM15 18.6141C16.5114 18.6141 17.3616 17.7365 17.3616 16.1764C17.3616 14.6163 16.5114 13.7387 15 13.7387C13.4886 13.7387 12.6384 14.6163 12.6384 16.1764C12.6384 17.7365 13.4886 18.6141 15 18.6141Z"

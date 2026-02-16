@@ -1,7 +1,7 @@
 import Sidebar from "./sidebar";
 const Layout = ({ children }) => {
     return (
-        <div className="h-[100vh] w-screen bg-[#2A7BB3] flex py-[1rem] pr-[1rem]">
+        <div className="h-[100vh] w-[100vw] overflow-hidden bg-[#2A7BB3] flex py-[1rem] pr-[1rem]">
             <aside className="w-[5vw]">
                 <Sidebar />
             </aside>

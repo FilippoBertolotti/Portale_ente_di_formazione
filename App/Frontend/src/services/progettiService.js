@@ -6,6 +6,11 @@ export const progettiService = {
     return response.data;
   },
 
+  getCount: async () => {
+    const response = await api.get('/progetti/conta');
+    return response.data;
+  },
+
   getById: async (codice) => {
     const response = await api.get(`/progetti/${codice}`);
     return response.data;

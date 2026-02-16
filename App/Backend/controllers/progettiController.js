@@ -34,6 +34,30 @@ export const getAllProgetti = async (req, res) => {
   }
 };
 
+// GET numero progetti attivi
+export const getCountProgetti = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT COUNT(*) as total_progetti
+      FROM PROGETTO
+      WHERE annoInizio >= EXTRACT(YEAR FROM CURRENT_DATE) 
+        OR annoFine = EXTRACT(YEAR FROM CURRENT_DATE)
+        OR EXTRACT(YEAR FROM CURRENT_DATE) BETWEEN annoInizio AND annoFine;
+    `);
+
+    res.json({
+      status: 'success',
+      data: parseInt(result.rows[0].total_progetti)
+    });
+  } catch (error) {
+    console.error('Errore get progetti:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nel recupero del numero dei progetti'
+    });
+  }
+};
+
 // GET progetto per codice
 export const getProgettoById = async (req, res) => {
   const { codice } = req.params;

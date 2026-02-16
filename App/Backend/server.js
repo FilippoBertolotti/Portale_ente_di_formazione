@@ -4,6 +4,9 @@ import dotenv from 'dotenv';
 import pool from './config/database.js';
 import authRoutes from "./routes/auth.js";
 import progettiRoutes from "./routes/progetti.js";
+import studentiRoutes from "./routes/studenti.js";
+import docentiRoutes from "./routes/docenti.js";
+import auleRoutes from "./routes/aule.js";
 
 dotenv.config();
 
@@ -44,24 +47,6 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-// Route base
-app.get('/', (req, res) => {
-  res.json({
-    message: 'API Sistema Gestione Ente Formazione',
-    version: '1.0.0',
-    endpoints: {
-      health: '/api/health',
-      auth: '/api/auth',
-      corsi: '/api/corsi',
-      studenti: '/api/studenti',
-      docenti: '/api/docenti',
-      aule: '/api/aule',
-      sedi: '/api/sedi',
-      lezioni: '/api/lezioni'
-    }
-  });
-});
-
 // Importa le routes (da creare)
 // import authRoutes from './routes/auth.js';
 // import corsiRoutes from './routes/corsi.js';
@@ -69,6 +54,9 @@ app.get('/', (req, res) => {
 // app.use('/api/corsi', corsiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/progetti', progettiRoutes);
+app.use('/api/studenti', studentiRoutes);
+app.use('/api/docenti', docentiRoutes);
+app.use('/api/aule', auleRoutes);
 
 // Gestione errori 404
 app.use((req, res) => {
