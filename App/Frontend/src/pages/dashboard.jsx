@@ -13,6 +13,7 @@ const Dashboard = () => {
 
   const [corsiCount, setCorsiCount] = useState(null);
   const [studentiCount, setStudentiCount] = useState(null);
+  const [studentiIncrement, setStudentiIncrment] = useState(null);
   const [auleCount, setAuleCount] = useState(null);
   const [sediCount, setSediCount] = useState(null);
   const [docentiCount, setDocentiCount] = useState(null);
@@ -44,6 +45,19 @@ const Dashboard = () => {
       } catch (error) {
         console.error('Errore nel caricamento del conteggio studenti:', error);
         setStudentiCount('N/D');
+      } finally {
+        setLoadingStudenti(false);
+      }
+    };
+
+    const fetchStudentiIncrement = async () => {
+      try {
+        setLoadingStudenti(true);
+        const response = await studentiService.getIncrement();
+        setStudentiIncrment(response.data);
+      } catch (error) {
+        console.error('Errore nel caricamento del conteggio studenti:', error);
+        setStudentiIncrment('N/D');
       } finally {
         setLoadingStudenti(false);
       }
@@ -91,6 +105,7 @@ const Dashboard = () => {
     if (!loading) {
       fetchCorsiCount();
       fetchStudentiCount();
+      fetchStudentiIncrement();
       fetchDocentiCount();
       fetchAuleCount();
       fetchSediCount();
@@ -117,7 +132,7 @@ const Dashboard = () => {
           value={loadingStudenti ? '...' : studentiCount}
           subtitle={
             <>
-              <span className='text-black'>+12%</span> vs Anno scorso
+              <span className='text-black'>{loadingStudenti ? '...' : studentiIncrement + "%" }</span> vs Anno scorso
             </>
           }
           iconPath="M26.25 25C26.9404 25 27.5 25.5596 27.5 26.25C27.5 26.9404 26.9404 27.5 26.25 27.5H3.75C3.05965 27.5 2.5 26.9404 2.5 26.25C2.5 25.5596 3.05965 25 3.75 25H26.25ZM5.9375 2.5C7.83598 2.5 9.375 4.03903 9.375 5.9375V9.375C9.375 11.7913 11.3337 13.75 13.75 13.75H16.25C19.9685 13.75 23.0201 15.171 24.5679 16.0571C25.6955 16.7028 26.25 17.8956 26.25 19.0625V22.5H8.75V21.8225C8.58559 21.6756 8.38299 21.4906 8.1543 21.2695C7.53564 20.6715 6.71059 19.8053 5.88379 18.7305C4.2522 16.6093 2.5 13.5276 2.5 10V5.9375C2.5 4.03903 4.03903 2.5 5.9375 2.5ZM16.25 2.5C19.0114 2.5 21.25 4.73857 21.25 7.5C21.25 10.2614 19.0114 12.5 16.25 12.5C13.4886 12.5 11.25 10.2614 11.25 7.5C11.25 4.73857 13.4886 2.5 16.25 2.5Z"

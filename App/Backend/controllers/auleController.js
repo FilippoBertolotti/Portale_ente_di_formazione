@@ -51,7 +51,8 @@ export const getCountAule = async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT COUNT(*) as total_aule
-      FROM AULA;
+      FROM AULA
+      WHERE attiva = true;
     `);
 
     res.json({

@@ -11,6 +11,11 @@ export const studentiService = {
     return response.data;
   },
 
+  getIncrement: async () => {
+    const response = await api.get('/studenti/incremento');
+    return response.data;
+  },
+
 //   getById: async (cf) => {
 //     const response = await api.get(`/studenti/${cf}`);
 //     return response.data;
