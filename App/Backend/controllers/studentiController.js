@@ -75,3 +75,25 @@ export const getIncrementStudenti = async (req, res) => {
     });
   }
 };
+
+export const getTrendStudenti = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT EXTRACT(YEAR FROM datainserimento) AS anno, EXTRACT(MONTH FROM datainserimento) AS mese, COUNT(*) AS totale
+      FROM STUDENTE
+      GROUP BY EXTRACT(YEAR FROM datainserimento), EXTRACT(MONTH FROM datainserimento)
+      ORDER BY anno, mese;
+    `);
+
+    res.json({
+      status: 'success',
+      data: result.rows
+    });
+  } catch (error) {
+    console.error('Errore get studenti:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nel recupero del andamento degli studenti'
+    });
+  }
+};

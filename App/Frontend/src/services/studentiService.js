@@ -16,6 +16,11 @@ export const studentiService = {
     return response.data;
   },
 
+  getTrend: async () => {
+    const response = await api.get('/studenti/andamento');
+    return response.data;
+  },
+
 //   getById: async (cf) => {
 //     const response = await api.get(`/studenti/${cf}`);
 //     return response.data;
