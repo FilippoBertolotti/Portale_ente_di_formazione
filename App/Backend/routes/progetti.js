@@ -5,7 +5,8 @@ import {
   createProgetto,
   updateProgetto,
   deleteProgetto,
-  getCountProgetti
+  getCountProgetti,
+  getCompletionProgetti
 } from '../controllers/progettiController.js';
 import { authenticateToken, isCoordinatore } from '../middleware/auth.js';
 
@@ -15,6 +16,7 @@ router.use(authenticateToken);
 
 router.get('/', getAllProgetti);
 router.get('/conta', getCountProgetti);
+router.get('/completamento', getCompletionProgetti);
 router.get('/:codice', getProgettoById);
 router.post('/', isCoordinatore, createProgetto);
 router.put('/:codice', isCoordinatore, updateProgetto);

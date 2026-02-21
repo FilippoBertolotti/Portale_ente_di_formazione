@@ -114,6 +114,32 @@ export const getProgettoById = async (req, res) => {
   }
 };
 
+export const getCompletionProgetti = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        p.descrizione, 
+        SUM(m.oreaula + m.oreproject + m.orestage) AS ore_totali,
+        COALESCE(SUM(EXTRACT(EPOCH FROM (l.orafine - l.orainizio)) / 3600), 0) AS ore_svolte
+      FROM progetto p
+      LEFT JOIN modulo m ON m.codiceprogetto = p.codice
+      LEFT JOIN lezione l ON l.idmodulo = m.id
+      WHERE p.annofine >= EXTRACT(YEAR FROM CURRENT_DATE) AND p.annoinizio <= EXTRACT(YEAR FROM CURRENT_DATE)
+      GROUP BY p.codice, p.descrizione;`);
+    res.json({
+      status: 'success',
+      data: result.rows
+    });
+  } catch (error) {
+    console.error('Errore get progetti:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nel recupero del completamento dei progetti'
+    });
+  }
+};
+
+
 // POST crea nuovo progetto
 export const createProgetto = async (req, res) => {
   const { codice, rer, descrizione, annoInizio, annoFine, cfCoordinatore } = req.body;
@@ -133,7 +159,7 @@ export const createProgetto = async (req, res) => {
     });
   } catch (error) {
     console.error('Errore creazione progetto:', error);
-    
+
     if (error.code === '23505') {
       return res.status(400).json({
         status: 'error',

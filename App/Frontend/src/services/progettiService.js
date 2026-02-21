@@ -11,6 +11,11 @@ export const progettiService = {
     return response.data;
   },
 
+  getCompletion: async () => {
+    const response = await api.get('/progetti/completamento');
+    return response.data;
+  },
+
   getById: async (codice) => {
     const response = await api.get(`/progetti/${codice}`);
     return response.data;

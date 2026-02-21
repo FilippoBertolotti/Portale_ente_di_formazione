@@ -9,7 +9,7 @@ const Sidebar = () => {
         <div className="py-[2vh] flex flex-col justify-center h-[100%] items-center">
             {/* Logo */}
             <div className="w-[100%] h-[10%] flex justify-center items-center">
-                <Image className="w-[70%] mx-auto mt-[2vh]" src={Logo} />
+                <Image className="w-[70%] mx-auto" src={Logo} />
             </div>
             {/* Navigazione */}
             <div className="w-full h-[80%] flex flex-col justify-center items-end">

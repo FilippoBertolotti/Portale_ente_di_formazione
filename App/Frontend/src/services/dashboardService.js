@@ -8,7 +8,8 @@ export const dashboardService = {
   // Esegue TUTTE le chiamate in parallelo
   getAll: async () => {
     const [
-      corsi,
+      corsiCount,
+      corsiCompletion,
       studenti,
       studentiIncrement,
       studentiTrend,
@@ -17,6 +18,7 @@ export const dashboardService = {
       sedi
     ] = await Promise.allSettled([
       progettiService.getCount(),
+      progettiService.getCompletion(),
       studentiService.getCount(),
       studentiService.getIncrement(),
       studentiService.getTrend(),
@@ -27,7 +29,8 @@ export const dashboardService = {
 
     // Promise.allSettled non lancia errori, ogni risultato ha status: 'fulfilled' o 'rejected'
     return {
-      corsiCount:        corsi.status === 'fulfilled'             ? corsi.value.data              : 'N/D',
+      corsiCount:        corsiCount.status === 'fulfilled'        ? corsiCount.value.data         : 'N/D',
+      corsiCompletion:   corsiCompletion.status === 'fulfilled'   ? corsiCompletion.value.data    : [],
       studentiCount:     studenti.status === 'fulfilled'          ? studenti.value.data           : 'N/D',
       studentiIncrement: studentiIncrement.status === 'fulfilled' ? studentiIncrement.value.data + '%'  : 'N/D',
       studentiTrend:     studentiTrend.status === 'fulfilled'     ? studentiTrend.value.data      : [],

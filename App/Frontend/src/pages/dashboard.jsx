@@ -3,6 +3,7 @@ import Header from '../components/common/header';
 import Card from '../components/common/card';
 import Container from '../components/common/container';
 import TrendGraph from '../components/dashboard/trendGraph';
+import ProgressBar from '../components/dashboard/progressBar';
 import { useAuth } from '../hooks/useAuth';
 import { dashboardService } from '../services/dashboardService';
 import { useEffect, useState } from 'react';
@@ -43,11 +44,11 @@ const Dashboard = () => {
   const v = (key) => loadingStats ? '...' : stats?.[key] ?? 'N/D';
 
   return (
-    <div className="h-[100%] w-[100%]">
+    <div className="flex flex-col h-full w-full">
 
       <Header user={user} title="Dashboard" subtitle="Stato di corsi, studenti e attività" />
 
-      <div className='flex justify-between items-stretch py-[2vh]'>
+      <div className='flex justify-between items-stretch py-[2vh] shrink-0'>
         {/* Card Informative */}
         <Card
           title="Totale Studenti"
@@ -88,15 +89,41 @@ const Dashboard = () => {
         />
       </div>
 
-      <div className='grid grid-cols-9 gap-[2vh]' >
-        <div className='col-span-7'>
-          <Container title="Andamento Iscrizioni">
+      <div className='grid grid-cols-9 gap-[2vh] flex-1 min-h-0'>
+        <div className='col-span-7 flex flex-col gap-[2vh] h-full overflow-hidden'>
+          <Container title="Andamento Iscrizioni" className="h-[35vh] shrink-0">
             <TrendGraph />
           </Container>
+          <div className='grid grid-cols-9 gap-[2vh] flex-1 min-h-0 overflow-hidden'>
+            <Container title="Avanzamento Corsi" className="col-span-7 flex flex-col overflow-hidden"> 
+              <div className="space-y-[1vh] overflow-y-auto h-full pr-2 flex-1">
+                {loadingStats ? (
+                  <div className="flex items-center justify-center h-[100%] w-[100%]">
+                    <Loader />
+                  </div>
+                ) : (
+                  Array.isArray(v('corsiCompletion')) && v('corsiCompletion').map((corso, index) => (
+                    <ProgressBar
+                      key={index}
+                      title={corso.descrizione}
+                      hoursTot={parseFloat(corso.ore_totali)}
+                      hoursMade={parseFloat(corso.ore_svolte)}
+                      index={index % 4}
+                    />
+                  )))}
+              </div>
+            </Container>
+            <Container title='Composizione Iscrizioni' className="col-span-2">Ciao</Container>
+          </div>
         </div>
-        <Container title="ciao">
-          ciao
-        </Container>
+        <div className='col-span-2 h-full flex flex-col gap-[2vh]'>
+           <Container title="Azioni Rapide" className="h-[40%]">
+            ciao
+          </Container>
+          <Container title="Prossime lezioni" className="h-full">
+            ciao
+          </Container>
+        </div>
       </div>
     </div>
   );

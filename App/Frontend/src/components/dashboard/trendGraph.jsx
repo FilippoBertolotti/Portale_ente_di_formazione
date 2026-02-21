@@ -190,8 +190,10 @@ const TrendGraph = () => {
     }
 
     return (
-        <div className="bg-white rounded-[30px] p-[1vh] h-[25vh]">
-            <Line data={chartData} options={options} />
+        <div className="bg-white rounded-[30px] p-[1vh] h-full w-full">
+            <div className="relative w-full h-full">
+                <Line data={chartData} options={options} />
+            </div>
         </div>
     );
 };
