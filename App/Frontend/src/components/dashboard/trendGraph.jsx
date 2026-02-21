@@ -31,7 +31,7 @@ const TrendGraph = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // ✅ FUNZIONE per generare ultimi 12 mesi
+    // Generare ultimi 12 mesi
     const getUltimi12Mesi = () => {
         const nomiMesi = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu',
             'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
@@ -59,17 +59,16 @@ const TrendGraph = () => {
                 setLoading(true);
                 const response = await studentiService.getTrend();
 
-                // ✅ Genera ultimi 12 mesi
                 const ultimi12Mesi = getUltimi12Mesi();
 
-                // ✅ Crea mappa dei dati reali
+                // Crea mappa dei dati reali
                 const datiReali = new Map();
                 response.data.forEach(item => {
                     const chiave = `${item.anno}-${item.mese}`;
                     datiReali.set(chiave, item.totale);
                 });
 
-                // ✅ Riempi con 0 dove mancano dati
+                // Riempi con 0 dove mancano dati
                 const labels = ultimi12Mesi.map(m => m.label);
                 const valori = ultimi12Mesi.map(m => {
                     const chiave = `${m.anno}-${m.mese}`;
