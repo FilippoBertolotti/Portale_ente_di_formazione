@@ -97,3 +97,23 @@ export const getTrendStudenti = async (req, res) => {
     });
   }
 };
+
+export const getCompositionStudenti = async (req, res) => {
+  try {
+    const result = await pool.query(`SELECT p.descrizione AS progetto, COUNT(*) AS studenti_corso
+      FROM STUDENTE s
+      JOIN PROGETTO p ON s.codiceprogetto = p.codice
+      GROUP BY p.codice;
+    `); 
+    res.json({
+      status: 'success',
+      data: result.rows
+    });
+  } catch (error) {
+    console.error('Errore get studenti:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nel recupero della composizione degli studenti'
+    });
+  }
+};

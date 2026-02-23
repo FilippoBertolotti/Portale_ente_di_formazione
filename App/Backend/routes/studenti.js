@@ -3,7 +3,8 @@ import {
   getAllStudenti,
   getCountStudenti,
   getIncrementStudenti,
-  getTrendStudenti
+  getTrendStudenti,
+  getCompositionStudenti
 } from '../controllers/studentiController.js';
 import { authenticateToken } from '../middleware/auth.js';
 
@@ -15,6 +16,7 @@ router.get('/', getAllStudenti);
 router.get('/conta', getCountStudenti);
 router.get('/incremento', getIncrementStudenti);
 router.get('/andamento', getTrendStudenti);
+router.get('/composizione', getCompositionStudenti);
 // router.get('/:codice', getStudenteById);
 // router.post('/', isAdmin, createStudente);
 // router.put('/:codice', isAdmin, updateStudente);

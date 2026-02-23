@@ -8,6 +8,7 @@ import ProgressBar from '../components/dashboard/progressBar';
 import { useAuth } from '../hooks/useAuth';
 import { dashboardService } from '../services/dashboardService';
 import { useEffect, useState } from 'react';
+import CompositionGraph from '../components/dashboard/compositionGraph';
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -114,7 +115,9 @@ const Dashboard = () => {
                   )))}
               </div>
             </Container>
-            <Container title='Composizione Iscrizioni' className="col-span-3">Ciao</Container>
+            <Container title='Composizione Iscrizioni' className="col-span-3">
+              <CompositionGraph />
+            </Container>
           </div>
         </div>
         <div className='col-span-3 h-full flex flex-col gap-[2vh]'>

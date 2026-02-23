@@ -21,6 +21,11 @@ export const studentiService = {
     return response.data;
   },
 
+  getComposition: async () => {
+    const response = await api.get('/studenti/composizione');
+    return response.data;
+  }
+
 //   getById: async (cf) => {
 //     const response = await api.get(`/studenti/${cf}`);
 //     return response.data;
