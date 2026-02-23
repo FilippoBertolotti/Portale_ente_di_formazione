@@ -26,7 +26,9 @@ CREATE TABLE IF NOT EXISTS PROGETTO(
     Descrizione VARCHAR(255),
     AnnoInizio INTEGER NOT NULL,
     AnnoFine INTEGER NOT NULL,
+    Colore VARCHAR(7) DEFAULT '#EF7E13',
     CHECK (AnnoInizio < AnnoFine),
+    CHECK (Colore ~ '^#[0-9A-Fa-f]{6}$'),
     CFCoordinatore CHAR(16),
     FOREIGN KEY (CFCoordinatore) REFERENCES DOCENTE(CF)
     ON UPDATE CASCADE
