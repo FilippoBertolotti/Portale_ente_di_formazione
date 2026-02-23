@@ -30,7 +30,7 @@ const CompositionGraph = () => {
                 setLoading(true);
                 const response = await studentiService.getComposition();
                 const labels = response.data.map(item => item.progetto);
-                const data = response.data.map(item => item.studenti_corso);
+                const data = response.data.map(item => Number(item.studenti_corso));
                 setChartData({
                     labels,
                     datasets: [ {
@@ -49,8 +49,7 @@ const CompositionGraph = () => {
                     } ]
                 });
             } catch (err) {
-                console.error('Errore dettagliato:', err);
-                setError(`Errore: ${err.message}`);
+                setError('Errore nel caricamento dei dati');
             } finally {
                 setLoading(false);
             }
@@ -72,8 +71,9 @@ const CompositionGraph = () => {
                 callbacks: {
                     label: function (context) {
                         const totale = context.dataset.data.reduce((a, b) => a + b, 0);
-                        const percentuale = ((context.parsed / totale) * 100).toFixed(1);
-                        return `${context.label}: ${context.parsed} studenti (${percentuale}%)`;
+                        const valore = context.parsed;
+                        const percentuale = ((valore / totale) * 100).toFixed(1);
+                        return `${context.label}: ${valore} studenti (${percentuale}%)`;
                     }
                 }
             }
