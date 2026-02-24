@@ -100,9 +100,13 @@ export const getTrendStudenti = async (req, res) => {
 
 export const getCompositionStudenti = async (req, res) => {
   try {
-    const result = await pool.query(`SELECT p.descrizione AS progetto, COUNT(*) AS studenti_corso
+    const result = await pool.query(`
+      SELECT p.descrizione AS progetto, COUNT(*) AS studenti_corso
       FROM STUDENTE s
       JOIN PROGETTO p ON s.codiceprogetto = p.codice
+      WHERE p.annoInizio >= EXTRACT(YEAR FROM CURRENT_DATE) 
+        OR p.annoFine = EXTRACT(YEAR FROM CURRENT_DATE)
+        OR EXTRACT(YEAR FROM CURRENT_DATE) BETWEEN p.annoInizio AND p.annoFine
       GROUP BY p.codice;
     `); 
     res.json({

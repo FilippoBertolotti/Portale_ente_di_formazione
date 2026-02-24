@@ -2,6 +2,7 @@ import { progettiService } from './progettiService';
 import { studentiService } from './studentiService';
 import { docentiService } from './docentiService';
 import { auleService } from './auleService';
+import { lezioniService } from './lezioniService';
 
 export const dashboardService = {
 
@@ -14,7 +15,8 @@ export const dashboardService = {
       studentiIncrement,
       docenti,
       aule,
-      sedi
+      sedi,
+      lezioni
     ] = await Promise.allSettled([
       progettiService.getCount(),
       progettiService.getCompletion(),
@@ -22,7 +24,8 @@ export const dashboardService = {
       studentiService.getIncrement(),
       docentiService.getCount(),
       auleService.getCountA(),
-      auleService.getCountS()
+      auleService.getCountS(),
+      lezioniService.getComingLezioni()
     ]);
 
     // Promise.allSettled non lancia errori, ogni risultato ha status: 'fulfilled' o 'rejected'
@@ -34,6 +37,7 @@ export const dashboardService = {
       docentiCount:      docenti.status === 'fulfilled'           ? docenti.value.data            : 'N/D',
       auleCount:         aule.status === 'fulfilled'              ? aule.value.data               : 'N/D',
       sediCount:         sedi.status === 'fulfilled'              ? sedi.value.data               : 'N/D',
+      lezioni:      lezioni.status === 'fulfilled'           ? lezioni.value.data      : [],
     };
   }
 };

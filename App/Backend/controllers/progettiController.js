@@ -120,7 +120,8 @@ export const getCompletionProgetti = async (req, res) => {
       SELECT 
         p.descrizione, 
         SUM(m.oreaula + m.oreproject + m.orestage) AS ore_totali,
-        COALESCE(SUM(EXTRACT(EPOCH FROM (l.orafine - l.orainizio)) / 3600), 0) AS ore_svolte
+        COALESCE(SUM(EXTRACT(EPOCH FROM (l.orafine - l.orainizio)) / 3600), 0) AS ore_svolte,
+        p.colore
       FROM progetto p
       LEFT JOIN modulo m ON m.codiceprogetto = p.codice
       LEFT JOIN lezione l ON l.idmodulo = m.id

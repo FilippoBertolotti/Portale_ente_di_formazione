@@ -7,6 +7,7 @@ import progettiRoutes from "./routes/progetti.js";
 import studentiRoutes from "./routes/studenti.js";
 import docentiRoutes from "./routes/docenti.js";
 import auleRoutes from "./routes/aule.js";
+import lezioniRoutes from "./routes/lezioni.js";
 
 dotenv.config();
 
@@ -57,6 +58,7 @@ app.use('/api/progetti', progettiRoutes);
 app.use('/api/studenti', studentiRoutes);
 app.use('/api/docenti', docentiRoutes);
 app.use('/api/aule', auleRoutes);
+app.use('/api/lezioni', lezioniRoutes);
 
 // Gestione errori 404
 app.use((req, res) => {
