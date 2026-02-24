@@ -73,7 +73,7 @@ const CompositionGraph = () => {
                         const totale = context.dataset.data.reduce((a, b) => a + b, 0);
                         const valore = context.parsed;
                         const percentuale = ((valore / totale) * 100).toFixed(1);
-                        return `${context.label}: ${valore} studenti (${percentuale}%)`;
+                        return ` ${valore} studenti (${percentuale}%)`;
                     }
                 }
             }

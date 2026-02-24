@@ -26,8 +26,8 @@ const Button = forwardRef(({
   // Mappa delle dimensioni
   const sizes = {
     small: 'text-sm px-2 py-2',
-    medium: 'px-6 py-3 text-base',
-    large: 'px-8 py-4 text-lg'
+    medium: 'px-[1vh] py-2 text-base',
+    large: 'px-[2vh] py-4 text-lg'
   };
 
   return (
@@ -36,7 +36,7 @@ const Button = forwardRef(({
       type={type}
       className={`
         cursor-pointer font-semibold 
-        inline-flex items-center justify-center gap-2 
+        inline-flex items-center justify-start gap-[1vh] 
         transition-all duration-300 ease-in-out font-sans
         ${variants[variant]} 
         ${sizes[size]} 

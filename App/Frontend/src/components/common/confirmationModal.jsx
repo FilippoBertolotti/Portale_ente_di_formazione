@@ -27,14 +27,14 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, confirm
                         <Button
                             onClick={onClose}
                             variant="border"
-                            className="w-[40%]"
+                            className="w-[40%] justify-center"
                         >
                         Annulla
                         </Button>
                         <Button
                             onClick={onConfirm}
                             variant={buttonType || 'danger'}
-                            className="w-[40%]"
+                            className="w-[40%] justify-center"
                         >
                             {confirmText || "Conferma"}
                         </Button>

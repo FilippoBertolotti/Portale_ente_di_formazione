@@ -16,7 +16,7 @@ const LessonTag = ({ lesson }) => {
                     <span className="font-normal text-xs">Prof. Pontoriero</span>
                 </div>
             </div>
-            <div className="w-[100%] flex  justify-between items-center">
+            <div className="flex  justify-between items-center">
                 <div className='flex gap-[1vh]'>
                     <div className='flex items-centergap-[0.5vh]'>
                         <SvgIcon

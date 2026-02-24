@@ -1,4 +1,4 @@
-const SvgIcon = ({ width = 48, height = 48, color = '#EF7E13', path1, path2, strokeWidth = 0 }) => {
+const SvgIcon = ({ width = 48, height = 48, color = '#EF7E13', color2, path1, path2, strokeWidth = 0 }) => {
   return (
     <svg
       width={width}
@@ -18,8 +18,8 @@ const SvgIcon = ({ width = 48, height = 48, color = '#EF7E13', path1, path2, str
         {path2 && (
           <path
             d={path2}
-            fill={strokeWidth > 0 ? "none" : color}
-            stroke={strokeWidth > 0 ? color : "none"}
+            fill={strokeWidth > 0 ? "none" : color2 || color}
+            stroke={strokeWidth > 0 ? color2 || color : "none"}
             strokeWidth={strokeWidth}
           />
         )}

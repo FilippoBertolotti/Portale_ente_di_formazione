@@ -12,7 +12,6 @@ export const dashboardService = {
       corsiCompletion,
       studenti,
       studentiIncrement,
-      studentiTrend,
       docenti,
       aule,
       sedi
@@ -21,7 +20,6 @@ export const dashboardService = {
       progettiService.getCompletion(),
       studentiService.getCount(),
       studentiService.getIncrement(),
-      studentiService.getTrend(),
       docentiService.getCount(),
       auleService.getCountA(),
       auleService.getCountS()
@@ -33,7 +31,6 @@ export const dashboardService = {
       corsiCompletion:   corsiCompletion.status === 'fulfilled'   ? corsiCompletion.value.data    : [],
       studentiCount:     studenti.status === 'fulfilled'          ? studenti.value.data           : 'N/D',
       studentiIncrement: studentiIncrement.status === 'fulfilled' ? studentiIncrement.value.data + '%'  : 'N/D',
-      studentiTrend:     studentiTrend.status === 'fulfilled'     ? studentiTrend.value.data      : [],
       docentiCount:      docenti.status === 'fulfilled'           ? docenti.value.data            : 'N/D',
       auleCount:         aule.status === 'fulfilled'              ? aule.value.data               : 'N/D',
       sediCount:         sedi.status === 'fulfilled'              ? sedi.value.data               : 'N/D',

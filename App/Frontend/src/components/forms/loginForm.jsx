@@ -109,9 +109,9 @@ const LoginForm = ({ onSubmit, loading, error }) => {
         type="submit"
         variant="primary"
         size="medium"
-        className="w-[40%] self-center mt-[60px]"
+        className="w-[40%] self-center mt-[60px] justify-center"
         loading={loading}
-      >
+        >
         {loading ? 'Accesso in corso...' : 'Accedi'}
       </Button>
     </form>
