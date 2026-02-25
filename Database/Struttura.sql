@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS MODULO (
     OreAula INTEGER NOT NULL,
     OreProject INTEGER DEFAULT 0,
     OreStage INTEGER DEFAULT 0,
+    OreELearn INTEGER DEFAULT 0,
     Descrizione VARCHAR(255),
     CodiceProgetto CHAR(10),
     FOREIGN KEY (CodiceProgetto) REFERENCES PROGETTO (Codice)

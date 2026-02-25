@@ -52,7 +52,7 @@ const Dashboard = () => {
 
       <Header user={user} title="Dashboard" subtitle="Stato di corsi, studenti e attività" />
 
-      <div className='flex justify-between items-stretch py-[2vh] shrink-0'>
+      <div className='flex justify-between items-stretch pb-[2vh] gap-[4vh] shrink-0'>
         {/* Card Informative */}
         <Card
           title="Totale Studenti"
