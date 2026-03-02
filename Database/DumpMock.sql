@@ -96,7 +96,30 @@ INSERT INTO MODULO (Anno, OreAula, OreProject, OreStage, Descrizione, CodiceProg
 (2023, 75, 18, 0, 'User Experience Design', 'PROJ007', 'CSTVNC87A45L219U'),
 (2024, 105, 32, 0, 'SQL e Database Design', 'PROJ008', 'GLLMRC89B12F839S');
 
--- 9. LEZIONE (10 tuple)
+-- 9. CATTEDRA (10 tuple)
+INSERT INTO CATTEDRA (Ruolo, CFDocente, IDModulo) VALUES
+-- Docenti principali per i vari moduli
+('Titolare', 'RSSMRA85M01H501Z', 1),
+('Titolare', 'BNCGVN90D15F205X', 2),
+('Titolare', 'VRDLRA88H50D612Y', 3),
+('Titolare', 'CSTVNC87A45L219U', 4),
+('Titolare', 'GLLMRC89B12F839S', 5),
+
+-- Docenti con altri ruoli
+('Esercitatore', 'RSSMRA85M01H501Z', 6),
+('Tutor', 'BNCGVN90D15F205X', 7),
+('Laboratorista', 'VRDLRA88H50D612Y', 8),
+('Co-docente', 'CSTVNC87A45L219U', 9),
+('Supporto', 'GLLMRC89B12F839S', 10),
+
+-- Ulteriori assegnazioni per completare le relazioni
+('Titolare', 'RSSMRA85M01H501Z', 7),
+('Esercitatore', 'BNCGVN90D15F205X', 8),
+('Titolare', 'VRDLRA88H50D612Y', 4),
+('Tutor', 'CSTVNC87A45L219U', 2),
+('Laboratorista', 'GLLMRC89B12F839S', 1);
+
+-- 10. LEZIONE (10 tuple)
 INSERT INTO LEZIONE (Data, OraInizio, OraFine, IDAula, IDModulo) VALUES
 ('2024-01-15', '09:00', '13:00', 1, 1),
 ('2024-01-16', '14:00', '18:00', 2, 1),
@@ -109,7 +132,7 @@ INSERT INTO LEZIONE (Data, OraInizio, OraFine, IDAula, IDModulo) VALUES
 ('2024-01-25', '13:00', '17:00', 10, 7),
 ('2024-01-26', '09:00', '13:00', 1, 8);
 
--- 10. PRESENZA (10 tuple)
+-- 11. PRESENZA (10 tuple)
 INSERT INTO PRESENZA (CFStudente, IDLezione) VALUES
 ('FRNPLA92L20H501W', 1),
 ('FRNPLA92L20H501W', 2),
@@ -122,7 +145,7 @@ INSERT INTO PRESENZA (CFStudente, IDLezione) VALUES
 ('NTNCRL96D30G273Q', 9),
 ('NTNCRL96D30G273Q', 10);
 
--- 11. QUALIFICA (10 tuple)
+-- 12. QUALIFICA (10 tuple)
 INSERT INTO QUALIFICA (Materia) VALUES
 ('Programmazione Web'),
 ('Data Science'),
@@ -135,7 +158,7 @@ INSERT INTO QUALIFICA (Materia) VALUES
 ('Artificial Intelligence'),
 ('Blockchain');
 
--- 12. POSSEDUTO (10 tuple - relazione docenti-qualifiche)
+-- 13. POSSEDUTO (10 tuple - relazione docenti-qualifiche)
 INSERT INTO POSSEDUTO (CFDocente, IDQualifica) VALUES
 ('RSSMRA85M01H501Z', 1),
 ('RSSMRA85M01H501Z', 4),
