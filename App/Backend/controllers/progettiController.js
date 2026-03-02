@@ -18,7 +18,8 @@ export const getAllProgetti = async (req, res) => {
         SUM(m.oreproject) as ore_project,
         SUM(m.orestage) as ore_stage,
         SUM(m.oreelearn) as ore_elarn,
-        COUNT(DISTINCT l.ID) as numero_lezioni
+        COUNT(DISTINCT l.ID) as numero_lezioni,
+        STRING_AGG(DISTINCT 'Prof. ' || u2.Cognome, ', ' ORDER BY 'Prof. ' || u2.Cognome) as lista_docenti
       FROM PROGETTO p
       LEFT JOIN DOCENTE d ON p.CFCoordinatore = d.CF
       LEFT JOIN UTENTE u ON d.CF = u.CF
@@ -26,6 +27,7 @@ export const getAllProgetti = async (req, res) => {
       LEFT JOIN MODULO m ON m.CodiceProgetto = p.Codice
       JOIN CATTEDRA c ON c.IDModulo = m.ID
       JOIN DOCENTE d2 ON C.CFDocente = d2.CF
+      JOIN UTENTE u2 ON d2.CF = u2.CF
       LEFT JOIN LEZIONE l ON l.IDModulo = m.ID
       WHERE p.annofine >= EXTRACT(YEAR FROM CURRENT_DATE) AND p.annoinizio <= EXTRACT(YEAR FROM CURRENT_DATE)
       GROUP BY p.Codice, d.Telefono, u.Nome, u.Cognome, m.descrizione
