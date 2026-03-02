@@ -7,6 +7,7 @@ import Container from '../components/common/container';
 import Button from '../components/common/button';
 import SvgIcon from '../assets/icons/svgIcon';
 import Card from '../components/common/card';
+import Table from '../components/common/table';
 
 const Progetti = () => {
   const { user } = useAuth();
@@ -52,7 +53,7 @@ const Progetti = () => {
     fetchProgetti();
   }, []);
 
-  // MAIN RENDER
+
   return (
     <div className="flex flex-col h-full w-full">
       <Header user={user} title="Corsi" subtitle="Consulta i corsi e i relativi dettagli" />
@@ -72,8 +73,8 @@ const Progetti = () => {
         ) : (
           <div className='grid grid-cols-12 gap-[2vh] flex-1 min-h-0'>
             <div className='col-span-9 flex flex-col gap-[2vh] h-full overflow-hidden'>
-              <Container title="Andamento Iscrizioni" className="h-full">
-                ciao
+              <Container className="h-full">
+                <Table headers={['Nome Modulo', 'Ore Aula', 'ProjectWork', 'E-Learning', 'Stage', 'Docenti']} labels={['modulo', 'ore_aula', 'ore_project', 'ore_elarn', 'ore_stage', 'docente']} data={progetti} />
               </Container>
             </div>
             <div className='col-span-3 h-full flex flex-col gap-[2vh] overflow-hidden'>

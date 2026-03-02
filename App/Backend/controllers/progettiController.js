@@ -9,6 +9,7 @@ export const getAllProgetti = async (req, res) => {
         d.Telefono as coordinatore_telefono,
         u.Nome as coordinatore_nome,
         u.Cognome as coordinatore_cognome,
+        m.descrizione as modulo,
         COUNT(DISTINCT s.CF) as numero_studenti,
         COUNT(DISTINCT d2.CF) as numero_docenti,
         COUNT(DISTINCT m.ID) as numero_moduli,
@@ -23,10 +24,11 @@ export const getAllProgetti = async (req, res) => {
       LEFT JOIN UTENTE u ON d.CF = u.CF
       LEFT JOIN STUDENTE s ON s.CodiceProgetto = p.Codice
       LEFT JOIN MODULO m ON m.CodiceProgetto = p.Codice
-      JOIN DOCENTE d2 ON m.CFDocente = d2.CF
+      JOIN CATTEDRA c ON c.IDModulo = m.ID
+      JOIN DOCENTE d2 ON C.CFDocente = d2.CF
       LEFT JOIN LEZIONE l ON l.IDModulo = m.ID
       WHERE p.annofine >= EXTRACT(YEAR FROM CURRENT_DATE) AND p.annoinizio <= EXTRACT(YEAR FROM CURRENT_DATE)
-      GROUP BY p.Codice, d.Telefono, u.Nome, u.Cognome
+      GROUP BY p.Codice, d.Telefono, u.Nome, u.Cognome, m.descrizione
       ORDER BY p.AnnoInizio DESC, p.Codice
     `);
 
