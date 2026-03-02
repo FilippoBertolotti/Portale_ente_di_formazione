@@ -21,6 +21,7 @@ const Table = forwardRef(({
                     <td>{dato['oreproject']}</td>
                     <td>{dato['orestage']}</td>
                     <td>{dato['oreelearn']}</td>
+                    <td>{dato['docente']}</td>
                 </tr>
             ))}
         </table>
