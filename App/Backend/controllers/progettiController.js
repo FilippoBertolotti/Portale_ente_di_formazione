@@ -4,35 +4,142 @@ import pool from '../config/database.js';
 export const getAllProgetti = async (req, res) => {
   try {
     const result = await pool.query(`
-      SELECT 
-        p.*,
+      WITH progetto_aggregato AS (
+        SELECT 
+            p.Codice,
+            p.RER,
+            p.Descrizione,
+            p.AnnoInizio,
+            p.AnnoFine,
+            p.Colore,
+            p.CFCoordinatore,
+            -- Subquery per le somme (potrebbero essere calcolate qui dentro)
+            (SELECT SUM(oreaula + oreproject + orestage) FROM MODULO WHERE CodiceProgetto = p.Codice) as ore_totali,
+            (SELECT SUM(oreaula) FROM MODULO WHERE CodiceProgetto = p.Codice) as ore_aula,
+            (SELECT SUM(oreproject) FROM MODULO WHERE CodiceProgetto = p.Codice) as ore_project,
+            (SELECT SUM(orestage) FROM MODULO WHERE CodiceProgetto = p.Codice) as ore_stage,
+            (SELECT SUM(oreelearn) FROM MODULO WHERE CodiceProgetto = p.Codice) as ore_elarn
+        FROM PROGETTO p
+        WHERE p.annofine >= EXTRACT(YEAR FROM CURRENT_DATE) 
+          AND p.annoinizio <= EXTRACT(YEAR FROM CURRENT_DATE)
+    ),
+    count_studenti AS (
+        SELECT CodiceProgetto, COUNT(DISTINCT CF) as numero_studenti
+        FROM STUDENTE
+        GROUP BY CodiceProgetto
+    ),
+    count_docenti AS (
+        SELECT m.CodiceProgetto, COUNT(DISTINCT c.CFDocente) as numero_docenti
+        FROM MODULO m
+        JOIN CATTEDRA c ON c.IDModulo = m.ID
+        GROUP BY m.CodiceProgetto
+    ),
+    count_moduli AS (
+        SELECT CodiceProgetto, COUNT(*) as numero_moduli
+        FROM MODULO
+        GROUP BY CodiceProgetto
+    ),
+    count_lezioni AS (
+        SELECT m.CodiceProgetto, COUNT(l.ID) as numero_lezioni
+        FROM MODULO m
+        JOIN LEZIONE l ON l.IDModulo = m.ID
+        GROUP BY m.CodiceProgetto
+    )
+    SELECT 
+        pa.*,
         d.Telefono as coordinatore_telefono,
         u.Nome as coordinatore_nome,
         u.Cognome as coordinatore_cognome,
-        m.descrizione as modulo,
-        COUNT(DISTINCT s.CF) as numero_studenti,
-        COUNT(DISTINCT d2.CF) as numero_docenti,
-        COUNT(DISTINCT m.ID) as numero_moduli,
-        SUM(m.oreaula + m.oreproject + m.orestage) as ore_totali,
-        SUM(m.oreaula) as ore_aula,
-        SUM(m.oreproject) as ore_project,
-        SUM(m.orestage) as ore_stage,
-        SUM(m.oreelearn) as ore_elarn,
-        COUNT(DISTINCT l.ID) as numero_lezioni,
-        STRING_AGG(DISTINCT 'Prof. ' || u2.Cognome, ', ' ORDER BY 'Prof. ' || u2.Cognome) as lista_docenti
-      FROM PROGETTO p
-      LEFT JOIN DOCENTE d ON p.CFCoordinatore = d.CF
-      LEFT JOIN UTENTE u ON d.CF = u.CF
-      LEFT JOIN STUDENTE s ON s.CodiceProgetto = p.Codice
-      LEFT JOIN MODULO m ON m.CodiceProgetto = p.Codice
-      JOIN CATTEDRA c ON c.IDModulo = m.ID
-      JOIN DOCENTE d2 ON C.CFDocente = d2.CF
-      JOIN UTENTE u2 ON d2.CF = u2.CF
-      LEFT JOIN LEZIONE l ON l.IDModulo = m.ID
-      WHERE p.annofine >= EXTRACT(YEAR FROM CURRENT_DATE) AND p.annoinizio <= EXTRACT(YEAR FROM CURRENT_DATE)
-      GROUP BY p.Codice, d.Telefono, u.Nome, u.Cognome, m.descrizione
-      ORDER BY p.AnnoInizio DESC, p.Codice
+        COALESCE(cs.numero_studenti, 0) as numero_studenti,
+        COALESCE(cd.numero_docenti, 0) as numero_docenti,
+        COALESCE(cm.numero_moduli, 0) as numero_moduli,
+        COALESCE(cl.numero_lezioni, 0) as numero_lezioni
+    FROM progetto_aggregato pa
+    LEFT JOIN DOCENTE d ON pa.CFCoordinatore = d.CF
+    LEFT JOIN UTENTE u ON d.CF = u.CF
+    LEFT JOIN count_studenti cs ON cs.CodiceProgetto = pa.Codice
+    LEFT JOIN count_docenti cd ON cd.CodiceProgetto = pa.Codice
+    LEFT JOIN count_moduli cm ON cm.CodiceProgetto = pa.Codice
+    LEFT JOIN count_lezioni cl ON cl.CodiceProgetto = pa.Codice
+    ORDER BY pa.AnnoInizio DESC, pa.Codice;
     `);
+
+    res.json({
+      status: 'success',
+      count: result.rows.length,
+      data: result.rows
+    });
+  } catch (error) {
+    console.error('Errore get progetti:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nel recupero dei progetti'
+    });
+  }
+};
+
+export const getProgettiByCodice = async (req, res, codice) => {
+  try {
+    const result = await pool.query(`
+      WITH progetto_aggregato AS (
+          SELECT 
+              p.Codice,
+              p.RER,
+              p.Descrizione,
+              p.AnnoInizio,
+              p.AnnoFine,
+              p.Colore,
+              p.CFCoordinatore,
+              -- Subquery per le somme (potrebbero essere calcolate qui dentro)
+              (SELECT SUM(oreaula + oreproject + orestage) FROM MODULO WHERE CodiceProgetto = p.Codice) as ore_totali,
+              (SELECT SUM(oreaula) FROM MODULO WHERE CodiceProgetto = p.Codice) as ore_aula,
+              (SELECT SUM(oreproject) FROM MODULO WHERE CodiceProgetto = p.Codice) as ore_project,
+              (SELECT SUM(orestage) FROM MODULO WHERE CodiceProgetto = p.Codice) as ore_stage,
+              (SELECT SUM(oreelearn) FROM MODULO WHERE CodiceProgetto = p.Codice) as ore_elarn
+          FROM PROGETTO p
+          WHERE p.annofine >= EXTRACT(YEAR FROM CURRENT_DATE) 
+            AND p.annoinizio <= EXTRACT(YEAR FROM CURRENT_DATE) AND p.Codice = $1
+      ),
+      count_studenti AS (
+          SELECT CodiceProgetto, COUNT(DISTINCT CF) as numero_studenti
+          FROM STUDENTE
+          GROUP BY CodiceProgetto
+      ),
+      count_docenti AS (
+          SELECT m.CodiceProgetto, COUNT(DISTINCT c.CFDocente) as numero_docenti
+          FROM MODULO m
+          JOIN CATTEDRA c ON c.IDModulo = m.ID
+          GROUP BY m.CodiceProgetto
+      ),
+      count_moduli AS (
+          SELECT CodiceProgetto, COUNT(*) as numero_moduli
+          FROM MODULO
+          GROUP BY CodiceProgetto
+      ),
+      count_lezioni AS (
+          SELECT m.CodiceProgetto, COUNT(l.ID) as numero_lezioni
+          FROM MODULO m
+          JOIN LEZIONE l ON l.IDModulo = m.ID
+          GROUP BY m.CodiceProgetto
+      )
+      SELECT 
+          pa.*,
+          d.Telefono as coordinatore_telefono,
+          u.Nome as coordinatore_nome,
+          u.Cognome as coordinatore_cognome,
+          COALESCE(cs.numero_studenti, 0) as numero_studenti,
+          COALESCE(cd.numero_docenti, 0) as numero_docenti,
+          COALESCE(cm.numero_moduli, 0) as numero_moduli,
+          COALESCE(cl.numero_lezioni, 0) as numero_lezioni
+      FROM progetto_aggregato pa
+      LEFT JOIN DOCENTE d ON pa.CFCoordinatore = d.CF
+      LEFT JOIN UTENTE u ON d.CF = u.CF
+      LEFT JOIN count_studenti cs ON cs.CodiceProgetto = pa.Codice
+      LEFT JOIN count_docenti cd ON cd.CodiceProgetto = pa.Codice
+      LEFT JOIN count_moduli cm ON cm.CodiceProgetto = pa.Codice
+      LEFT JOIN count_lezioni cl ON cl.CodiceProgetto = pa.Codice
+      ORDER BY pa.AnnoInizio DESC, pa.Codice;
+    `, [codice]);
 
     res.json({
       status: 'success',
@@ -68,62 +175,6 @@ export const getCountProgetti = async (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Errore nel recupero del numero dei progetti'
-    });
-  }
-};
-
-// GET progetto per codice
-export const getProgettoById = async (req, res) => {
-  const { codice } = req.params;
-
-  try {
-    const result = await pool.query(
-      `SELECT 
-        p.*,
-        u.Nome as coordinatore_nome,
-        u.Cognome as coordinatore_cognome,
-        u.Email as coordinatore_email,
-        d.Telefono as coordinatore_telefono
-      FROM PROGETTO p
-      LEFT JOIN DOCENTE d ON p.CFCoordinatore = d.CF
-      LEFT JOIN UTENTE u ON d.CF = u.CF
-      WHERE p.Codice = $1`,
-      [codice]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'Progetto non trovato'
-      });
-    }
-
-    // Prendi anche i moduli del progetto
-    const moduliResult = await pool.query(
-      `SELECT 
-        m.*,
-        u.Nome as docente_nome,
-        u.Cognome as docente_cognome
-      FROM MODULO m
-      LEFT JOIN DOCENTE d ON m.CFDocente = d.CF
-      LEFT JOIN UTENTE u ON d.CF = u.CF
-      WHERE m.CodiceProgetto = $1
-      ORDER BY m.Anno, m.ID`,
-      [codice]
-    );
-
-    res.json({
-      status: 'success',
-      data: {
-        ...result.rows[0],
-        moduli: moduliResult.rows
-      }
-    });
-  } catch (error) {
-    console.error('Errore get progetto:', error);
-    res.status(500).json({
-      status: 'error',
-      message: 'Errore nel recupero del progetto'
     });
   }
 };

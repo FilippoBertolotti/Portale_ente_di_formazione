@@ -16,7 +16,7 @@ export const progettiService = {
     return response.data;
   },
 
-  getById: async (codice) => {
+  getByCodice: async (codice) => {
     const response = await api.get(`/progetti/${codice}`);
     return response.data;
   },

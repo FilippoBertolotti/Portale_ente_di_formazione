@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import pool from './config/database.js';
 import authRoutes from "./routes/auth.js";
 import progettiRoutes from "./routes/progetti.js";
+import moduliRoutes from "./routes/moduli.js";
 import studentiRoutes from "./routes/studenti.js";
 import docentiRoutes from "./routes/docenti.js";
 import auleRoutes from "./routes/aule.js";
@@ -55,6 +56,7 @@ app.get('/api/health', async (req, res) => {
 // app.use('/api/corsi', corsiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/progetti', progettiRoutes);
+app.use('/api/moduli', moduliRoutes);
 app.use('/api/studenti', studentiRoutes);
 app.use('/api/docenti', docentiRoutes);
 app.use('/api/aule', auleRoutes);
