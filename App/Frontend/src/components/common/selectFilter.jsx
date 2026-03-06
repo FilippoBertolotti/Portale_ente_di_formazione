@@ -31,11 +31,14 @@ const SelectFilter = ({ title, placeholder, options = [], value, onChange, class
                         {selected ? selected.label : placeholder}
                     </span>
                     <SvgIcon
+                        color="#777777"
+                        width="2vh"
+                        height="2vh"
+                        strokeWidth="2.5"
+                        path1="M6 9l6 6 6-6"
                         viewBox="0 0 24 24"
-                        strokeWidth="2"
-                        color='#777777'
-                        className={`w-[1.5vh] h-[1.5vh] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-                        path="M6 9l6 6 6-6"
+                        translate={false}
+                        className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
                     />
 
                     {/* <svg

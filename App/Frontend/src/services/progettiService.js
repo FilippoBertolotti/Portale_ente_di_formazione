@@ -17,7 +17,12 @@ export const progettiService = {
   },
 
   getByCodice: async (codice) => {
-    const response = await api.get(`/progetti/${codice}`);
+    const response = await api.get(`/progetti/codice/${codice}`);
+    return response.data;
+  },
+
+  getByAnno: async (anno) => {
+    const response = await api.get(`/progetti/anno/${anno}`);
     return response.data;
   },
 

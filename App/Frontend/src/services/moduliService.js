@@ -7,12 +7,12 @@ export const moduliService = {
   },
 
   getByCodiceProgetto: async (codice) => {
-    const response = await api.get(`/moduli/${codice}`);
+    const response = await api.get(`/moduli/codice/${codice}`);
     return response.data;
   },
 
   getByAnno: async (anno) => {
-    const response = await api.get(`/moduli/${anno}`);
+    const response = await api.get(`/moduli/anno/${anno}`);
     return response.data;
   },
 

@@ -44,6 +44,7 @@ const Card = ({ title, value, subtitle, bgColor, iconPath, iconPath2, size = 'la
                     path1={iconPath}
                     path2={iconPath2}
                     color='white'
+                    translate={false}
                 />
             </div>
         </div>

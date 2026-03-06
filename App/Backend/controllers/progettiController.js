@@ -14,7 +14,7 @@ export const getAllProgetti = async (req, res) => {
             p.Colore,
             p.CFCoordinatore,
             -- Subquery per le somme (potrebbero essere calcolate qui dentro)
-            (SELECT SUM(oreaula + oreproject + orestage) FROM MODULO WHERE CodiceProgetto = p.Codice) as ore_totali,
+            (SELECT SUM(oreaula + oreproject + orestage + oreelearn) FROM MODULO WHERE CodiceProgetto = p.Codice) as ore_totali,
             (SELECT SUM(oreaula) FROM MODULO WHERE CodiceProgetto = p.Codice) as ore_aula,
             (SELECT SUM(oreproject) FROM MODULO WHERE CodiceProgetto = p.Codice) as ore_project,
             (SELECT SUM(orestage) FROM MODULO WHERE CodiceProgetto = p.Codice) as ore_stage,
@@ -78,7 +78,8 @@ export const getAllProgetti = async (req, res) => {
   }
 };
 
-export const getProgettiByCodice = async (req, res, codice) => {
+export const getProgettiByCodice = async (req, res) => {
+  const { codice} = req.params;
   try {
     const result = await pool.query(`
       WITH progetto_aggregato AS (
@@ -91,7 +92,7 @@ export const getProgettiByCodice = async (req, res, codice) => {
               p.Colore,
               p.CFCoordinatore,
               -- Subquery per le somme (potrebbero essere calcolate qui dentro)
-              (SELECT SUM(oreaula + oreproject + orestage) FROM MODULO WHERE CodiceProgetto = p.Codice) as ore_totali,
+              (SELECT SUM(oreaula + oreproject + orestage + oreelearn) FROM MODULO WHERE CodiceProgetto = p.Codice) as ore_totali,
               (SELECT SUM(oreaula) FROM MODULO WHERE CodiceProgetto = p.Codice) as ore_aula,
               (SELECT SUM(oreproject) FROM MODULO WHERE CodiceProgetto = p.Codice) as ore_project,
               (SELECT SUM(orestage) FROM MODULO WHERE CodiceProgetto = p.Codice) as ore_stage,
@@ -140,6 +141,87 @@ export const getProgettiByCodice = async (req, res, codice) => {
       LEFT JOIN count_lezioni cl ON cl.CodiceProgetto = pa.Codice
       ORDER BY pa.AnnoInizio DESC, pa.Codice;
     `, [codice]);
+
+    res.json({
+      status: 'success',
+      count: result.rows.length,
+      data: result.rows
+    });
+  } catch (error) {
+    console.error('Errore get progetti:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nel recupero dei progetti'
+    });
+  }
+};
+
+export const getProgettiByAnno = async (req, res) => {
+  const { anno } = req.params;
+  try {
+    const result = await pool.query(`
+      WITH progetto_aggregato AS (
+          SELECT 
+              p.Codice,
+              p.RER,
+              p.Descrizione,
+              p.AnnoInizio,
+              p.AnnoFine,
+              p.Colore,
+              p.CFCoordinatore,
+              -- Somme filtrate per anno
+              (SELECT SUM(oreaula + oreproject + orestage + oreelearn) FROM MODULO WHERE CodiceProgetto = p.Codice AND anno = $1) as ore_totali,
+              (SELECT SUM(oreaula)    FROM MODULO WHERE CodiceProgetto = p.Codice AND anno = $1) as ore_aula,
+              (SELECT SUM(oreproject) FROM MODULO WHERE CodiceProgetto = p.Codice AND anno = $1) as ore_project,
+              (SELECT SUM(orestage)   FROM MODULO WHERE CodiceProgetto = p.Codice AND anno = $1) as ore_stage,
+              (SELECT SUM(oreelearn)  FROM MODULO WHERE CodiceProgetto = p.Codice AND anno = $1) as ore_elarn
+          FROM PROGETTO p
+          WHERE p.annofine >= EXTRACT(YEAR FROM CURRENT_DATE) 
+            AND p.annoinizio <= EXTRACT(YEAR FROM CURRENT_DATE)
+      ),
+      count_studenti AS (
+          SELECT CodiceProgetto, COUNT(DISTINCT CF) as numero_studenti
+          FROM STUDENTE
+          GROUP BY CodiceProgetto
+      ),
+      count_docenti AS (
+          SELECT m.CodiceProgetto, COUNT(DISTINCT c.CFDocente) as numero_docenti
+          FROM MODULO m
+          JOIN CATTEDRA c ON c.IDModulo = m.ID
+          WHERE m.anno = $1
+          GROUP BY m.CodiceProgetto
+      ),
+      count_moduli AS (
+          SELECT CodiceProgetto, COUNT(*) as numero_moduli
+          FROM MODULO
+          WHERE anno = $1
+          GROUP BY CodiceProgetto
+      ),
+      count_lezioni AS (
+          SELECT m.CodiceProgetto, COUNT(l.ID) as numero_lezioni
+          FROM MODULO m
+          JOIN LEZIONE l ON l.IDModulo = m.ID
+          WHERE m.anno = $1
+          GROUP BY m.CodiceProgetto
+      )
+      SELECT 
+          pa.*,
+          d.Telefono as coordinatore_telefono,
+          u.Nome as coordinatore_nome,
+          u.Cognome as coordinatore_cognome,
+          COALESCE(cs.numero_studenti, 0) as numero_studenti,
+          COALESCE(cd.numero_docenti, 0) as numero_docenti,
+          COALESCE(cm.numero_moduli, 0) as numero_moduli,
+          COALESCE(cl.numero_lezioni, 0) as numero_lezioni
+      FROM progetto_aggregato pa
+      LEFT JOIN DOCENTE d ON pa.CFCoordinatore = d.CF
+      LEFT JOIN UTENTE u ON d.CF = u.CF
+      LEFT JOIN count_studenti cs ON cs.CodiceProgetto = pa.Codice
+      LEFT JOIN count_docenti cd ON cd.CodiceProgetto = pa.Codice
+      LEFT JOIN count_moduli cm ON cm.CodiceProgetto = pa.Codice
+      LEFT JOIN count_lezioni cl ON cl.CodiceProgetto = pa.Codice
+      ORDER BY pa.AnnoInizio DESC, pa.Codice;
+    `, [anno]);
 
     res.json({
       status: 'success',

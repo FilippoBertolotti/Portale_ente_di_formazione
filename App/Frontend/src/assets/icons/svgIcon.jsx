@@ -1,14 +1,26 @@
-const SvgIcon = ({ width = 48, height = 48, color = '#EF7E13', color2, path1, path2, strokeWidth = 0 }) => {
+const SvgIcon = ({ 
+  width = 48, 
+  height = 48, 
+  color = '#EF7E13', 
+  color2, 
+  path1, 
+  path2, 
+  strokeWidth = 0, 
+  viewBox = "0 0 32 32", 
+  translate = false, 
+  className
+}) => {
   return (
     <svg
       width={width}
       height={height}
-      viewBox="0 0 32 40"
+      viewBox={viewBox}
       preserveAspectRatio="xMidYMid meet"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      className={className || ''}
     >
-      <g transform="translate(0, 4)">
+      <g transform={translate ? "translate(0, 4)" : ""}>
         <path
           d={path1}
           fill={strokeWidth > 0 ? "none" : color}  // Se strokeWidth > 0, fill none

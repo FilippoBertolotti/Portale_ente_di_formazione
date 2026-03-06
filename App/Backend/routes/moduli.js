@@ -17,8 +17,8 @@ router.use(authenticateToken);
 router.get('/', getAllModuli);
 router.get('/anni', getAnni);
 router.post('/', isCoordinatore, createModulo);
-router.get('/:codice', getByCodiceProgetto);
-router.get('/:anno', getByAnno);
+router.get('/codice/:codice', getByCodiceProgetto);
+router.get('/anno/:anno', getByAnno);
 router.put('/:codice', isCoordinatore, updateModulo);
 router.delete('/:codice', isCoordinatore, deleteModulo);
 
