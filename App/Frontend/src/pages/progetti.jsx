@@ -95,40 +95,43 @@ const Progetti = () => {
   useEffect(() => {
     const fetchModulo = async () => {
       try {
-        const response = selectedProgetto && !selectedAnno ? await moduliService.getByCodiceProgetto(selectedProgetto) : null;
+        let response = [];
 
-        console.log('📦 Risposta API:', response);
-
-        let moduliData = [];
-
-        if (Array.isArray(response)) {
-          moduliData = response;
-        } else if (response?.data && Array.isArray(response.data)) {
-          moduliData = response.data;
-        } else if (response?.moduli && Array.isArray(response.moduli)) {
-          moduliData = response.moduli;
-        } else if (response?.results && Array.isArray(response.results)) {
-          moduliData = response.results;
-        } else {
-          console.warn('Formato dati non riconosciuto:', response);
-          moduliData = null;
+        if (selectedProgetto) {
+          response = await moduliService.getByCodiceProgetto(selectedProgetto);
+        } else if (selectedAnno) {
+          response = await moduliService.getByAnno(selectedAnno);
         }
-
-        setModuli(moduliData);
+  
+        console.log('📦 Risposta API:', response);
+  
+        const moduliData =
+          response?.data ??
+          response?.moduli ??
+          response?.results ??
+          (Array.isArray(response) ? response : []);
+  
+        const filtered =
+          selectedProgetto && selectedAnno
+            ? moduliData.filter(m => m.anno == selectedAnno)
+            : moduliData;
+  
+        setModuli(filtered);
         setError('');
-
+  
       } catch (err) {
-        setError('Errore nel caricamento dei moduli');
         console.error('❌ Errore fetch:', err);
+        setError('Errore nel caricamento dei moduli');
         setModuli([]);
       }
     };
-
+  
     if (selectedProgetto || selectedAnno) {
       fetchModulo();
     } else {
       setModuli(null);
     }
+  
   }, [selectedProgetto, selectedAnno]);
 
   const progettoSelezionato = progetti.find(p => p.codice === selectedProgetto) || null;

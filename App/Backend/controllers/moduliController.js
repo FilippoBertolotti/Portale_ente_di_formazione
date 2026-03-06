@@ -61,6 +61,37 @@ export const getByCodiceProgetto = async (req, res) => {
   }
 };
 
+export const getByAnno = async (req, res) => {
+  const { anno } = req.params;
+
+  try {
+    const result = await pool.query(`
+        SELECT 
+            m.*,
+            STRING_AGG(DISTINCT 'Prof. ' || u.Cognome, ', ') as lista_docenti
+        FROM MODULO m
+        JOIN CATTEDRA c ON c.IDModulo = m.ID
+        JOIN DOCENTE d ON c.CFDocente = d.CF
+        JOIN UTENTE u ON d.CF = u.CF
+        WHERE m.anno = $1
+        GROUP BY m.ID
+        ORDER BY m.Anno, m.ID
+    `, [anno]);
+
+    res.json({
+      status: 'success',
+      count: result.rows.length,
+      data: result.rows
+    });
+  } catch (error) {
+    console.error('Errore get moduli:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nel recupero dei moduli'
+    });
+  }
+};
+
 
 export const getAnni = async (req, res) => {
   try {

@@ -11,6 +11,11 @@ export const moduliService = {
     return response.data;
   },
 
+  getByAnno: async (anno) => {
+    const response = await api.get(`/moduli/${anno}`);
+    return response.data;
+  },
+
   getAnni: async () => {
     const response = await api.get('/moduli/anni');
     return response.data;

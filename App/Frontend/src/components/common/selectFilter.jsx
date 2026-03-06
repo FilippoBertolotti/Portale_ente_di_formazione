@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import SvgIcon from '../../assets/icons/svgIcon';
 
 const SelectFilter = ({ title, placeholder, options = [], value, onChange, className }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -29,12 +30,20 @@ const SelectFilter = ({ title, placeholder, options = [], value, onChange, class
                     <span className={`text-[1.5vh] ${selected ? 'text-black font-bold' : 'text-[#777777]'}`}>
                         {selected ? selected.label : placeholder}
                     </span>
-                    <svg
+                    <SvgIcon
+                        viewBox="0 0 24 24"
+                        strokeWidth="2"
+                        color='#777777'
+                        className={`w-[1.5vh] h-[1.5vh] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                        path="M6 9l6 6 6-6"
+                    />
+
+                    {/* <svg
                         className={`w-[1.5vh] h-[1.5vh] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
                         viewBox="0 0 24 24" fill="none" stroke="#777777" strokeWidth="2.5"
                     >
                         <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
+                    </svg> */}
                 </button>
 
                 {isOpen && (
