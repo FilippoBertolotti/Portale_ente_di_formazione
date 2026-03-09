@@ -236,6 +236,8 @@ const Progetti = () => {
                   labels={['descrizione', 'oreaula', 'oreproject', 'oreelearn', 'orestage', 'lista_docenti']}
                   data={moduli}
                   pill={true}
+                  frase2="Seleziona Un Corso Per Visualizzare I Dati"
+                  frase1="Nessun modulo trovato"
                   className="h-full"
                 />
               </Container>
