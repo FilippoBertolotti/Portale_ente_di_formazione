@@ -27,9 +27,15 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Redirect solo se c'era un token valido (sessione scaduta)
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+      const token = localStorage.getItem('token');
+      const isLoginRequest = error.config?.url?.includes('/auth/login');
+      
+      if (token && !isLoginRequest) {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

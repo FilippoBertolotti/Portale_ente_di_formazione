@@ -9,7 +9,7 @@ const Table = forwardRef(({
     pill = false,
     frase1 = 'Nesun dato disponibile',
     frase2 = frase1,
-
+    centered = false,
     className = ''
 }, ref) => {
     const colors = ['#EFA667', '#76A1CF'];
@@ -21,7 +21,7 @@ const Table = forwardRef(({
                         <tr>
                             {Array.isArray(headers) && headers.map((header, index) => (
                                 <th
-                                    className={`text-${index !== 0 ? 'center' : 'left'} py-[1vh] px-[2vh] text-[#000000] font-normal text-sm`}
+                                    className={`text-${index !== 0 && centered ? 'center' : 'left'} py-[1vh] px-[2vh] text-[#000000] font-normal text-sm`}
                                     key={index}
                                 >
                                     {header}
@@ -33,28 +33,29 @@ const Table = forwardRef(({
                     <tbody>
                         {Array.isArray(data) && data.length > 0 ? (
                             data.map((dato, index) => (
-                                <tr key={index} className='border-t-2 border-[#EDEDED]'>{Array.isArray(labels) && labels.map((label, labelIndex) => (
-                                    <td
-                                        className={`text-${labelIndex !== 0 ? 'center' : 'left'} p-[2vh] text-[#000000] font-bold text-[2vh]`}
-                                        key={labelIndex}
-                                    >
-                                        {labelIndex === labels.length - 1 && pill ? (
-                                            <div className="flex flex-col gap-[0.5vh] h-[4vh] justify-center items-center">
-                                                {String(dato[label]).split(',').map((nome, i) => (
-                                                    <span
-                                                        key={i}
-                                                        style={{ backgroundColor: colors[i % 2] }}
-                                                        className='w-full rounded-full px-[1vh] py-[0.3vh] text-xs text-white'
-                                                    >
-                                                        {nome.trim()}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            dato[label]
-                                        )}
-                                    </td>
-                                ))}
+                                <tr key={index} className='border-t-2 border-[#EDEDED]'>
+                                    {Array.isArray(labels) && labels.map((label, labelIndex) => (
+                                        <td
+                                            className={`text-${labelIndex !== 0 && centered ? 'center' : 'left'} p-[2vh] text-[#000000] font-bold text-[2vh]`}
+                                            key={labelIndex}
+                                        >
+                                            {labelIndex === labels.length - 1 && pill ? (
+                                                <div className="flex flex-col gap-[0.5vh] h-[4vh] justify-center items-center">
+                                                    {String(dato[label]).split(',').map((nome, i) => (
+                                                        <span
+                                                            key={i}
+                                                            style={{ backgroundColor: colors[i % 2] }}
+                                                            className='w-full rounded-full px-[1vh] py-[0.3vh] text-xs text-white'
+                                                        >
+                                                            {nome.trim()}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                dato[label]
+                                            )}
+                                        </td>
+                                    ))}
                                     <td className='flex gap-[1vh] items-center justify-center p-[2vh]'>
                                         <Button variant="modify" size="small">
                                             <SvgIcon

@@ -6,6 +6,16 @@ export const studentiService = {
     return response.data;
   },
 
+  getByCodice: async (codice) => {
+    const response = await api.get(`/studenti/codice/${codice}`);
+    return response.data;
+  },
+
+  getByAnno: async (anno) => {
+    const response = await api.get(`/studenti/anno/${anno}`);
+    return response.data;
+  },
+
   getCount: async () => {
     const response = await api.get('/studenti/conta');
     return response.data;
@@ -24,7 +34,12 @@ export const studentiService = {
   getComposition: async () => {
     const response = await api.get('/studenti/composizione');
     return response.data;
-  }
+  },
+
+  getAnni: async () => {
+    const response = await api.get(`/studenti/anni`);
+    return response.data;
+  },
 
 //   getById: async (cf) => {
 //     const response = await api.get(`/studenti/${cf}`);

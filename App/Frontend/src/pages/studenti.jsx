@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { progettiService } from '../services/progettiService';
-import { moduliService } from '../services/moduliService';
+import { studentiService } from '../services/studentiService';
 import Loader from '../components/common/Loader';
 import Header from '../components/common/header';
 import { useAuth } from '../hooks/useAuth';
@@ -14,7 +14,7 @@ const Studenti = () => {
   const { user } = useAuth();
   const [progetti, setProgetti] = useState([]);
   const [anni, setAnni] = useState([]);
-  const [moduli, setModuli] = useState(null);
+  const [studenti, setStudenti] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedProgetto, setSelectedProgetto] = useState(null);
@@ -58,7 +58,7 @@ const Studenti = () => {
     const fetchAnni = async () => {
       try {
         setLoading(true);
-        const response = await moduliService.getAnni();
+        const response = await studentiService.getAnni();
 
         console.log('📦 Raw response anni:', response);
 
@@ -92,35 +92,32 @@ const Studenti = () => {
   }, []);
 
   useEffect(() => {
-    const fetchModulo = async () => {
+    const fetchStudente = async () => {
       try {
         let response = [];
+        response = await studentiService.getAll();
 
-        if (selectedProgetto) {
-          response = await moduliService.getByCodiceProgetto(selectedProgetto);
-        } else if (selectedAnno) {
-          response = await moduliService.getByAnno(selectedAnno);
-        }
         console.log('📦 Risposta API:', response);
 
-        const moduliData =
-          response?.data ??
-          response?.moduli ??
-          response?.results ??
-          (Array.isArray(response) ? response : []);
+        const studentiData = response.data;
 
-        const filtered =
-          selectedProgetto && selectedAnno
-            ? moduliData.filter(m => m.anno == selectedAnno)
-            : moduliData;
+        let filtered =
+          selectedProgetto
+            ? studentiData.filter(s => s.codiceprogetto == selectedProgetto)
+            : studentiData;
 
-        setModuli(filtered);
+        filtered =
+          selectedAnno
+            ? filtered.filter(s => s.annoaccademico == selectedAnno)
+            : filtered;
+
+        setStudenti(filtered);
         setError('');
 
       } catch (err) {
         console.error('❌ Errore fetch:', err);
-        setError('Errore nel caricamento dei moduli');
-        setModuli([]);
+        setError('Errore nel caricamento dei studenti');
+        setStudenti([]);
       }
     };
 
@@ -155,19 +152,14 @@ const Studenti = () => {
       }
     };
 
-    if (selectedProgetto || selectedAnno) {
-      fetchModulo();
-    } else {
-      setModuli(null);
-    }
-
+    fetchStudente();
     fetchProgetti();
 
   }, [selectedProgetto, selectedAnno]);
 
   return (
     <div className="flex flex-col h-full w-full">
-      <Header user={user} title="Corsi" subtitle="Consulta i corsi e i relativi dettagli" />
+      <Header user={user} title="Studenti" subtitle="Percorsi e profili degli studenti" />
 
       {error ? (
         <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
@@ -185,43 +177,58 @@ const Studenti = () => {
           <div className='flex-1 min-h-0'>
             <div className='flex flex-col gap-[2vh] h-full overflow-hidden'>
               <Container className="flex flex-col h-full overflow-hidden p-[2vh] gap-[2vh]">
-                <div className='flex gap-[2vh] items-end'>
-                  <SelectFilter
-                    title="Corso"
-                    placeholder="Seleziona un corso"
-                    options={progetti.map(progetto => ({ value: progetto.codice, label: progetto.descrizione }))}
-                    value={selectedProgetto}
-                    onChange={setSelectedProgetto}
-                    className="w-[30%]"
-                  />
-                  <SelectFilter
-                    title="Anno"
-                    placeholder="Seleziona un anno"
-                    options={anni.map(anno => ({ value: anno.anno, label: "Anno " + anno.anno }))}
-                    value={selectedAnno}
-                    onChange={setSelectedAnno}
-                    className="w-[15%]"
-                  />
-                  {(selectedAnno || selectedProgetto) &&
-                    <div className='pb-[0.5vh]'>
-                      <Button variant="noBg" size="small" onClick={() => { setSelectedProgetto(null); setSelectedAnno(null); }} className="shrink-0" title="Rimuovi filtri">
-                        <SvgIcon
-                          viewBox='0 0 24 24'
-                          color='#D64541'
-                          width="1.5vh"
-                          height="1.5vh"
-                          path1="M20.6523 4.34438C21.1819 3.73729 21.0976 2.83557 20.4601 2.33115C19.8227 1.82672 18.8759 1.90708 18.3463 2.51417L12 9.76804L5.65373 2.51417C5.1241 1.90708 4.17731 1.82673 3.53987 2.33115C2.90243 2.83558 2.81806 3.73729 3.3477 4.34438L10.0455 12L3.3477 19.6556C2.81806 20.2627 2.90243 21.1644 3.53987 21.6689C4.17731 22.1733 5.1241 22.0929 5.65373 21.4858L12 14.232L18.3463 21.4858C18.8759 22.0929 19.8227 22.1733 20.4601 21.6689C21.0976 21.1644 21.1819 20.2627 20.6523 19.6556L13.9545 12L20.6523 4.34438Z"
-                        />
-                      </Button>
-                    </div>
-                  }
+                <div className='grid grid-cols-7 w-full flex items-end'>
+                  <div className="col-span-6 flex gap-[2vh] items-end">
+                    <SelectFilter
+                      title="Corso"
+                      placeholder="Seleziona un corso"
+                      options={progetti.map(progetto => ({ value: progetto.codice, label: progetto.descrizione }))}
+                      value={selectedProgetto}
+                      onChange={setSelectedProgetto}
+                      className="w-[40%]"
+                    />
+                    <SelectFilter
+                      title="Anno"
+                      placeholder="Seleziona un anno"
+                      options={anni.map(anno => ({ value: anno.annoaccademico, label: "Anno " + anno.annoaccademico }))}
+                      value={selectedAnno}
+                      onChange={setSelectedAnno}
+                      className="w-[20%]"
+                    />
+                    {(selectedAnno || selectedProgetto) &&
+                      <div className='pb-[0.5vh]'>
+                        <Button variant="noBg" size="small" onClick={() => { setSelectedProgetto(null); setSelectedAnno(null); }} className="shrink-0" title="Rimuovi filtri">
+                          <SvgIcon
+                            viewBox='0 0 24 24'
+                            color='#D64541'
+                            width="1.5vh"
+                            height="1.5vh"
+                            path1="M20.6523 4.34438C21.1819 3.73729 21.0976 2.83557 20.4601 2.33115C19.8227 1.82672 18.8759 1.90708 18.3463 2.51417L12 9.76804L5.65373 2.51417C5.1241 1.90708 4.17731 1.82673 3.53987 2.33115C2.90243 2.83558 2.81806 3.73729 3.3477 4.34438L10.0455 12L3.3477 19.6556C2.81806 20.2627 2.90243 21.1644 3.53987 21.6689C4.17731 22.1733 5.1241 22.0929 5.65373 21.4858L12 14.232L18.3463 21.4858C18.8759 22.0929 19.8227 22.1733 20.4601 21.6689C21.0976 21.1644 21.1819 20.2627 20.6523 19.6556L13.9545 12L20.6523 4.34438Z"
+                          />
+                        </Button>
+                      </div>
+                    }
+                  </div>
+                    <Button
+                    variant="secondary"
+                    size="medium"
+                    icon={<SvgIcon
+                      color='#FFFFFF'
+                      width="2.5vh"
+                      height="2.5vh"
+                      path1='M26.25 25C26.9404 25 27.5 25.5596 27.5 26.25C27.5 26.9404 26.9404 27.5 26.25 27.5H3.75C3.05965 27.5 2.5 26.9404 2.5 26.25C2.5 25.5596 3.05965 25 3.75 25H26.25ZM5.9375 2.5C7.83597 2.5 9.375 4.03902 9.375 5.9375V9.375C9.375 11.7912 11.3337 13.75 13.75 13.75H16.25C19.9685 13.75 23.0201 15.171 24.5679 16.0571C25.6955 16.7027 26.25 17.8956 26.25 19.0625V22.5H8.75V21.8225C8.58559 21.6756 8.38299 21.4906 8.1543 21.2695C7.53564 20.6715 6.71059 19.8052 5.88379 18.7305C4.2522 16.6092 2.5 13.5276 2.5 10V5.9375C2.5 4.03902 4.03902 2.5 5.9375 2.5ZM16.25 2.5C19.0114 2.5 21.25 4.73857 21.25 7.5C21.25 10.2614 19.0114 12.5 16.25 12.5C13.4886 12.5 11.25 10.2614 11.25 7.5C11.25 4.73857 13.4886 2.5 16.25 2.5Z'
+                      path2='M23.95 5.21002V0.590024H25.24V5.21002H23.95ZM22.22 3.51002V2.29002H26.98V3.51002H22.22Z'
+                    />}
+                    className="xl:px-[2vh] h-fit"
+                  >
+                    Nuovo Studente
+                  </Button>
                 </div>
                 <Table
-                  headers={['Nome Modulo', 'Ore Aula', 'ProjectWork', 'E-Learning', 'Stage', 'Docenti']}
-                  labels={['descrizione', 'oreaula', 'oreproject', 'oreelearn', 'orestage', 'lista_docenti']}
-                  data={moduli}
-                  pill={true}
-                  frase1 = "Nessuno studente trovato"
+                  headers={['Nome Cognome', 'Codice Fiscale', 'Data Nascita', 'Email', 'Corso']}
+                  labels={['nomeCompleto', 'cf', 'dataNascita', 'email', 'corso']}
+                  data={studenti}
+                  frase1="Nessuno studente trovato"
                   className="h-full"
                 />
               </Container>

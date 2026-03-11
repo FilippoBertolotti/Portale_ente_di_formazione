@@ -2,26 +2,97 @@ import pool from '../config/database.js';
 
 // GET tutti gli studenti
 export const getAllStudenti = async (req, res) => {
-    try {
-        const result = await pool.query(`
-            SELECT u.*, p.descrizione
+  try {
+    const result = await pool.query(`
+            SELECT 
+              u.cf,
+              u.nome || ' ' || u.cognome AS "nomeCompleto",
+              TO_CHAR(u.datanascita, 'DD/MM/YYYY') AS "dataNascita",
+              u.email,
+              p.descrizione || ' ' || s.annoaccademico AS "corso",
+              s.codiceprogetto,
+              s.annoaccademico
             FROM utente u
             JOIN studente s ON u.cf = s.cf
             LEFT JOIN progetto p ON s.codiceprogetto = p.codice
             ORDER BY u.cognome, u.nome;
         `);
-        res.json({
-            status: 'success',
-            count: result.rows.length,
-            data: result.rows
-        });
-    } catch (error) {
-        console.error('Errore get studenti:', error);
-        res.status(500).json({
-            status: 'error',
-            message: 'Errore nel recupero degli studenti'
-        });
-    }
+    res.json({
+      status: 'success',
+      count: result.rows.length,
+      data: result.rows
+    });
+  } catch (error) {
+    console.error('Errore get studenti:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nel recupero degli studenti'
+    });
+  }
+};
+
+export const getStudentiByProgetto = async (req, res) => {
+  const { codice } = req.params;
+  try {
+    const result = await pool.query(`
+            SELECT 
+              u.cf,
+              u.nome || ' ' || u.cognome AS "nomeCompleto",
+              TO_CHAR(u.datanascita, 'DD/MM/YYYY') AS "dataNascita",
+              u.email,
+              p.descrizione || ' ' || s.annoaccademico AS "corso",
+              s.codiceprogetto,
+              s.annoaccademico
+            FROM utente u
+            JOIN studente s ON u.cf = s.cf
+            LEFT JOIN progetto p ON s.codiceprogetto = p.codice
+            WHERE s.codiceprogetto = $1
+            ORDER BY u.cognome, u.nome;
+        `, [codice]);
+    res.json({
+      status: 'success',
+      count: result.rows.length,
+      data: result.rows
+    });
+  } catch (error) {
+    console.error('Errore get studenti:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nel recupero degli studenti'
+    });
+  }
+};
+
+export const getStudentiByAnno = async (req, res) => {
+  const { anno } = req.params;
+  try {
+    const result = await pool.query(`
+          SELECT 
+              u.cf,
+              u.nome || ' ' || u.cognome AS "nomeCompleto",
+              TO_CHAR(u.datanascita, 'DD/MM/YYYY') AS "dataNascita",
+              u.email,
+              p.descrizione || ' ' || s.annoaccademico AS "corso",
+              s.codiceprogetto,
+              s.annoaccademico
+          FROM utente u
+          JOIN studente s ON u.cf = s.cf
+          LEFT JOIN progetto p ON s.codiceprogetto = p.codice
+          WHERE s.annoaccademico = $1
+          ORDER BY u.cognome, u.nome;
+      `, [anno]);
+    res.json({
+      status: 'success',
+      count: result.rows.length,
+      data: result.rows
+    });
+  } catch (error) {
+    console.error('Errore get studenti:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nel recupero degli studenti'
+    });
+  }
 };
 
 // GET numero studenti iscritti
@@ -108,7 +179,7 @@ export const getCompositionStudenti = async (req, res) => {
         OR p.annoFine = EXTRACT(YEAR FROM CURRENT_DATE)
         OR EXTRACT(YEAR FROM CURRENT_DATE) BETWEEN p.annoInizio AND p.annoFine
       GROUP BY p.codice;
-    `); 
+    `);
     res.json({
       status: 'success',
       data: result.rows
@@ -118,6 +189,28 @@ export const getCompositionStudenti = async (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Errore nel recupero della composizione degli studenti'
+    });
+  }
+};
+
+export const getAnni = async (req, res) => {
+  try {
+    const result = await pool.query(`
+        SELECT 
+            DISTINCT annoaccademico
+        FROM STUDENTE
+    `);
+
+    res.json({
+      status: 'success',
+      count: result.rows.length,
+      data: result.rows
+    });
+  } catch (error) {
+    console.error('Errore get anni:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nel recupero degli anni'
     });
   }
 };

@@ -200,36 +200,36 @@ const Progetti = () => {
           <div className='grid grid-cols-12 gap-[2vh] flex-1 min-h-0'>
             <div className='col-span-9 flex flex-col gap-[2vh] h-full overflow-hidden'>
               <Container className="flex flex-col h-full overflow-hidden p-[2vh] gap-[2vh]">
-                <div className='flex gap-[2vh] items-end'>
-                  <SelectFilter
-                    title="Corso"
-                    placeholder="Seleziona un corso"
-                    options={progetti.map(progetto => ({ value: progetto.codice, label: progetto.descrizione }))}
-                    value={selectedProgetto}
-                    onChange={setSelectedProgetto}
-                    className="w-[40%]"
-                  />
-                  <SelectFilter
-                    title="Anno"
-                    placeholder="Seleziona un anno"
-                    options={anni.map(anno => ({ value: anno.anno, label: "Anno " + anno.anno }))}
-                    value={selectedAnno}
-                    onChange={setSelectedAnno}
-                    className="w-[20%]"
-                  />
-                  {(selectedAnno || selectedProgetto) &&
-                    <div className='pb-[0.5vh]'>
-                      <Button variant="noBg" size="small" onClick={() => { setSelectedProgetto(null); setSelectedAnno(null); }} className="shrink-0" title="Rimuovi filtri">
-                        <SvgIcon
-                          viewBox='0 0 24 24'
-                          color='#D64541'
-                          width="1.5vh"
-                          height="1.5vh"
-                          path1="M20.6523 4.34438C21.1819 3.73729 21.0976 2.83557 20.4601 2.33115C19.8227 1.82672 18.8759 1.90708 18.3463 2.51417L12 9.76804L5.65373 2.51417C5.1241 1.90708 4.17731 1.82673 3.53987 2.33115C2.90243 2.83558 2.81806 3.73729 3.3477 4.34438L10.0455 12L3.3477 19.6556C2.81806 20.2627 2.90243 21.1644 3.53987 21.6689C4.17731 22.1733 5.1241 22.0929 5.65373 21.4858L12 14.232L18.3463 21.4858C18.8759 22.0929 19.8227 22.1733 20.4601 21.6689C21.0976 21.1644 21.1819 20.2627 20.6523 19.6556L13.9545 12L20.6523 4.34438Z"
-                        />
-                      </Button>
-                    </div>
-                  }
+                <div className="flex gap-[2vh] items-end">
+                    <SelectFilter
+                      title="Corso"
+                      placeholder="Seleziona un corso"
+                      options={progetti.map(progetto => ({ value: progetto.codice, label: progetto.descrizione }))}
+                      value={selectedProgetto}
+                      onChange={setSelectedProgetto}
+                      className="w-[40%]"
+                    />
+                    <SelectFilter
+                      title="Anno"
+                      placeholder="Seleziona un anno"
+                      options={anni.map(anno => ({ value: anno.anno, label: "Anno " + anno.anno }))}
+                      value={selectedAnno}
+                      onChange={setSelectedAnno}
+                      className="w-[20%]"
+                    />
+                    {(selectedAnno || selectedProgetto) &&
+                      <div className='pb-[0.5vh]'>
+                        <Button variant="noBg" size="small" onClick={() => { setSelectedProgetto(null); setSelectedAnno(null); }} className="shrink-0" title="Rimuovi filtri">
+                          <SvgIcon
+                            viewBox='0 0 24 24'
+                            color='#D64541'
+                            width="1.5vh"
+                            height="1.5vh"
+                            path1="M20.6523 4.34438C21.1819 3.73729 21.0976 2.83557 20.4601 2.33115C19.8227 1.82672 18.8759 1.90708 18.3463 2.51417L12 9.76804L5.65373 2.51417C5.1241 1.90708 4.17731 1.82673 3.53987 2.33115C2.90243 2.83558 2.81806 3.73729 3.3477 4.34438L10.0455 12L3.3477 19.6556C2.81806 20.2627 2.90243 21.1644 3.53987 21.6689C4.17731 22.1733 5.1241 22.0929 5.65373 21.4858L12 14.232L18.3463 21.4858C18.8759 22.0929 19.8227 22.1733 20.4601 21.6689C21.0976 21.1644 21.1819 20.2627 20.6523 19.6556L13.9545 12L20.6523 4.34438Z"
+                          />
+                        </Button>
+                      </div>
+                    }
                 </div>
                 <Table
                   headers={['Nome Modulo', 'Ore Aula', 'ProjectWork', 'E-Learning', 'Stage', 'Docenti']}
@@ -238,6 +238,7 @@ const Progetti = () => {
                   pill={true}
                   frase2="Seleziona Un Corso Per Visualizzare I Dati"
                   frase1="Nessun modulo trovato"
+                  centered={true}
                   className="h-full"
                 />
               </Container>

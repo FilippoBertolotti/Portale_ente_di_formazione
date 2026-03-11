@@ -58,10 +58,8 @@ const LoginForm = ({ onSubmit, loading, error }) => {
   };
 
   return (
-    <form 
-      onSubmit={handleSubmit} 
+    <div 
       className="flex flex-col gap-5 w-full"
-      noValidate  // ✅ DISATTIVA validazione HTML5
     >
       
       {/* Campo Email - type="text" ✅ */}
@@ -106,15 +104,15 @@ const LoginForm = ({ onSubmit, loading, error }) => {
 
       {/* Bottone Submit */}
       <Button
-        type="submit"
         variant="primary"
         size="medium"
         className="w-[40%] self-center mt-[60px] justify-center"
         loading={loading}
+        onClick={handleSubmit}
         >
         {loading ? 'Accesso in corso...' : 'Accedi'}
       </Button>
-    </form>
+    </div>
   );
 };
 
