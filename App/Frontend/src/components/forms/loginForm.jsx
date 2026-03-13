@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FaEnvelope, FaLock } from 'react-icons/fa';
-import Input from '../common/Input';
+import Input from '../common/input';
 import Button from '../common/button';
 
 const LoginForm = ({ onSubmit, loading, error }) => {
@@ -58,8 +58,10 @@ const LoginForm = ({ onSubmit, loading, error }) => {
   };
 
   return (
-    <div 
+    <form 
+      onSubmit={handleSubmit} 
       className="flex flex-col gap-5 w-full"
+      noValidate  // ✅ DISATTIVA validazione HTML5
     >
       
       {/* Campo Email - type="text" ✅ */}
@@ -104,6 +106,7 @@ const LoginForm = ({ onSubmit, loading, error }) => {
 
       {/* Bottone Submit */}
       <Button
+        type="submit"
         variant="primary"
         size="medium"
         className="w-[40%] self-center mt-[60px] justify-center"
@@ -112,7 +115,7 @@ const LoginForm = ({ onSubmit, loading, error }) => {
         >
         {loading ? 'Accesso in corso...' : 'Accedi'}
       </Button>
-    </div>
+    </form>
   );
 };
 

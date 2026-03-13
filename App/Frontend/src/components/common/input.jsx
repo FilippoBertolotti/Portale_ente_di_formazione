@@ -7,6 +7,7 @@ const Input = forwardRef(({
   value,
   onChange,
   placeholder,
+  noerror = false,
   error,
   required = false,
   disabled = false,
@@ -46,14 +47,14 @@ const Input = forwardRef(({
           disabled={disabled}
           required={required}
           className={`
-            w-full px-4 py-3 border-2 rounded-[30px] text-base
-            transition-all duration-300 ease-in-out font-sans
+            w-full px-4 py-3 border rounded-[30px] text-base
+            transition-all duration-300 ease-in-out
             focus:outline-none
             disabled:bg-gray-100 disabled:cursor-not-allowed
             ${icon ? 'pl-11' : ''}
             ${error 
               ? 'border-red-500 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.1)]' 
-              : 'border-gray-200 focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)]'
+              : 'border-[#E0E6EB] focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)]'
             }
             ${classNameIn}
           `}
@@ -61,7 +62,7 @@ const Input = forwardRef(({
       </div>
       
       {/* Messaggio errore */}
-        <span className={`text-red-500 text-sm ${classNameEr}`}>{error ? error : '\u00A0'}</span>
+        {!noerror && <span className={`text-red-500 text-sm ${classNameEr}`}>{error ? error : '\u00A0'}</span>}
     </div>
   );
 });

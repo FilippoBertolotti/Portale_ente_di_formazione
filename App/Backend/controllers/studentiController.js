@@ -31,6 +31,38 @@ export const getAllStudenti = async (req, res) => {
   }
 };
 
+export const getAllStudentiSearch = async (req, res) => {
+  const { search } = req.params;
+  try {
+    const result = await pool.query(`
+            SELECT 
+              u.cf,
+              u.nome || ' ' || u.cognome AS "nomeCompleto",
+              TO_CHAR(u.datanascita, 'DD/MM/YYYY') AS "dataNascita",
+              u.email,
+              p.descrizione || ' ' || s.annoaccademico AS "corso",
+              s.codiceprogetto,
+              s.annoaccademico
+            FROM utente u
+            JOIN studente s ON u.cf = s.cf
+            LEFT JOIN progetto p ON s.codiceprogetto = p.codice
+            WHERE (u.nome ILIKE $1 OR u.cognome ILIKE $1)
+            ORDER BY u.cognome, u.nome;
+        `, [`${search}%`]);
+    res.json({
+      status: 'success',
+      count: result.rows.length,
+      data: result.rows
+    });
+  } catch (error) {
+    console.error('Errore get studenti:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nel recupero degli studenti'
+    });
+  }
+};
+
 export const getStudentiByProgetto = async (req, res) => {
   const { codice } = req.params;
   try {

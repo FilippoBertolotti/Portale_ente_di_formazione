@@ -16,11 +16,11 @@ const AppRoutes = () => {
 
   return (
         <Routes>
-          <Route path="/" element={user ? <Navigate to="/progetti" /> : <Login />} /> {/*user ? <Navigate to="/progetti" /> : */}
+          <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Login />} /> {/*user ? <Navigate to="/progetti" /> : */}
           <Route path="/progetti" element={user ? <Progetti /> : <Navigate to="/login" />} />
           <Route path="/studenti" element={user ? <Studenti /> : <Navigate to="/login" />} />
           <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" />} />
-          <Route path="/login" element={user ? <Navigate to="/progetti" /> : <Login />} /> {/*user ? <Navigate to="/progetti" /> : <Login /> */}
+          <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} /> {/*user ? <Navigate to="/progetti" /> : <Login /> */}
         </Routes>
   );
 };

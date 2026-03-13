@@ -9,6 +9,7 @@ import Button from '../components/common/button';
 import SvgIcon from '../assets/icons/svgIcon';
 import Table from '../components/common/table';
 import SelectFilter from '../components/common/selectFilter';
+import Input from '../components/common/input';
 
 const Studenti = () => {
   const { user } = useAuth();
@@ -19,6 +20,7 @@ const Studenti = () => {
   const [error, setError] = useState('');
   const [selectedProgetto, setSelectedProgetto] = useState(null);
   const [selectedAnno, setSelectedAnno] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchProgetti = async () => {
@@ -95,7 +97,14 @@ const Studenti = () => {
     const fetchStudente = async () => {
       try {
         let response = [];
+        if (searchTerm && searchTerm.trim() !== '') {
+        // Se c'è un termine di ricerca, usa l'endpoint search
+        response = await studentiService.getSearch(searchTerm);
+      } else {
+        // Altrimenti, prendi tutti gli studenti
         response = await studentiService.getAll();
+      }
+;
 
         console.log('📦 Risposta API:', response);
 
@@ -155,7 +164,7 @@ const Studenti = () => {
     fetchStudente();
     fetchProgetti();
 
-  }, [selectedProgetto, selectedAnno]);
+  }, [selectedProgetto, selectedAnno, searchTerm]);
 
   return (
     <div className="flex flex-col h-full w-full">
@@ -195,21 +204,42 @@ const Studenti = () => {
                       onChange={setSelectedAnno}
                       className="w-[20%]"
                     />
-                    {(selectedAnno || selectedProgetto) &&
-                      <div className='pb-[0.5vh]'>
-                        <Button variant="noBg" size="small" onClick={() => { setSelectedProgetto(null); setSelectedAnno(null); }} className="shrink-0" title="Rimuovi filtri">
+
+                    <div className='pb-[0.5vh]'>
+                      <Button variant="noBg" size="small" onClick={() => { setSelectedProgetto(null); setSelectedAnno(null); }} className={`shrink-0  ${!(selectedAnno || selectedProgetto) ? "invisible" : ''}`} title="Rimuovi filtri">
+                        <SvgIcon
+                          viewBox='0 0 24 24'
+                          color='#D64541'
+                          width="1.5vh"
+                          height="1.5vh"
+                          path1="M20.6523 4.34438C21.1819 3.73729 21.0976 2.83557 20.4601 2.33115C19.8227 1.82672 18.8759 1.90708 18.3463 2.51417L12 9.76804L5.65373 2.51417C5.1241 1.90708 4.17731 1.82673 3.53987 2.33115C2.90243 2.83558 2.81806 3.73729 3.3477 4.34438L10.0455 12L3.3477 19.6556C2.81806 20.2627 2.90243 21.1644 3.53987 21.6689C4.17731 22.1733 5.1241 22.0929 5.65373 21.4858L12 14.232L18.3463 21.4858C18.8759 22.0929 19.8227 22.1733 20.4601 21.6689C21.0976 21.1644 21.1819 20.2627 20.6523 19.6556L13.9545 12L20.6523 4.34438Z"
+                        />
+                      </Button>
+                    </div>
+
+                    <div className='h-full flex items-end'>
+                      <Input
+                        placeholder={"Cerca studenti..."}
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        noerror = {true}
+                        icon={
                           <SvgIcon
-                            viewBox='0 0 24 24'
-                            color='#D64541'
+                            color="#777777"
                             width="1.5vh"
                             height="1.5vh"
-                            path1="M20.6523 4.34438C21.1819 3.73729 21.0976 2.83557 20.4601 2.33115C19.8227 1.82672 18.8759 1.90708 18.3463 2.51417L12 9.76804L5.65373 2.51417C5.1241 1.90708 4.17731 1.82673 3.53987 2.33115C2.90243 2.83558 2.81806 3.73729 3.3477 4.34438L10.0455 12L3.3477 19.6556C2.81806 20.2627 2.90243 21.1644 3.53987 21.6689C4.17731 22.1733 5.1241 22.0929 5.65373 21.4858L12 14.232L18.3463 21.4858C18.8759 22.0929 19.8227 22.1733 20.4601 21.6689C21.0976 21.1644 21.1819 20.2627 20.6523 19.6556L13.9545 12L20.6523 4.34438Z"
+                            strokeWidth="2.5"
+                            path1="M10.4615 18.9231C15.1347 18.9231 18.9231 15.1347 18.9231 10.4615C18.9231 5.78835 15.1347 2 10.4615 2C5.78835 2 2 5.78835 2 10.4615C2 15.1347 5.78835 18.9231 10.4615 18.9231Z"
+                            path2="M22 22L16.6154 16.6154"
+                            viewBox="0 0 24 24"
                           />
-                        </Button>
-                      </div>
-                    }
+                        }
+                        classNameIn="focus:ring-0 py-[1vh] px-[2vh] text-[1.5vh] focus:!border-[#E0E6EB] focus:shadow-none transition-none"
+                      />
+                    </div>
+
                   </div>
-                    <Button
+                  <Button
                     variant="secondary"
                     size="medium"
                     icon={<SvgIcon
@@ -241,3 +271,4 @@ const Studenti = () => {
 };
 
 export default Studenti;
+

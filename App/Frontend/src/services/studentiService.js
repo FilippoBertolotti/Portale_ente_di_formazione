@@ -2,7 +2,12 @@ import api from './api';
 
 export const studentiService = {
   getAll: async () => {
-    const response = await api.get('/studenti');
+    const response = await api.get(`/studenti`);
+    return response.data;
+  },
+
+  getSearch: async (search) => {
+    const response = await api.get(`/studenti/${search}`);
     return response.data;
   },
 
