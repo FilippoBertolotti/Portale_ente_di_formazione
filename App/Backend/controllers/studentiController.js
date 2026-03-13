@@ -46,7 +46,7 @@ export const getAllStudentiSearch = async (req, res) => {
             FROM utente u
             JOIN studente s ON u.cf = s.cf
             LEFT JOIN progetto p ON s.codiceprogetto = p.codice
-            WHERE (u.nome ILIKE $1 OR u.cognome ILIKE $1)
+            WHERE (u.nome ILIKE $1 OR u.cognome ILIKE $1 OR u.nome || ' ' || u.cognome ILIKE $1)
             ORDER BY u.cognome, u.nome;
         `, [`${search}%`]);
     res.json({
