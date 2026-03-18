@@ -13,7 +13,7 @@ export const getAllProgetti = async (req, res) => {
             p.AnnoFine,
             p.Colore,
             p.CFCoordinatore,
-            -- Subquery per le somme (potrebbero essere calcolate qui dentro)
+            -- Subquery per le somme
             (SELECT SUM(oreaula + oreproject + orestage + oreelearn) FROM MODULO WHERE CodiceProgetto = p.Codice) as ore_totali,
             (SELECT SUM(oreaula) FROM MODULO WHERE CodiceProgetto = p.Codice) as ore_aula,
             (SELECT SUM(oreproject) FROM MODULO WHERE CodiceProgetto = p.Codice) as ore_project,
@@ -48,8 +48,7 @@ export const getAllProgetti = async (req, res) => {
     SELECT 
         pa.*,
         d.Telefono as coordinatore_telefono,
-        u.Nome as coordinatore_nome,
-        u.Cognome as coordinatore_cognome,
+        u.Nome || ' ' || u.Cognome as "coordinatoreNomeCompleto",
         COALESCE(cs.numero_studenti, 0) as numero_studenti,
         COALESCE(cd.numero_docenti, 0) as numero_docenti,
         COALESCE(cm.numero_moduli, 0) as numero_moduli,
@@ -126,8 +125,7 @@ export const getProgettiByCodice = async (req, res) => {
       SELECT 
           pa.*,
           d.Telefono as coordinatore_telefono,
-          u.Nome as coordinatore_nome,
-          u.Cognome as coordinatore_cognome,
+          u.Nome || ' ' || u.Cognome as "coordinatoreNomeCompleto",
           COALESCE(cs.numero_studenti, 0) as numero_studenti,
           COALESCE(cd.numero_docenti, 0) as numero_docenti,
           COALESCE(cm.numero_moduli, 0) as numero_moduli,
@@ -207,8 +205,7 @@ export const getProgettiByAnno = async (req, res) => {
       SELECT 
           pa.*,
           d.Telefono as coordinatore_telefono,
-          u.Nome as coordinatore_nome,
-          u.Cognome as coordinatore_cognome,
+          u.Nome || ' ' || u.Cognome as "coordinatoreNomeCompleto",
           COALESCE(cs.numero_studenti, 0) as numero_studenti,
           COALESCE(cd.numero_docenti, 0) as numero_docenti,
           COALESCE(cm.numero_moduli, 0) as numero_moduli,

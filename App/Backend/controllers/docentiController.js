@@ -4,10 +4,20 @@ import pool from '../config/database.js';
 export const getAllDocenti = async (req, res) => {
     try {
         const result = await pool.query(`
-            SELECT u.*, p.descrizione
+            SELECT 
+              u.cf,
+              u.nome || ' ' || u.cognome || '\n' || STRING_AGG(DISTINCT q.materia, ', ') AS "nomeCompletoQualifica",
+              TO_CHAR(u.datanascita, 'DD/MM/YYYY') AS "dataNascita",
+              u.email || '\n' || d.telefono AS "contatti",
+              STRING_AGG(DISTINCT p.descrizione || ' ' || m.anno || '\n' || m.descrizione, '\n') AS "corsoModulo",
+              STRING_AGG(DISTINCT p.codice || ':' || m.anno, '\n') AS "codiciProgettiAnni"
             FROM utente u
             JOIN docente d ON u.cf = d.cf
-            LEFT JOIN progetto p ON d.codiceprogetto = p.codice
+            JOIN posseduto po ON po.cfdocente = d.cf
+            JOIN qualifica q ON po.idqualifica = q.id
+            JOIN modulo m ON m.cfdocente = d.cf
+            JOIN progetto p ON m.codiceprogetto = p.codice
+            GROUP BY u.cf, u.nome, u.cognome, u.datanascita, u.email, d.telefono
             ORDER BY u.cognome, u.nome;
         `);
         res.json({

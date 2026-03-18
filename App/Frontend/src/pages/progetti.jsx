@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { progettiService } from '../services/progettiService';
 import { moduliService } from '../services/moduliService';
 import Loader from '../components/common/Loader';
@@ -166,20 +166,28 @@ const Progetti = () => {
 
   }, [selectedProgetto, selectedAnno]);
 
-  const riepilogo = selectedProgetto
-    ? progetti.find(p => p.codice === selectedProgetto) || null
-    : selectedAnno && progetti.length > 0
-      ? {
-        ore_totali: progetti.reduce((s, p) => s + (+p.ore_totali || 0), 0),
-        ore_aula: progetti.reduce((s, p) => s + (+p.ore_aula || 0), 0),
-        ore_project: progetti.reduce((s, p) => s + (+p.ore_project || 0), 0),
-        ore_stage: progetti.reduce((s, p) => s + (+p.ore_stage || 0), 0),
-        ore_elarn: progetti.reduce((s, p) => s + (+p.ore_elarn || 0), 0),
-        numero_moduli: progetti.reduce((s, p) => s + (+p.numero_moduli || 0), 0),
-        numero_lezioni: progetti.reduce((s, p) => s + (+p.numero_lezioni || 0), 0),
-        numero_docenti: progetti.reduce((s, p) => s + (+p.numero_docenti || 0), 0),
-      }
-      : null;
+  // Dopo i tuoi useEffect, sostituisci la variabile riepilogo con:
+const riepilogo = useMemo(() => {
+  if (selectedProgetto) {
+    return progetti.find(p => p.codice === selectedProgetto) || null;
+  }
+  if (selectedAnno && progetti.length > 0) {
+    return {
+      coordinatoreNomeCompleto: progetti.find(p => p.coordinatoreNomeCompleto)?.coordinatoreNomeCompleto || '',
+      ore_totali: progetti.reduce((s, p) => s + (+p.ore_totali || 0), 0),
+      ore_aula: progetti.reduce((s, p) => s + (+p.ore_aula || 0), 0),
+      ore_project: progetti.reduce((s, p) => s + (+p.ore_project || 0), 0),
+      ore_stage: progetti.reduce((s, p) => s + (+p.ore_stage || 0), 0),
+      ore_elarn: progetti.reduce((s, p) => s + (+p.ore_elarn || 0), 0),
+      numero_moduli: progetti.reduce((s, p) => s + (+p.numero_moduli || 0), 0),
+      numero_lezioni: progetti.reduce((s, p) => s + (+p.numero_lezioni || 0), 0),
+      numero_docenti: progetti.reduce((s, p) => s + (+p.numero_docenti || 0), 0),
+    };
+  }
+  return null;
+}, [progetti, selectedProgetto, selectedAnno]);
+console.log('📊 Riepilogo calcolato:', riepilogo);
+
   return (
     <div className="flex flex-col h-full w-full">
       <Header user={user} title="Corsi" subtitle="Consulta i corsi e i relativi dettagli" />
@@ -303,6 +311,7 @@ const Progetti = () => {
               </Container>
               <Container title={selectedAnno ? `Riepilogo Anno ${selectedAnno}` : 'Riepilogo'} className=" h-full overflow-hidden">
                 <div className=' flex flex-col space-y-[2vh] h-full overflow-hidden'>
+                  <div className='text-black text-lg font-bold'><span className ="text-sm font-normal whitespace-nowrap">Coordinatore: </span>{riepilogo?.coordinatoreNomeCompleto || '...'}</div>
                   <div className='h-[40%] w-full items-stretch grid grid-cols-2 gap-[2vh] overflow-hidden'>
                     <Card
                       title="Ore Totali"
