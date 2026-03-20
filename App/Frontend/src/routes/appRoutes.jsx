@@ -5,6 +5,7 @@ import Progetti from '../pages/progetti';
 import Dashboard from '../pages/dashboard';
 import Studenti from '../pages/studenti';
 import Docenti from '../pages/docenti';
+import Aule from '../pages/aule';
 import Loader from '../components/common/Loader';
 
 const AppRoutes = () => {
@@ -21,6 +22,7 @@ const AppRoutes = () => {
           <Route path="/progetti" element={user ? <Progetti /> : <Navigate to="/login" />} />
           <Route path="/studenti" element={user ? <Studenti /> : <Navigate to="/login" />} />
           <Route path="/docenti" element={user ? <Docenti /> : <Navigate to="/login" />} />
+          <Route path="/aule" element={user ? <Aule /> : <Navigate to="/login" />} />
           <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" />} />
           <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} /> {/*user ? <Navigate to="/progetti" /> : <Login /> */}
         </Routes>
