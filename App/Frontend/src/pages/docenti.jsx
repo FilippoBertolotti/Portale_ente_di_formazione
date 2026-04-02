@@ -190,10 +190,10 @@ const Docenti = () => {
                     </div>
                 ) : (
                     <div className='flex-1 min-h-0'>
-                        <div className='flex flex-col gap-[2vh] h-full overflow-hidden'>
-                            <Container className="flex flex-col h-full overflow-hidden p-[2vh] gap-[2vh]">
+                        <div className='flex flex-col gap-[1vw] h-full overflow-hidden'>
+                            <Container className="flex flex-col h-full overflow-hidden p-[1vw] gap-[1vw]">
                                 <div className='grid grid-cols-7 w-full flex items-end'>
-                                    <div className="col-span-6 flex gap-[2vh] items-end">
+                                    <div className="col-span-6 flex gap-[1vw] items-end">
                                         <SelectFilter
                                             title="Corso"
                                             placeholder="Seleziona un corso"

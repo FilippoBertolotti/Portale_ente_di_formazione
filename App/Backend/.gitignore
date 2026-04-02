@@ -1,4 +1,5 @@
 node_modules
+package-lock.json
 coverage
 *.log*
 .nuxt
@@ -10,5 +11,6 @@ dist
 .DS_Store
 .idea
 .eslintcache
+.gitignore
 **/.DS_Store
 templates

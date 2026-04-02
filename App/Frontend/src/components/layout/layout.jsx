@@ -5,7 +5,7 @@ const Layout = ({ children }) => {
             <aside className="w-[5vw]">
                 <Sidebar />
             </aside>
-            <div className="bg-white w-[95vw] flex justify-center p-[2vh] rounded-[30px] overflow-hidden">
+            <div className="bg-white w-[95vw] flex justify-center p-[1vw] rounded-[30px] overflow-hidden">
                 {children}
             </div>
         </div>

@@ -4,20 +4,20 @@ const Card = ({ title, value, subtitle, bgColor, iconPath, iconPath2, size = 'la
     
     const sizes = {
         small: {
-            title: 'text-[1.5vh]',   
-            value: 'text-[2.3vh]',   
+            title: 'text-[0.6vw]',   
+            value: 'text-[1.3vw]',   
             subtitle: 'text-[1.3vh]',
-            iconContainer: 'w-[4.5vh] h-[5vh]', 
-            iconWidth: '50%',
-            padding: 'p-[1.5vh]'              
+            iconContainer: 'w-[2.5vw] h-[5vh]', 
+            iconWidth: '1.3vw',
+            padding: 'p-[1vw]'              
         },
         large: {
-            title: 'text-[2vh]',           
-            value: 'text-[3vh]',           
-            subtitle: 'text-[1.7vh]',      
+            title: 'text-[1vw]',           
+            value: 'text-[1.5vw]',           
+            subtitle: 'text-[0.7vw]',      
             iconContainer: 'w-[4vw] h-[4.5vw]',
             iconWidth: '50%',
-            padding: 'p-[2vh]'
+            padding: 'p-[1vw]'
         }
     };
 
@@ -25,7 +25,7 @@ const Card = ({ title, value, subtitle, bgColor, iconPath, iconPath2, size = 'la
 
     return (
         <div className={`w-full flex justify-between items-center bg-${bgColor} bg-opacity-40 rounded-[30px] ${currentSize.padding} h-auto`}>
-            <div className="flex flex-col h-full">
+            <div className="flex flex-col justify-center h-full">
                 <p className={`text-[#777777] font-bold -mb-[0.5vh] ${currentSize.title}`}>
                     {title}
                 </p>

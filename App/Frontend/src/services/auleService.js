@@ -26,6 +26,27 @@ export const auleService = {
     return response.data;
   },
 
+  getStats: async (sede, piano) => {
+    let url = '/aule/stats';
+
+    // Costruisce l'URI in base ai filtri selezionati
+    if (sede && piano) {
+      url += `/sede/${sede}/piano/${piano}`;
+    } else if (sede) {
+      url += `/sede/${sede}`;
+    } else if (piano) {
+      url += `/piano/${piano}`;
+    }
+
+    const response = await api.get(url);
+    return response.data;
+  },
+
+  getSedeByNome: async (sede) => {
+    const response = await api.get(`/aule/sede/${sede}`);
+    return response.data;
+  },
+
 //   getById: async (cf) => {
 //     const response = await api.get(`/docenti/${cf}`);
 //     return response.data;

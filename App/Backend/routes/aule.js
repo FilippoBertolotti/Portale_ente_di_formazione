@@ -4,7 +4,9 @@ import {
   getAllSedi,
   getCountAule,
   getCountSedi,
-  getPiani
+  getPiani,
+  getAuleStats,
+  getSedeByNome
 } from '../controllers/auleController.js';
 import { authenticateToken } from '../middleware/auth.js';
 
@@ -17,6 +19,11 @@ router.get('/sedi', getAllSedi);
 router.get('/contaA', getCountAule);
 router.get('/contaS', getCountSedi);
 router.get('/piani', getPiani);
+router.get('/stats', getAuleStats);
+router.get('/sede/:sede', getSedeByNome);
+router.get('/stats/sede/:sede', getAuleStats);
+router.get('/stats/piano/:piano', getAuleStats);
+router.get('/stats/sede/:sede/piano/:piano', getAuleStats);
 // router.get('/:cf', getDocenteById);
 // router.post('/', isAdmin, createDocente);
 // router.put('/:cf', isAdmin, updateDocente);

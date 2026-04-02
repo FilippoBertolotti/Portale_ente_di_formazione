@@ -95,12 +95,12 @@ const Dashboard = () => {
         />
       </div>
 
-      <div className='grid grid-cols-12 gap-[2vh] flex-1 min-h-0'>
-        <div className='col-span-8 flex flex-col gap-[2vh] h-full overflow-hidden'>
+      <div className='grid grid-cols-12 gap-[1vw] flex-1 min-h-0'>
+        <div className='col-span-8 flex flex-col gap-[1vw] h-full overflow-hidden'>
           <Container title="Andamento Iscrizioni" className="h-[35vh] shrink-0">
             <TrendGraph />
           </Container>
-          <div className='grid grid-cols-9 gap-[2vh] flex-1 min-h-0 overflow-hidden'>
+          <div className='grid grid-cols-9 gap-[1vw] flex-1 min-h-0 overflow-hidden'>
             <Container title="Avanzamento Corsi" className="col-span-6 flex flex-col overflow-hidden">
 
               {loadingStats ? (
@@ -126,9 +126,9 @@ const Dashboard = () => {
             </Container>
           </div>
         </div>
-        <div className='col-span-4 h-full flex flex-col gap-[2vh] overflow-hidden'>
+        <div className='col-span-4 h-full flex flex-col gap-[1vw] overflow-hidden'>
           <Container title="Azioni Rapide" className="h-[40%]">
-            <div className='grid grid-cols-2 gap-[2vh]'>
+            <div className='grid grid-cols-2 gap-[1vw]'>
               <Button
                 variant="secondary"
                 size="medium"

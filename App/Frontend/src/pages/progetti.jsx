@@ -166,7 +166,6 @@ const Progetti = () => {
 
   }, [selectedProgetto, selectedAnno]);
 
-  // Dopo i tuoi useEffect, sostituisci la variabile riepilogo con:
 const riepilogo = useMemo(() => {
   if (selectedProgetto) {
     return progetti.find(p => p.codice === selectedProgetto) || null;
@@ -186,7 +185,6 @@ const riepilogo = useMemo(() => {
   }
   return null;
 }, [progetti, selectedProgetto, selectedAnno]);
-console.log('📊 Riepilogo calcolato:', riepilogo);
 
   return (
     <div className="flex flex-col h-full w-full">
@@ -205,10 +203,10 @@ console.log('📊 Riepilogo calcolato:', riepilogo);
             <Loader />
           </div>
         ) : (
-          <div className='grid grid-cols-12 gap-[2vh] flex-1 min-h-0'>
-            <div className='col-span-9 flex flex-col gap-[2vh] h-full overflow-hidden'>
-              <Container className="flex flex-col h-full overflow-hidden p-[2vh] gap-[2vh]">
-                <div className="flex gap-[2vh] items-end">
+          <div className='grid grid-cols-12 gap-[1vw] flex-1 min-h-0'>
+            <div className='col-span-9 flex flex-col gap-[1vw] h-full overflow-hidden'>
+              <Container className="flex flex-col h-full overflow-hidden p-[1vw] gap-[1vw]">
+                <div className="flex gap-[1vw] items-end">
                     <SelectFilter
                       title="Corso"
                       placeholder="Seleziona un corso"
@@ -251,9 +249,9 @@ console.log('📊 Riepilogo calcolato:', riepilogo);
                 />
               </Container>
             </div>
-            <div className='col-span-3 h-full flex flex-col gap-[2vh] overflow-hidden'>
+            <div className='col-span-3 h-full flex flex-col gap-[1vw] overflow-hidden'>
               <Container title="Azioni Rapide" className="h-[30%]">
-                <div className='grid grid-cols-2 gap-[2vh]'>
+                <div className='grid grid-cols-2 gap-[1vw]'>
                   <Button
                     variant="primary"
                     size="medium"
@@ -309,10 +307,9 @@ console.log('📊 Riepilogo calcolato:', riepilogo);
                   </Button>
                 </div>
               </Container>
-              <Container title={selectedAnno ? `Riepilogo Anno ${selectedAnno}` : 'Riepilogo'} className=" h-full overflow-hidden">
-                <div className=' flex flex-col space-y-[2vh] h-full overflow-hidden'>
-                  <div className='text-black text-lg font-bold'><span className ="text-sm font-normal whitespace-nowrap">Coordinatore: </span>{riepilogo?.coordinatoreNomeCompleto || '...'}</div>
-                  <div className='h-[40%] w-full items-stretch grid grid-cols-2 gap-[2vh] overflow-hidden'>
+              <Container title={selectedAnno ? `Riepilogo Anno ${selectedAnno}` : 'Riepilogo'} className=" h-full overflow-hidden" button={<div className='text-black text-[0.9vw] font-bold'><span className ="text-[0.7vw] font-normal whitespace-nowrap">Coordinatore: </span>{riepilogo?.coordinatoreNomeCompleto || '...'}</div>}>
+                <div className='flex flex-col space-y-[2vh] h-full overflow-hidden'>
+                  <div className='h-[47%] w-full items-stretch grid grid-cols-2 gap-[1vw] overflow-hidden'>
                     <Card
                       title="Ore Totali"
                       value={!riepilogo ? '...' : riepilogo.ore_totali || 0}
@@ -346,8 +343,8 @@ console.log('📊 Riepilogo calcolato:', riepilogo);
                       size="small"
                     />
                   </div>
-                  <span className='text-black text-[2vh] font-bold'>Distribuzione Ore</span>
-                  <div className='h-[40%] w-full items-stretch grid grid-cols-2 gap-[2vh] overflow-hidden'>
+                  <span className='text-black text-[0.9vw] font-bold'>Distribuzione Ore</span>
+                  <div className='h-[47%]  w-full items-stretch grid grid-cols-2 gap-[1vw] overflow-hidden'>
                     <Card
                       title="Aula"
                       value={!riepilogo ? '...' : riepilogo.ore_aula || 0}

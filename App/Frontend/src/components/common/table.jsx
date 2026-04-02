@@ -38,7 +38,7 @@ const Table = forwardRef(({
                                 <tr key={index} className='border-t-2 border-[#EDEDED]'>
                                     {Array.isArray(labels) && labels.map((label, labelIndex) => (
                                         <td
-                                            className={`text-${labelIndex >= centerFromIndex && centered ? 'center' : 'left'} p-[2vh] text-[#000000] font-bold text-[1rem] w-fit`}
+                                            className={`text-${labelIndex >= centerFromIndex && centered ? 'center' : 'left'} p-[1vw] text-[#000000] font-bold text-[1rem] w-fit`}
                                             key={labelIndex}
                                         >
                                             {labelIndex === labels.length - 1 && pill ? (
@@ -60,7 +60,7 @@ const Table = forwardRef(({
                                             )}
                                         </td>
                                     ))}
-                                    <td className='p-[2vh] align-middle'>
+                                    <td className='p-[1vw] align-middle'>
                                         <div className='flex gap-[1vh] items-center justify-center h-full'>
                                             <Button variant="modify" size="small">
                                                 <SvgIcon
@@ -84,7 +84,7 @@ const Table = forwardRef(({
                             ))) : (data === null || data === undefined ? (
                                 <tr><td
                                     colSpan={labels.length + 1}
-                                    className="border-t-2 border-[#EDEDED] text-center align-middle p-[2vh] text-[#000000] font-bold pt-[10vh]"
+                                    className="border-t-2 border-[#EDEDED] text-center align-middle p-[1vw] text-[#000000] font-bold pt-[10vh]"
                                 >
                                     <div className="flex flex-col items-center gap-[1vh]">
                                         <SvgIcon
@@ -103,7 +103,7 @@ const Table = forwardRef(({
                             ) : (
                                 <tr><td
                                     colSpan={labels.length + 1}
-                                    className="border-t-2 border-[#EDEDED] text-center align-middle p-[2vh] text-[#000000] font-bold pt-[10vh]"
+                                    className="border-t-2 border-[#EDEDED] text-center align-middle p-[1vw] text-[#000000] font-bold pt-[10vh]"
                                 >
                                     <div className="flex flex-col items-center gap-[1vh]">
                                         <SvgIcon
