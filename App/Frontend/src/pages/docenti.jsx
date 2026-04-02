@@ -55,7 +55,7 @@ const Docenti = () => {
         const fetchProgetti = async () => {
             try {
                 setLoading(true);
-                const response = await progettiService.getAll(); selectedAnno ? await progettiService.getByCodiceAnno(selectedProgetto, selectedAnno) :
+                const response = await progettiService.getAll();
 
                     console.log('📦 Risposta API:', response);
 
@@ -168,39 +168,7 @@ const Docenti = () => {
             }
         };
 
-        const fetchProgetti = async () => {
-            try {
-                const response = selectedAnno ? await progettiService.getByAnno(selectedAnno) : await progettiService.getAll();
-
-                console.log('📦 Risposta API:', response);
-
-                let progettiData = [];
-
-                if (Array.isArray(response)) {
-                    progettiData = response;
-                } else if (response?.data && Array.isArray(response.data)) {
-                    progettiData = response.data;
-                } else if (response?.progetti && Array.isArray(response.progetti)) {
-                    progettiData = response.progetti;
-                } else if (response?.results && Array.isArray(response.results)) {
-                    progettiData = response.results;
-                } else {
-                    console.warn('Formato dati non riconosciuto:', response);
-                    progettiData = [];
-                }
-
-                setProgetti(progettiData);
-                setError('');
-
-            } catch (err) {
-                setError('Errore nel caricamento dei progetti');
-                console.error('❌ Errore fetch:', err);
-                setProgetti([]);
-            }
-        };
-
         fetchDocente();
-        fetchProgetti();
 
     }, [selectedProgetto, selectedAnno]);
 

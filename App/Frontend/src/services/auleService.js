@@ -6,6 +6,11 @@ export const auleService = {
     return response.data;
   },
 
+  getAllSedi: async () => {
+    const response = await api.get('/aule/sedi');
+    return response.data;
+  },
+
   getCountA: async () => {
     const response = await api.get('/aule/contaA');
     return response.data;
@@ -13,6 +18,11 @@ export const auleService = {
 
   getCountS: async () => {
     const response = await api.get('/aule/contaS');
+    return response.data;
+  },
+
+  getPiani: async () => {
+    const response = await api.get('/aule/piani');
     return response.data;
   },
 

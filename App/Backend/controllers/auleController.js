@@ -1,12 +1,24 @@
 import pool from '../config/database.js';
 
-// GET tutti i aule
+// GET tutte le aule
 export const getAllAule = async (req, res) => {
     try {
         const result = await pool.query(`
-            SELECT a.descrizione, a.capienza, a.numeroPc, a.piano, a.attiva, s.nome as nome_sede
+            SELECT 
+              a.descrizione, 
+              a.capienza, 
+              a.numeropc, 
+              a.piano, 
+              a.attiva, 
+              s.nome as nome_sede, 
+              c.nome_citta, 
+              COUNT(l.id) || ' Prenotazioni Oggi' as prenotazioni
             FROM aula a
-            JOIN sede s ON a.id_sede = s.id;
+            JOIN sede s ON a.idsede = s.id
+            JOIN citta c on s.capcitta = c.cap
+            LEFT JOIN lezione l ON a.id = l.idaula AND l.data = CURRENT_DATE
+            GROUP BY a.descrizione,a.capienza,a.numeropc,a.piano,a.attiva,s.nome,c.nome_citta
+            ORDER BY a.descrizione; 
         `);
         res.json({
             status: 'success',
@@ -14,37 +26,35 @@ export const getAllAule = async (req, res) => {
             data: result.rows
         });
     } catch (error) {
-        console.error('Errore get docenti:', error);
+        console.error('Errore get aule:', error);
         res.status(500).json({
             status: 'error',
-            message: 'Errore nel recupero dei docenti'
+            message: 'Errore nel recupero delle aule'
         });
     }
 };
 
-// GET tutti i sedi
-// export const getAllSedi = async (req, res) => {
-//     try {
-//         const result = await pool.query(`
-//             SELECT u.*, p.descrizione
-//             FROM utente u
-//             JOIN docente d ON u.cf = d.cf
-//             LEFT JOIN progetto p ON d.codiceprogetto = p.codice
-//             ORDER BY u.cognome, u.nome;
-//         `);
-//         res.json({
-//             status: 'success',
-//             count: result.rows.length,
-//             data: result.rows
-//         });
-//     } catch (error) {
-//         console.error('Errore get docenti:', error);
-//         res.status(500).json({
-//             status: 'error',
-//             message: 'Errore nel recupero dei docenti'
-//         });
-//     }
-// };
+// GET tutte le sedi
+export const getAllSedi = async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT nome
+            FROM sede
+            ORDER BY nome;
+        `);
+        res.json({
+            status: 'success',
+            count: result.rows.length,
+            data: result.rows
+        });
+    } catch (error) {
+        console.error('Errore get sedi:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Errore nel recupero delle sedi'
+        });
+    }
+};
 
 // GET numero aule
 export const getCountAule = async (req, res) => {
@@ -60,7 +70,7 @@ export const getCountAule = async (req, res) => {
       data: parseInt(result.rows[0].total_aule)
     });
   } catch (error) {
-    console.error('Errore get docenti:', error);
+    console.error('Errore get aule:', error);
     res.status(500).json({
       status: 'error',
       message: 'Errore nel recupero del numero delle aule'
@@ -81,10 +91,31 @@ export const getCountSedi = async (req, res) => {
       data: parseInt(result.rows[0].total_sedi)
     });
   } catch (error) {
-    console.error('Errore get docenti:', error);
+    console.error('Errore get sedi:', error);
     res.status(500).json({
       status: 'error',
       message: 'Errore nel recupero del numero delle sedi'
+    });
+  }
+};
+
+// GET piani aule
+export const getPiani = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT DISTINCT piano
+      FROM AULA;
+    `);
+
+    res.json({
+      status: 'success',
+      data: result.rows
+    });
+  } catch (error) {
+    console.error('Errore get piani:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nel recupero dei piani'
     });
   }
 };
