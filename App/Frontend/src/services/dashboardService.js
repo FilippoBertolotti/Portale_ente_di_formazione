@@ -16,7 +16,8 @@ export const dashboardService = {
       docenti,
       aule,
       sedi,
-      lezioni
+      lezioni,
+      allProgetti
     ] = await Promise.allSettled([
       progettiService.getCount(),
       progettiService.getCompletion(),
@@ -25,7 +26,8 @@ export const dashboardService = {
       docentiService.getCount(),
       auleService.getCountA(),
       auleService.getCountS(),
-      lezioniService.getComingLezioni()
+      lezioniService.getComingLezioni(),
+      progettiService.getAll()
     ]);
 
     // Promise.allSettled non lancia errori, ogni risultato ha status: 'fulfilled' o 'rejected'
@@ -37,7 +39,18 @@ export const dashboardService = {
       docentiCount:      docenti.status === 'fulfilled'           ? docenti.value.data            : 'N/D',
       auleCount:         aule.status === 'fulfilled'              ? aule.value.data               : 'N/D',
       sediCount:         sedi.status === 'fulfilled'              ? sedi.value.data               : 'N/D',
-      lezioni:      lezioni.status === 'fulfilled'           ? lezioni.value.data      : [],
+      lezioni:           lezioni.status === 'fulfilled'           ? lezioni.value.data            : [],
+      allProgetti:       allProgetti.status === 'fulfilled'       ? allProgetti.value.data        : [],
     };
-  }
+  },
+
+  newStudent: async (studentData) => {
+    try {
+      const response = await studentiService.create(studentData);
+      return response.data;
+    } catch (error) {
+      console.error('Errore nella creazione dello studente:', error);
+      throw error;
+    }
+  },
 };

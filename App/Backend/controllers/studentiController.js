@@ -246,3 +246,51 @@ export const getAnni = async (req, res) => {
     });
   }
 };
+
+export const createStudente = async (req, res) => {
+  const { cf, nome, cognome, email, dataNascita, corso, annoAccademico } = req.body;
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Inserisce i dati anagrafici in UTENTE
+    await client.query(
+      `INSERT INTO UTENTE (CF, Nome, Cognome, DataNascita, Email, Password, Livello)
+     VALUES ($1, $2, $3, TO_DATE($4, 'YYYY-MM-DD'), $5, $6, 3)`,
+      [cf, nome, cognome, dataNascita, email, cf]
+    );
+
+    // Inserisce i dati di iscrizione in STUDENTE
+    await client.query(
+      `INSERT INTO STUDENTE (CF, CodiceProgetto, AnnoAccademico, DataInserimento)
+             VALUES ($1, $2, $3, CURRENT_DATE)`,
+      [cf, corso, annoAccademico]
+    );
+
+    await client.query('COMMIT');
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Studente creato con successo',
+    });
+
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Errore creazione studente:', error);
+
+    if (error.code === '23505') {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Codice fiscale o email già esistente'
+      });
+    }
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nella creazione dello studente'
+    });
+  } finally {
+    client.release();
+  }
+};

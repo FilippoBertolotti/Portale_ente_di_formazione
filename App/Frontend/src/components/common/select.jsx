@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import SvgIcon from '../../assets/icons/svgIcon';
 
-const SelectFilter = ({ title, placeholder, options = [], value, onChange, className }) => {
+const Select = ({ title, placeholder, options = [], value, onChange, className }) => {
     const [isOpen, setIsOpen] = useState(false);
     const ref = useRef(null);
 
@@ -68,4 +68,4 @@ const SelectFilter = ({ title, placeholder, options = [], value, onChange, class
     );
 };
 
-export default SelectFilter;
+export default Select;

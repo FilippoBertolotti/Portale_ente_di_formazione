@@ -8,7 +8,7 @@ import Container from '../components/common/container';
 import Button from '../components/common/button';
 import SvgIcon from '../assets/icons/svgIcon';
 import Table from '../components/common/table';
-import SelectFilter from '../components/common/selectFilter';
+import Select from '../components/common/Select';
 import Input from '../components/common/input';
 
 const Studenti = () => {
@@ -188,7 +188,7 @@ const Studenti = () => {
               <Container className="flex flex-col h-full overflow-hidden p-[1vw] gap-[1vw]">
                 <div className='grid grid-cols-7 w-full flex items-end'>
                   <div className="col-span-6 flex gap-[1vw] items-end">
-                    <SelectFilter
+                    <Select
                       title="Corso"
                       placeholder="Seleziona un corso"
                       options={progetti.map(progetto => ({ value: progetto.codice, label: progetto.descrizione }))}
@@ -196,7 +196,7 @@ const Studenti = () => {
                       onChange={setSelectedProgetto}
                       className="w-[40%]"
                     />
-                    <SelectFilter
+                    <Select
                       title="Anno"
                       placeholder="Seleziona un anno"
                       options={anni.map(anno => ({ value: anno.annoaccademico, label: "Anno " + anno.annoaccademico }))}

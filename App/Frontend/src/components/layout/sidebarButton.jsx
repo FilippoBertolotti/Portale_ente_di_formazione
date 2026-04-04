@@ -8,9 +8,9 @@ const SidebarButton = forwardRef(({
     title,
     percorso,
     type
-},ref) => {
+}, ref) => {
     const navigate = useNavigate();
-    const { logout,user } = useAuth();
+    const { logout, user } = useAuth();
     const [showLogoutModal, setShowLogoutModal] = useState(false);
 
     const isThisPage = window.location.pathname === percorso;
@@ -35,11 +35,11 @@ const SidebarButton = forwardRef(({
                 break;
         }
     };
-    
+
     return (
         <>
-            <div 
-                className={`flex justify-center items-center py-[1vh] w-[100%] hover:bg-[#efa134] hover:bg-opacity-10 hover:cursor-pointer ${isThisPage ? 'border-l-4 border-[#efa134]' : ''}`} 
+            <div
+                className={`flex justify-center items-center py-[1vh] w-[100%] hover:bg-[#efa134] hover:bg-opacity-10 hover:cursor-pointer ${isThisPage ? 'border-l-4 border-[#efa134]' : ''}`}
 
                 title={title}
                 onClick={handleClick}
@@ -55,11 +55,14 @@ const SidebarButton = forwardRef(({
                 onClose={() => setShowLogoutModal(false)}
                 onConfirm={handleLogout}
                 title="Conferma Logout"
-                message={`Ciao ${user?.nome}, sei sicuro di voler uscire?`}
                 confirmText="Esci"
                 cancelText="Rimani"
                 confirmColor="red"
-            />
+            >
+                <p className="text-gray-600 text-center mb-6">
+                    Ciao {user?.nome}, sei sicuro di voler uscire?
+                </p>
+            </ConfirmationModal>
         </>
     );
 });

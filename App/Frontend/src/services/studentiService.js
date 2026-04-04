@@ -51,10 +51,10 @@ export const studentiService = {
 //     return response.data;
 //   },
 
-//   create: async (studente) => {
-//     const response = await api.post('/studenti', studente);
-//     return response.data;
-//   },
+create: async (studente) => {
+  const response = await api.post('/studenti', studente);
+  return response.status;
+},
 
 //   update: async (cf, studente) => {
 //     const response = await api.put(`/studenti/${cf}`, studente);

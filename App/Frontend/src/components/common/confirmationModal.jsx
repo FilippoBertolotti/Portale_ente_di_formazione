@@ -1,6 +1,6 @@
 import Button from "./button";
 
-const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, confirmText, buttonType }) => {
+const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, children, confirmText, buttonType }) => {
     if (!isOpen) return null;
 
     return (
@@ -17,10 +17,7 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, confirm
                         {title}
                     </h3>
                     
-                    {/* Messaggio */}
-                    <p className="text-gray-600 text-center mb-6">
-                        {message}
-                    </p>
+                    {children}
                     
                     {/* Bottoni */}
                     <div className="flex justify-between">

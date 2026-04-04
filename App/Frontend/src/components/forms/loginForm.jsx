@@ -51,7 +51,7 @@ const LoginForm = ({ onSubmit, loading, error }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault(); 
-  e.stopPropagation();
+    e.stopPropagation();
     if (validate()) {
       onSubmit(formData);
     }

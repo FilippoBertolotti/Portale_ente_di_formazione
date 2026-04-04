@@ -8,9 +8,10 @@ import {
   getStudentiByAnno,
   getStudentiByProgetto,
   getAnni,
-  getAllStudentiSearch
+  getAllStudentiSearch,
+  createStudente
 } from '../controllers/studentiController.js';
-import { authenticateToken } from '../middleware/auth.js';
+import { authenticateToken, isAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -29,7 +30,7 @@ router.get('/anno/:anno', getStudentiByAnno);
 
 router.get('/:search', getAllStudentiSearch);
 // router.get('/:codice', getStudenteById);
-// router.post('/', isAdmin, createStudente);
+router.post('/', isAdmin, createStudente);
 // router.put('/:codice', isAdmin, updateStudente);
 // router.delete('/:codice', isAdmin, deleteStudente);
 

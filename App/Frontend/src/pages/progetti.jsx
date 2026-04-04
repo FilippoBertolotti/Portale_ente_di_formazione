@@ -9,7 +9,7 @@ import Button from '../components/common/button';
 import SvgIcon from '../assets/icons/svgIcon';
 import Card from '../components/common/card';
 import Table from '../components/common/table';
-import SelectFilter from '../components/common/selectFilter';
+import Select from '../components/common/Select';
 
 const Progetti = () => {
   const { user } = useAuth();
@@ -207,7 +207,7 @@ const riepilogo = useMemo(() => {
             <div className='col-span-9 flex flex-col gap-[1vw] h-full overflow-hidden'>
               <Container className="flex flex-col h-full overflow-hidden p-[1vw] gap-[1vw]">
                 <div className="flex gap-[1vw] items-end">
-                    <SelectFilter
+                    <Select
                       title="Corso"
                       placeholder="Seleziona un corso"
                       options={progetti.map(progetto => ({ value: progetto.codice, label: progetto.descrizione }))}
@@ -215,7 +215,7 @@ const riepilogo = useMemo(() => {
                       onChange={setSelectedProgetto}
                       className="w-[40%]"
                     />
-                    <SelectFilter
+                    <Select
                       title="Anno"
                       placeholder="Seleziona un anno"
                       options={anni.map(anno => ({ value: anno.anno, label: "Anno " + anno.anno }))}

@@ -7,15 +7,20 @@ import TrendGraph from '../components/dashboard/trendGraph';
 import ProgressBar from '../components/dashboard/progressBar';
 import { useAuth } from '../hooks/useAuth';
 import { dashboardService } from '../services/dashboardService';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import CompositionGraph from '../components/dashboard/compositionGraph';
 import Button from '../components/common/button';
 import SvgIcon from '../assets/icons/svgIcon';
+import ConfirmationModal from '../components/common/confirmationModal';
+import Form from '../components/forms/form';
+import { isCFValid, isCourseValid, isDateValid, isEmailValid, isNameValid, isSurnameValid, isAcademicYearValid } from '../utils/validators';
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
   const [stats, setStats] = useState(null);
   const [loadingStats, setLoadingStats] = useState(true);
+  const [showNewStudentModal, setShowNewStudentModal] = useState(false);
+  const StudentFormRef = useRef(null);
 
   useEffect(() => {
 
@@ -36,6 +41,17 @@ const Dashboard = () => {
     }
 
   }, [loading]);
+
+  const handleNewStudent = async (formData) => {
+    try {
+      await dashboardService.newStudent(formData);
+      // Aggiorna i dati
+      await fetchAll();
+      setShowNewStudentModal(false);
+    } catch (error) {
+      console.error('Errore:', error);
+    }
+  };
 
   if (loading) {
     return (
@@ -140,6 +156,7 @@ const Dashboard = () => {
                   path2='M23.95 5.21002V0.590024H25.24V5.21002H23.95ZM22.22 3.51002V2.29002H26.98V3.51002H22.22Z'
                 />}
                 className="xl:px-[2vh]"
+                onClick={() => setShowNewStudentModal(true)}
               >
                 Nuovo Studente
               </Button>
@@ -228,6 +245,30 @@ const Dashboard = () => {
           </Container>
         </div>
       </div>
+      <ConfirmationModal
+        isOpen={showNewStudentModal}
+        onClose={() => setShowNewStudentModal(false)}
+        onConfirm={() => StudentFormRef.current?.submit()}  // Chiama il submit del form
+        title="Nuovo Studente"
+        confirmText="Aggiungi"
+        buttonType="modify"
+      >
+        <Form
+          ref={StudentFormRef}
+          onSubmit={handleNewStudent}
+          onCancel={() => setShowNewStudentModal(false)}
+          fields={['cf', 'nome', 'cognome', 'email', 'datanascita', 'corso', 'annoaccademico']}
+          labels={['Codice Fiscale', 'Nome', 'Cognome', 'Email', 'Data di Nascita', 'Corso', 'Anno Accademico']}
+          types={['text', 'text', 'text', 'email', 'date', 'select', 'select']}
+          placeholders={['BNCDVD92M22H501V', 'Davida', 'Bianchi', 'davida.bianchi@email.it', '24/05/1992', 'Informatica, Economia, ...', '1']}
+          validators={[isCFValid, isNameValid, isSurnameValid, isEmailValid, isDateValid, isCourseValid, isAcademicYearValid]}
+          options={{
+            corso: Array.isArray(v('allProgetti'))
+              ? v('allProgetti').map(p => ({ value: p.codice, label: p.descrizione }))
+              : []
+          }}
+        />
+      </ConfirmationModal>
     </div>
   );
 };
