@@ -257,7 +257,7 @@ export const createStudente = async (req, res) => {
     // Inserisce i dati anagrafici in UTENTE
     await client.query(
       `INSERT INTO UTENTE (CF, Nome, Cognome, DataNascita, Email, Password, Livello)
-     VALUES ($1, $2, $3, TO_DATE($4, 'YYYY-MM-DD'), $5, $6, 3)`,
+     VALUES ($1, $2, $3, TO_DATE($4, 'YYYY-MM-DD'), $5, $6, 1)`,
       [cf, nome, cognome, dataNascita, email, cf]
     );
 

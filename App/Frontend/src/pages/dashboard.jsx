@@ -20,33 +20,32 @@ const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [loadingStats, setLoadingStats] = useState(true);
   const [showNewStudentModal, setShowNewStudentModal] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const StudentFormRef = useRef(null);
 
+  const fetchAll = async () => {
+    try {
+      setLoadingStats(true);
+      const data = await dashboardService.getAll();
+      setStats(data);
+    } catch (error) {
+      console.error('Errore dashboard:', error);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
+
   useEffect(() => {
-
-    const fetchAll = async () => {
-      try {
-        setLoadingStats(true);
-        const data = await dashboardService.getAll();
-        setStats(data);
-      } catch (error) {
-        console.error('Errore dashboard:', error);
-      } finally {
-        setLoadingStats(false);
-      }
-    };
-
     if (!loading) {
       fetchAll();
     }
-
   }, [loading]);
 
   const handleNewStudent = async (formData) => {
     try {
       await dashboardService.newStudent(formData);
-      // Aggiorna i dati
       await fetchAll();
+      setRefreshKey(prev => prev + 1); // forza il refresh dei grafici
       setShowNewStudentModal(false);
     } catch (error) {
       console.error('Errore:', error);
@@ -114,7 +113,7 @@ const Dashboard = () => {
       <div className='grid grid-cols-12 gap-[1vw] flex-1 min-h-0'>
         <div className='col-span-8 flex flex-col gap-[1vw] h-full overflow-hidden'>
           <Container title="Andamento Iscrizioni" className="h-[35vh] shrink-0">
-            <TrendGraph />
+            <TrendGraph key={`${refreshKey}`} />
           </Container>
           <div className='grid grid-cols-9 gap-[1vw] flex-1 min-h-0 overflow-hidden'>
             <Container title="Avanzamento Corsi" className="col-span-6 flex flex-col overflow-hidden">
@@ -138,7 +137,7 @@ const Dashboard = () => {
 
             </Container>
             <Container title='Composizione Iscrizioni' className="col-span-3">
-              <CompositionGraph />
+              <CompositionGraph key={`${refreshKey}`} />
             </Container>
           </div>
         </div>
@@ -252,12 +251,13 @@ const Dashboard = () => {
         title="Nuovo Studente"
         confirmText="Aggiungi"
         buttonType="modify"
+        className='max-w-[100%] w-[60%]'
       >
         <Form
           ref={StudentFormRef}
           onSubmit={handleNewStudent}
           onCancel={() => setShowNewStudentModal(false)}
-          fields={['cf', 'nome', 'cognome', 'email', 'datanascita', 'corso', 'annoaccademico']}
+          fields={['cf', 'nome', 'cognome', 'email', 'dataNascita', 'corso', 'annoAccademico']}
           labels={['Codice Fiscale', 'Nome', 'Cognome', 'Email', 'Data di Nascita', 'Corso', 'Anno Accademico']}
           types={['text', 'text', 'text', 'email', 'date', 'select', 'select']}
           placeholders={['BNCDVD92M22H501V', 'Davida', 'Bianchi', 'davida.bianchi@email.it', '24/05/1992', 'Informatica, Economia, ...', '1']}
@@ -267,6 +267,12 @@ const Dashboard = () => {
               ? v('allProgetti').map(p => ({ value: p.codice, label: p.descrizione }))
               : []
           }}
+          layout={[
+            ['cf'],
+            ['nome', 'cognome'],
+            ['dataNascita', 'email'],
+            ['corso', 'annoAccademico']
+          ]}
         />
       </ConfirmationModal>
     </div>

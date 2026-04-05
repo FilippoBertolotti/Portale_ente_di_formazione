@@ -8,7 +8,7 @@ import Container from '../components/common/container';
 import Button from '../components/common/button';
 import SvgIcon from '../assets/icons/svgIcon';
 import Table from '../components/common/table';
-import Select from '../components/common/Select';
+import Select from '../components/common/select';
 import Input from '../components/common/input';
 
 const Studenti = () => {
@@ -234,7 +234,7 @@ const Studenti = () => {
                             viewBox="0 0 24 24"
                           />
                         }
-                        classNameIn="focus:ring-0 py-[1vh] px-[2vh] text-[1.5vh] focus:!border-[#E0E6EB] focus:shadow-none transition-none"
+                        classNameIn="focus:ring-0 focus:!border-[#E0E6EB] focus:shadow-none transition-none"
                       />
                     </div>
 

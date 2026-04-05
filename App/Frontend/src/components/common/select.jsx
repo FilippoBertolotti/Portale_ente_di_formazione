@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import SvgIcon from '../../assets/icons/svgIcon';
 
-const Select = ({ title, placeholder, options = [], value, onChange, className }) => {
+const Select = ({ title, placeholder, options = [], value, error, onChange, className, classNameLa }) => {
     const [isOpen, setIsOpen] = useState(false);
     const ref = useRef(null);
 
@@ -16,18 +16,23 @@ const Select = ({ title, placeholder, options = [], value, onChange, className }
     }, []);
 
     return (
-        <div ref={ref} className={`flex flex-col ${className || ''}`}>
+        <div ref={ref} className={`flex flex-col gap-2 ${className || ''}`}>
             {title && (
-                <div className="pl-[2vh]">
-                    <span className='text-black text-[1.5vh] font-bold'>{title}</span>
+                <div className="ml-[30px] -mt-[0.2vh]">
+                    <span className={`text-sm font-bold ${classNameLa || ''}`}>{title}</span>
                 </div>
             )}
-            <div className="relative">
+            <div className="relative" >
                 <button
                     onClick={() => setIsOpen(prev => !prev)}
-                    className="w-full flex justify-between items-center border border-[#E0E6EB] bg-white rounded-[30px] py-[1vh] px-[2vh] text-left"
+                    className={`w-full flex justify-between items-center border border-[#E0E6EB] bg-white rounded-[30px] px-4 py-3 text-left
+                        ${error
+                            ? 'border-red-500 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.1)]'
+                            : 'border-[#E0E6EB] focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)]'
+                        }
+                    `}
                 >
-                    <span className={`text-[1.5vh] ${selected ? 'text-black font-bold' : 'text-[#777777]'}`}>
+                    <span className={`text-base ${selected ? 'text-black font-bold' : 'text-[#777777]'}`}>
                         {selected ? selected.label : placeholder}
                     </span>
                     <SvgIcon
@@ -47,7 +52,7 @@ const Select = ({ title, placeholder, options = [], value, onChange, className }
                     >
                         <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
                     </svg> */}
-                </button>
+                </button >
 
                 {isOpen && (
                     <div className="absolute z-50 w-full mt-[1vh] bg-white border border-[#E0E6EB] rounded-[20px] shadow-lg max-h-[30vh] overflow-auto">
@@ -63,8 +68,8 @@ const Select = ({ title, placeholder, options = [], value, onChange, className }
                         ))}
                     </div>
                 )}
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 

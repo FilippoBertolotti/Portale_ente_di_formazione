@@ -12,6 +12,7 @@ const Form = forwardRef(({
     placeholders = [], // ['mario@example.com', '••••••••']
     validators = {},   // { email: (v) => !v ? 'Obbligatorio' : null, ... }
     options = {},   // { nomecampo: [{ value: '...', label: '...' }] }
+    layout = null,        // [['email'], ['password', 'confirmPassword']]
 }, ref) => {
 
     // Inizializza formData dinamicamente dai fields ricevuti
@@ -30,6 +31,13 @@ const Form = forwardRef(({
         // Pulisce l'errore del campo non appena l'utente scrive
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: '' }));
+        }
+    };
+
+    const handleSelectChange = (field, value) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+        if (errors[field]) {
+            setErrors(prev => ({ ...prev, [field]: '' }));
         }
     };
 
@@ -66,46 +74,50 @@ const Form = forwardRef(({
             onSubmit={handleSubmit}
             noValidate
         >
-            {fields.map((field, i) => {
-                const fieldOptions = options[field];
+            {(layout ?? fields.map(f => [f])).map((row, rowIndex) => (
+                <div key={rowIndex} className={`grid gap-[1vw] grid-cols-${row.length}`}>
+                    {row.map((field) => {
+                        const i = fields.indexOf(field);
+                        const fieldOptions = options[field];
 
-                // Se esistono opzioni per questo campo → Select
-                if (fieldOptions) {
-                    return (
-                        <div key={field} className="flex flex-col gap-1">
-                            <Select
-                                title={labels[i] ?? field}
-                                placeholder={placeholders[i] ?? 'Seleziona...'}
-                                options={fieldOptions}
+                        if (fieldOptions) {
+                            return (
+                                <div key={field} className="flex flex-col gap-1">
+                                    <Select
+                                        title={labels[i] ?? field}
+                                        placeholder={placeholders[i] ?? 'Seleziona...'}
+                                        options={fieldOptions}
+                                        value={formData[field]}
+                                        error={errors[field]}
+                                        onChange={(value) => handleSelectChange(field, value)}
+                                        classNameLa="text-[#777777]"
+                                    />
+                                    <span className="text-red-500 text-sm ml-[30px]">
+                                        {errors[field] ?? '\u00A0'}
+                                    </span>
+                                </div>
+                            );
+                        }
+
+                        return (
+                            <Input
+                                key={field}
+                                label={labels[i] ?? field}
+                                type={types[i] ?? 'text'}
+                                name={field}
                                 value={formData[field]}
-                                onChange={(value) => handleSelectChange(field, value)}
+                                onChange={handleChange}
+                                placeholder={placeholders[i] ?? ''}
+                                error={errors[field]}
+                                required
+                                disabled={loading}
+                                classNameLa="text-[#777777] font-bold ml-[30px]"
+                                classNameEr="ml-[30px]"
                             />
-                            {/* Errore sotto il select, allineato come gli Input */}
-                            <span className="text-red-500 text-sm ml-[30px]">
-                                {errors[field] ?? '\u00A0'}
-                            </span>
-                        </div>
-                    );
-                }
-
-                // Altrimenti → Input normale
-                return (
-                    <Input
-                        key={field}
-                        label={labels[i] ?? field}
-                        type={types[i] ?? 'text'}
-                        name={field}
-                        value={formData[field]}
-                        onChange={handleChange}
-                        placeholder={placeholders[i] ?? ''}
-                        error={errors[field]}
-                        required
-                        disabled={loading}
-                        classNameLa="text-[#777777] font-bold ml-[30px]"
-                        classNameEr="ml-[30px]"
-                    />
-                );
-            })}
+                        );
+                    })}
+                </div>
+            ))}
             {error && (
                 <div className="bg-red-50 text-red-600 px-4 py-3 rounded-md
                                 border-l-4 border-red-500 text-sm">
