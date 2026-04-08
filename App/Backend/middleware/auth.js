@@ -27,7 +27,7 @@ export const authenticateToken = (req, res, next) => {
 // Middleware per verificare livello utente
 export const checkLevel = (minLevel) => {
   return (req, res, next) => {
-    if (req.user.livello < minLevel) {
+    if (req.user.livello > minLevel) {
       return res.status(403).json({
         status: 'error',
         message: 'Accesso negato. Livello insufficiente.'
@@ -38,11 +38,11 @@ export const checkLevel = (minLevel) => {
 };
 
 // Livelli:
-// 3 = Studente
-// 2 = Docente  
-// 1 = Coordinatore
 // 0 = Amministratore
-export const isStudente = checkLevel(3);
-export const isDocente = checkLevel(2);
-export const isCoordinatore = checkLevel(1);
+// 1 = Studente
+// 2 = Docente  
+// 3 = Coordinatore
 export const isAdmin = checkLevel(0);
+export const isStudente = checkLevel(1);
+export const isDocente = checkLevel(2);
+export const isCoordinatore = checkLevel(3);

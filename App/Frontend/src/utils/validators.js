@@ -45,3 +45,57 @@ export const isAcademicYearValid = (v) => {
     if (isNaN(parseInt(v.trim())) || parseInt(v.trim()) <= 0 || parseInt(v.trim()) > 2) return 'Inserisci un anno valido';
     return null;
 };
+
+export const isPhoneValid = (v) => {
+    if (!v?.trim()) return 'Telefono obbligatorio';
+    if (!/^\+?[0-9\s\-\(\)]{10,}$/.test(v.trim())) return 'Telefono non valido';
+    return null;
+};
+
+export const isQualificationValid = (v) => {
+    if (!v?.trim()) return 'Qualifica obbligatorio';
+    if (v.trim().length < 2) return 'Qualifica troppo corta';
+    if (!/^[a-zA-ZÀ-ÿ\s'-]+$/.test(v.trim())) return 'Caratteri non validi';
+    return null;
+};
+
+export const isPlaceNameValid = (v) => {
+    if (!v?.trim()) return 'Nome del luogo obbligatorio';
+    if (v.trim().length < 2) return 'Nome troppo corto (minimo 2 caratteri)';
+    if (v.trim().length > 100) return 'Nome troppo lungo (massimo 100 caratteri)';
+    return null;
+};
+export const isCapacityValid = (v) => {
+    if (!v || v < 10) return 'Capacità non valida (minimo 10)';
+    return null;
+};
+
+export const isSedeValid = (v) => {
+    if (!v) return 'Seleziona una sede';
+    return null;
+};
+
+export const isPianoValid = (v) => {
+    if (!v?.trim()) return 'Piano obbligatorio';
+    if (v.trim().length < 7) return 'Piano troppo corto';
+    return null;
+};
+
+export const isAddressValid = (v, options = {}) => {
+    if (!v?.trim()) return 'Indirizzo obbligatorio';
+    if (v.trim().length < 5) return `Indirizzo troppo corto (minimo 5 caratteri)`;
+    if (v.trim().length > 200) return `Indirizzo troppo lungo (massimo 200 caratteri)`;
+    return null;
+};
+
+export const isCapValid = (v, required = true) => {
+    if (!v?.trim()) return 'CAP obbligatorio';
+    const cap = String(v).trim();
+    if (!/^\d{5}$/.test(cap)) return 'CAP non valido (es. 20121)';
+    return null;
+};
+
+export const isDescriptionValid = (v) => {
+    if (!v?.trim()) return 'Descrizione obbligatoria';
+    return null;
+};

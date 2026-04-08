@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { progettiService } from '../services/progettiService';
 import { studentiService } from '../services/studentiService';
 import Loader from '../components/common/Loader';
@@ -10,6 +10,9 @@ import SvgIcon from '../assets/icons/svgIcon';
 import Table from '../components/common/table';
 import Select from '../components/common/select';
 import Input from '../components/common/input';
+import ConfirmationModal from '../components/common/confirmationModal';
+import Form from '../components/forms/form';
+import { isAcademicYearValid, isCFValid, isCourseValid, isDateValid, isEmailValid, isNameValid, isSurnameValid } from '../utils/validators';
 
 const Studenti = () => {
   const { user } = useAuth();
@@ -21,14 +24,45 @@ const Studenti = () => {
   const [selectedProgetto, setSelectedProgetto] = useState(null);
   const [selectedAnno, setSelectedAnno] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showNewStudentModal, setShowNewStudentModal] = useState(false);
+  const StudentFormRef = useRef();
 
-  useEffect(() => {
+  const fetchStudente = async () => {
+      try {
+        let response = [];
+        if (searchTerm && searchTerm.trim() !== '') {
+        // Se c'è un termine di ricerca, usa l'endpoint search
+        response = await studentiService.getSearch(searchTerm);
+      } else {
+        // Altrimenti, prendi tutti gli studenti
+        response = await studentiService.getAll();
+      }
+
+        const studentiData = response.data;
+
+        let filtered =
+          selectedProgetto
+            ? studentiData.filter(s => s.codiceprogetto == selectedProgetto)
+            : studentiData;
+
+        filtered =
+          selectedAnno
+            ? filtered.filter(s => s.annoaccademico == selectedAnno)
+            : filtered;
+
+        setStudenti(filtered);
+        setError('');
+
+      } catch (err) {
+        console.error('❌ Errore fetch:', err);
+        setError('Errore nel caricamento dei studenti');
+        setStudenti([]);
+      }
+    };
+
     const fetchProgetti = async () => {
       try {
-        setLoading(true);
-        const response = selectedAnno ? await progettiService.getByCodiceAnno(selectedProgetto, selectedAnno) : await progettiService.getAll();
-
-        console.log('📦 Risposta API:', response);
+        const response = selectedAnno ? await progettiService.getByAnno(selectedAnno) : await progettiService.getAll();
 
         let progettiData = [];
 
@@ -52,10 +86,10 @@ const Studenti = () => {
         setError('Errore nel caricamento dei progetti');
         console.error('❌ Errore fetch:', err);
         setProgetti([]);
-      } finally {
-        setLoading(false);
       }
     };
+
+  useEffect(() => {
 
     const fetchAnni = async () => {
       try {
@@ -94,77 +128,20 @@ const Studenti = () => {
   }, []);
 
   useEffect(() => {
-    const fetchStudente = async () => {
-      try {
-        let response = [];
-        if (searchTerm && searchTerm.trim() !== '') {
-        // Se c'è un termine di ricerca, usa l'endpoint search
-        response = await studentiService.getSearch(searchTerm);
-      } else {
-        // Altrimenti, prendi tutti gli studenti
-        response = await studentiService.getAll();
-      }
-;
-
-        console.log('📦 Risposta API:', response);
-
-        const studentiData = response.data;
-
-        let filtered =
-          selectedProgetto
-            ? studentiData.filter(s => s.codiceprogetto == selectedProgetto)
-            : studentiData;
-
-        filtered =
-          selectedAnno
-            ? filtered.filter(s => s.annoaccademico == selectedAnno)
-            : filtered;
-
-        setStudenti(filtered);
-        setError('');
-
-      } catch (err) {
-        console.error('❌ Errore fetch:', err);
-        setError('Errore nel caricamento dei studenti');
-        setStudenti([]);
-      }
-    };
-
-    const fetchProgetti = async () => {
-      try {
-        const response = selectedAnno ? await progettiService.getByAnno(selectedAnno) : await progettiService.getAll();
-
-        console.log('📦 Risposta API:', response);
-
-        let progettiData = [];
-
-        if (Array.isArray(response)) {
-          progettiData = response;
-        } else if (response?.data && Array.isArray(response.data)) {
-          progettiData = response.data;
-        } else if (response?.progetti && Array.isArray(response.progetti)) {
-          progettiData = response.progetti;
-        } else if (response?.results && Array.isArray(response.results)) {
-          progettiData = response.results;
-        } else {
-          console.warn('Formato dati non riconosciuto:', response);
-          progettiData = [];
-        }
-
-        setProgetti(progettiData);
-        setError('');
-
-      } catch (err) {
-        setError('Errore nel caricamento dei progetti');
-        console.error('❌ Errore fetch:', err);
-        setProgetti([]);
-      }
-    };
-
     fetchStudente();
     fetchProgetti();
 
   }, [selectedProgetto, selectedAnno, searchTerm]);
+
+  const handleNewStudent = async (formData) => {
+      try {
+        await studentiService.create(formData);
+        fetchStudente(); // Ricarica la lista degli studenti dopo l'aggiunta
+        setShowNewStudentModal(false);
+      } catch (error) {
+        console.error('Errore:', error);
+      }
+    };
 
   return (
     <div className="flex flex-col h-full w-full">
@@ -250,6 +227,7 @@ const Studenti = () => {
                       path2='M23.95 5.21002V0.590024H25.24V5.21002H23.95ZM22.22 3.51002V2.29002H26.98V3.51002H22.22Z'
                     />}
                     className="xl:px-[2vh] h-fit"
+                    onClick={() => setShowNewStudentModal(true)}
                   >
                     Nuovo Studente
                   </Button>
@@ -266,6 +244,38 @@ const Studenti = () => {
           </div>
         )
       )}
+      <ConfirmationModal
+        isOpen={showNewStudentModal}
+        onClose={() => setShowNewStudentModal(false)}
+        onConfirm={() => StudentFormRef.current?.submit()}  // Chiama il submit del form
+        title="Nuovo Studente"
+        confirmText="Aggiungi"
+        buttonType="modify"
+        w='60%'
+        wMax='100%'
+      >
+        <Form
+          ref={StudentFormRef}
+          onSubmit={handleNewStudent}
+          onCancel={() => setShowNewStudentModal(false)}
+          fields={['cf', 'nome', 'cognome', 'email', 'dataNascita', 'corso', 'annoAccademico']}
+          labels={['Codice Fiscale', 'Nome', 'Cognome', 'Email', 'Data di Nascita', 'Corso', 'Anno Accademico']}
+          types={['text', 'text', 'text', 'email', 'date', 'select', 'select']}
+          placeholders={['BNCDVD92M22H501V', 'Davida', 'Bianchi', 'davida.bianchi@email.it', '24/05/1992', 'Informatica, Economia, ...', '1']}
+          validators={[isCFValid, isNameValid, isSurnameValid, isEmailValid, isDateValid, isCourseValid, isAcademicYearValid]}
+          options={{
+            corso: Array.isArray(progetti)
+              ? progetti.map(p => ({ value: p.codice, label: p.descrizione }))
+              : []
+          }}
+          layout={[
+            ['cf'],
+            ['nome', 'cognome'],
+            ['dataNascita', 'email'],
+            ['corso', 'annoAccademico']
+          ]}
+        />
+      </ConfirmationModal>
     </div>
   );
 };

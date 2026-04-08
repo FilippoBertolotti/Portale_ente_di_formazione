@@ -10,14 +10,15 @@ export const getAllAule = async (req, res) => {
               a.numeropc, 
               a.piano, 
               a.attiva, 
-              s.nome as nome_sede, 
+              a.idsede,
+              COALESCE(s.nome, 'Non Specificata') as nome_sede, 
               c.nome_citta, 
               COUNT(l.id) || ' Prenotazioni Oggi' as prenotazioni
             FROM aula a
-            JOIN sede s ON a.idsede = s.id
-            JOIN citta c on s.capcitta = c.cap
+            LEFT JOIN sede s ON a.idsede = s.id
+            LEFT JOIN citta c ON s.capcitta = c.cap
             LEFT JOIN lezione l ON a.id = l.idaula AND l.data = CURRENT_DATE
-            GROUP BY a.descrizione,a.capienza,a.numeropc,a.piano,a.attiva,s.nome,c.nome_citta
+            GROUP BY a.descrizione,a.capienza,a.numeropc,a.piano,a.attiva,s.nome,c.nome_citta,a.idsede
             ORDER BY a.descrizione; 
         `);
     res.json({
@@ -38,7 +39,7 @@ export const getAllAule = async (req, res) => {
 export const getAllSedi = async (req, res) => {
   try {
     const result = await pool.query(`
-            SELECT nome
+            SELECT id, nome
             FROM sede
             ORDER BY nome;
         `);
@@ -127,21 +128,20 @@ export const getAuleStats = async (req, res) => {
 
   try {
     let query = `
-            SELECT 
-                COUNT(a.id) as aule_totali,
-                COALESCE(SUM(a.capienza), 0) as posti_totali,
-                COUNT(CASE WHEN numeropc > 0 THEN 1 END) as aule_pc,
-                COUNT(CASE WHEN attiva = false THEN 1 END) as non_disponibili
-            FROM aula a
-            LEFT JOIN sede s ON a.idsede = s.id
-            WHERE 1=1
-        `;
+      SELECT 
+        COUNT(a.id) as aule_totali,
+        COALESCE(SUM(a.capienza), 0) as posti_totali,
+        COUNT(CASE WHEN numeropc > 0 THEN 1 END) as aule_pc,
+        COUNT(CASE WHEN attiva = false THEN 1 END) as non_disponibili
+      FROM aula a
+      WHERE 1=1
+    `;
 
     const values = [];
     let paramIndex = 1;
 
     if (sede) {
-      query += ` AND s.nome = $${paramIndex}`;
+      query += ` AND a.idsede = $${paramIndex}`;
       values.push(sede);
       paramIndex++;
     }
@@ -154,20 +154,14 @@ export const getAuleStats = async (req, res) => {
 
     const result = await pool.query(query, values);
 
-    res.json({
-      status: 'success',
-      data: result.rows[0]
-    });
+    res.json({ status: 'success', data: result.rows[0] });
   } catch (error) {
     console.error('Errore get stats aule:', error);
-    res.status(500).json({
-      status: 'error',
-      message: 'Errore nel recupero delle statistiche delle aule'
-    });
+    res.status(500).json({ status: 'error', message: 'Errore nel recupero delle statistiche delle aule' });
   }
 };
 
-export const getSedeByNome = async (req, res) => {
+export const getSedeById = async (req, res) => {
   const { sede } = req.params;
   try {
     const result = await pool.query(`
@@ -179,7 +173,7 @@ export const getSedeByNome = async (req, res) => {
               c.nome_citta
             FROM sede s
             JOIN citta c on s.capcitta = c.cap
-            WHERE s.nome = $1;
+            WHERE s.id = $1;
          `, [sede]);
     res.json({
       status: 'success',
@@ -194,3 +188,112 @@ export const getSedeByNome = async (req, res) => {
     });
   }
 };
+
+export const createAula = async (req, res) => {
+  const { descrizione, capienza, numeropc, piano, attiva, idsede } = req.body;
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    await client.query(
+      `INSERT INTO AULA (descrizione, capienza, numeropc, piano, attiva, idsede)
+     VALUES ($1, $2, $3, $4, $5, $6)`,
+      [descrizione, capienza, numeropc, piano, attiva, idsede]
+    );
+
+    await client.query('COMMIT');
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Aula creata con successo',
+    });
+
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Errore creazione aula:', error);
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nella creazione dell\'aula'
+    });
+  } finally {
+    client.release();
+  }
+};
+
+export const createSede = async (req, res) => {
+  const { nome, indirizzo, telefono, descrizione, cap, nome_citta } = req.body;
+
+  const client = await pool.connect();
+  try {
+    let citta = await client.query('SELECT nome_citta FROM citta WHERE cap = $1', [cap]);
+
+    if (citta.rows.length === 0) {
+      await client.query(
+        `INSERT INTO citta (cap, nome_citta) VALUES ($1, $2)`,
+        [cap, nome_citta]
+      );
+    }
+
+    await client.query('BEGIN');
+
+    await client.query(
+      `INSERT INTO SEDE (nome, indirizzo, telefono, descrizione, capcitta)
+     VALUES ($1, $2, $3, $4, $5)`,
+      [nome, indirizzo, telefono, descrizione, cap]
+    );
+
+    await client.query('COMMIT');
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Sede creata con successo',
+    });
+
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Errore creazione sede:', error);
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nella creazione della sede'
+    });
+  } finally {
+    client.release();
+  }
+};
+
+export const deleteSede = async (req, res) => {
+  const { sede } = req.params;
+
+  const client = await pool.connect();
+  try {
+    await client.query(
+      `UPDATE aula SET attiva = false WHERE idsede = $1;`,
+      [sede]
+    );
+    
+    await client.query(
+      `DELETE FROM sede WHERE id = $1;`,
+      [sede]
+    );
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Sede eliminata con successo',
+    });
+
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Errore eliminazione sede:', error);
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nella eliminazione della sede'
+    });
+  } finally {
+    client.release();
+  }
+};
+

@@ -16,10 +16,10 @@ export const docentiService = {
 //     return response.data;
 //   },
 
-//   create: async (docente) => {
-//     const response = await api.post('/docenti', docente);
-//     return response.data;
-//   },
+  create: async (docente) => {
+    const response = await api.post('/docenti', docente);
+    return response.data;
+  },
 
 //   update: async (cf, docente) => {
 //     const response = await api.put(`/docenti/${cf}`, docente);

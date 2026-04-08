@@ -1,6 +1,6 @@
 import Button from "./button";
 
-const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, children, confirmText, buttonType, className }) => {
+const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, children, confirmText, buttonType, w, wMax }) => {
     if (!isOpen) return null;
 
     return (
@@ -10,7 +10,7 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, children, confir
                 onClick={onClose}
             ></div>
 
-            <div className={`relative bg-white rounded-[30px] shadow-2xl max-w-md w-full mx-4 animate-scale-in ${className || ''}`}>
+            <div className={`relative bg-white rounded-[30px] shadow-2xl max-w-[${wMax || 'md'}] w-[${w || 'full'}] mx-4 animate-scale-in`}>
                 <div className="p-6 flex flex-col gap-6">
                     <div>
                         {/* Titolo */}

@@ -16,9 +16,22 @@ const Form = forwardRef(({
 }, ref) => {
 
     // Inizializza formData dinamicamente dai fields ricevuti
-    const [formData, setFormData] = useState(() =>
-        Object.fromEntries(fields.map(field => [field, '']))
-    );
+    const [formData, setFormData] = useState(() => {
+        const initialData = {};
+        fields.forEach((field, index) => {
+            const fieldOptions = options[field];
+            // Se il campo ha opzioni, imposta il primo valore come default
+            if (fieldOptions && fieldOptions.length > 0 && !placeholders[index]) {
+                // Assicurati di prendere il value dell'oggetto
+                const firstValue = fieldOptions[0].value
+                initialData[field] = firstValue;
+            } else {
+                initialData[field] = '';
+            }
+        });
+        return initialData;
+    });
+
     const [errors, setErrors] = useState({});
 
     useImperativeHandle(ref, () => ({
@@ -44,13 +57,11 @@ const Form = forwardRef(({
     const validate = () => {
         const newErrors = {};
         fields.forEach((field, i) => {
-            // Array → usa l'indice  |  Oggetto → usa il nome del campo
-            const validator = Array.isArray(validators)
-                ? validators[i]
-                : validators[field];
+            // Array → usa l'indice
+            const validator = validators[i];
 
             if (validator) {
-                const message = validator(formData[field]);
+                const message = validator(formData[field], formData);
                 if (message) newErrors[field] = message;
             }
         });
@@ -85,7 +96,7 @@ const Form = forwardRef(({
                                 <div key={field} className="flex flex-col gap-1">
                                     <Select
                                         title={labels[i] ?? field}
-                                        placeholder={placeholders[i] ?? 'Seleziona...'}
+                                        placeholder={placeholders[i]}
                                         options={fieldOptions}
                                         value={formData[field]}
                                         error={errors[field]}
@@ -109,7 +120,6 @@ const Form = forwardRef(({
                                 onChange={handleChange}
                                 placeholder={placeholders[i] ?? ''}
                                 error={errors[field]}
-                                required
                                 disabled={loading}
                                 classNameLa="text-[#777777] font-bold ml-[30px]"
                                 classNameEr="ml-[30px]"

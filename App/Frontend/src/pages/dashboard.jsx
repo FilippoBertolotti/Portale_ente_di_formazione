@@ -13,20 +13,25 @@ import Button from '../components/common/button';
 import SvgIcon from '../assets/icons/svgIcon';
 import ConfirmationModal from '../components/common/confirmationModal';
 import Form from '../components/forms/form';
-import { isCFValid, isCourseValid, isDateValid, isEmailValid, isNameValid, isSurnameValid, isAcademicYearValid } from '../utils/validators';
+import { isCFValid, isCourseValid, isDateValid, isEmailValid, isNameValid, isSurnameValid, isAcademicYearValid, isPhoneValid, isQualificationValid, isCapacityValid, isSedeValid, isPianoValid, isPlaceNameValid } from '../utils/validators';
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
   const [stats, setStats] = useState(null);
   const [loadingStats, setLoadingStats] = useState(true);
   const [showNewStudentModal, setShowNewStudentModal] = useState(false);
+  const [showNewTeacherModal, setShowNewTeacherModal] = useState(false);
+  const [showNewClassroomModal, setShowNewClassroomModal] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const StudentFormRef = useRef(null);
+  const TeacherFormRef = useRef(null);
+  const ClassroomFormRef = useRef(null);
 
   const fetchAll = async () => {
     try {
       setLoadingStats(true);
       const data = await dashboardService.getAll();
+      console.log('Dashboard stats:', data);
       setStats(data);
     } catch (error) {
       console.error('Errore dashboard:', error);
@@ -47,6 +52,26 @@ const Dashboard = () => {
       await fetchAll();
       setRefreshKey(prev => prev + 1); // forza il refresh dei grafici
       setShowNewStudentModal(false);
+    } catch (error) {
+      console.error('Errore:', error);
+    }
+  };
+
+  const handleNewTeacher = async (formData) => {
+    try {
+      await dashboardService.newTeacher(formData);
+      await fetchAll();
+      setShowNewTeacherModal(false);
+    } catch (error) {
+      console.error('Errore:', error);
+    }
+  };
+
+  const handleNewClassroom = async (formData) => {
+    try {
+      await dashboardService.newClassroom(formData);
+      await fetchAll();
+      setShowNewClassroomModal(false);
     } catch (error) {
       console.error('Errore:', error);
     }
@@ -171,6 +196,7 @@ const Dashboard = () => {
                   path2='M23.35 7.81V3.19H24.64V7.81H23.35ZM21.62 6.11V4.89H26.38V6.11H21.62Z'
                 />}
                 className="xl:px-[2vh]"
+                onClick={() => setShowNewTeacherModal(true)}
               >
                 Nuovo Docente
               </Button>
@@ -200,6 +226,7 @@ const Dashboard = () => {
                   path2='M25.35 8.81V4.19H26.64V8.81H25.35ZM23.62 7.11V5.89H28.38V7.11H23.62Z'
                 />}
                 className="xl:px-[2vh]"
+                onClick={() => setShowNewClassroomModal(true)}
               >
                 Nuova Aula
               </Button>
@@ -251,7 +278,8 @@ const Dashboard = () => {
         title="Nuovo Studente"
         confirmText="Aggiungi"
         buttonType="modify"
-        className='max-w-[100%] w-[60%]'
+        w='60%'
+        wMax='100%'
       >
         <Form
           ref={StudentFormRef}
@@ -272,6 +300,84 @@ const Dashboard = () => {
             ['nome', 'cognome'],
             ['dataNascita', 'email'],
             ['corso', 'annoAccademico']
+          ]}
+        />
+      </ConfirmationModal>
+
+      <ConfirmationModal
+        isOpen={showNewTeacherModal}
+        onClose={() => setShowNewTeacherModal(false)}
+        onConfirm={() => TeacherFormRef.current?.submit()}  // Chiama il submit del form
+        title="Nuovo Docente"
+        confirmText="Aggiungi"
+        buttonType="modify"
+        w='60%'
+        wMax='100%'
+      >
+        <Form
+          ref={TeacherFormRef}
+          onSubmit={handleNewTeacher}
+          onCancel={() => setShowNewTeacherModal(false)}
+          fields={['cf', 'nome', 'cognome', 'email', 'dataNascita', 'telefono', 'qualifica']}
+          labels={['Codice Fiscale', 'Nome', 'Cognome', 'Email', 'Data di Nascita', 'Telefono', 'Qualifica']}
+          types={['text', 'text', 'text', 'email', 'date', 'text', 'text']}
+          placeholders={['BNCDVD92M22H501V', 'Davida', 'Bianchi', 'davida.bianchi@email.it', '24/05/1992', '012 345 6789', 'Data Science']}
+          validators={[isCFValid, isNameValid, isSurnameValid, isEmailValid, isDateValid, isPhoneValid, isQualificationValid]}
+          layout={[
+            ['cf'],
+            ['nome', 'cognome'],
+            ['dataNascita', 'email'],
+            ['telefono', 'qualifica']
+          ]}
+        />
+      </ConfirmationModal>
+
+      <ConfirmationModal
+        isOpen={showNewClassroomModal}
+        onClose={() => setShowNewClassroomModal(false)}
+        onConfirm={() => ClassroomFormRef.current?.submit()}  // Chiama il submit del form
+        title="Nuova Aula"
+        confirmText="Aggiungi"
+        buttonType="modify"
+        w='60%'
+        wMax='100%'
+      >
+        <Form
+          ref={ClassroomFormRef}
+          onSubmit={handleNewClassroom}
+          onCancel={() => setShowNewClassroomModal(false)}
+          fields={['descrizione', 'capienza', 'numeropc', 'idsede', 'piano', 'attiva']}
+          labels={['Nome', 'Capienza', 'Numero PC', 'Sede', 'Piano', 'Stato']}
+          types={['text', 'number', 'number', 'select', 'text', 'select']}
+          placeholders={['Aula 101', '50', '10', 'Sede A', 'Piano Terra, Primo Piano...']}
+          validators={[
+            isPlaceNameValid,
+            isCapacityValid,
+            (pcCount, formValues) => {  // per numeropc - funzione personalizzata
+              const capacity = formValues?.capienza;
+              if (!capacity) return 'Inserisci prima la capienza';
+              if (!pcCount || pcCount < 0) return 'Numero PC non valido';
+              if (pcCount > capacity) return `Numero PC (${pcCount}) non può superare la capienza (${capacity})`;
+              return null;
+            },
+            isSedeValid,
+            isPianoValid
+          ]}
+          options={{
+            idsede: Array.isArray(v('allSedi'))
+              ? v('allSedi').map(s => ({ value: s.id, label: s.nome }))
+              : [],
+
+            attiva: [
+              { value: true, label: 'Attiva' },
+              { value: false, label: 'In Manutenzione' }
+            ],
+          }}
+          layout={[
+            ['descrizione'],
+            ['capienza', 'numeropc'],
+            ['idsede', 'piano'],
+            ['attiva']
           ]}
         />
       </ConfirmationModal>

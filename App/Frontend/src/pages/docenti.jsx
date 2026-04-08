@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { progettiService } from '../services/progettiService';
 import { docentiService } from '../services/docentiService';
 import Loader from '../components/common/Loader';
@@ -8,11 +8,22 @@ import Container from '../components/common/container';
 import Button from '../components/common/button';
 import SvgIcon from '../assets/icons/svgIcon';
 import Table from '../components/common/table';
-import Select from '../components/common/Select';
+import Select from '../components/common/select';
 // import Input from '../components/common/input';
 import { moduliService } from '../services/moduliService';
+import { isCFValid, isDateValid, isEmailValid, isNameValid, isPhoneValid, isQualificationValid, isSurnameValid } from '../utils/validators';
+import ConfirmationModal from '../components/common/confirmationModal';
+import Form from '../components/forms/form';
 
 const CorsoModuloCell = ({ value }) => {
+    if (!value) {
+        return (
+            <div className='flex flex-col w-full'>
+                <div className="text-gray-500 italic">Nessun corso associato</div>
+            </div>
+        );
+    }
+
     const [expanded, setExpanded] = useState(false);
     const values = value.split('\n');
     const limit = expanded ? values.length : 2;
@@ -49,7 +60,52 @@ const Docenti = () => {
     const [error, setError] = useState('');
     const [selectedProgetto, setSelectedProgetto] = useState(null);
     const [selectedAnno, setSelectedAnno] = useState(null);
+    const [showNewTeacherModal, setShowNewTeacherModal] = useState(false);
+    const TeacherFormRef = useRef(null);
     // const [searchTerm, setSearchTerm] = useState('');
+
+    const fetchDocente = async () => {
+        try {
+            let response = [];
+            // if (searchTerm && searchTerm.trim() !== '') {
+            //     Se c'è un termine di ricerca, usa l'endpoint search
+            //     response = await docentiService.getSearch(searchTerm);
+            // } else {
+            //     Altrimenti, prendi tutti i docenti
+            response = await docentiService.getAll();
+            // }
+            // ;
+
+            const docentiData = response.data;
+
+            let filtered = selectedProgetto
+                ? docentiData.filter(d =>
+                    d.codiciProgettiAnni?.split('\n')
+                        .some(pa => pa.split(':')[0].trim() === selectedProgetto.trim())
+                )
+                : docentiData;
+
+            filtered = selectedAnno
+                ? filtered.filter(d => {
+                    if (selectedProgetto) {
+                        return d.codiciProgettiAnni?.split('\n')
+                            .some(pa => {
+                                const [cod, anno] = pa.split(':');
+                                return cod.trim() === selectedProgetto.trim() && anno?.trim() === String(selectedAnno);
+                            });
+                    }
+                    return d.anni?.split(',').map(s => s.trim()).includes(String(selectedAnno));
+                })
+                : filtered;
+            setDocenti(filtered);
+            setError('');
+
+        } catch (err) {
+            console.error('❌ Errore fetch:', err);
+            setError('Errore nel caricamento dei docenti');
+            setDocenti([]);
+        }
+    };
 
     useEffect(() => {
         const fetchProgetti = async () => {
@@ -57,7 +113,7 @@ const Docenti = () => {
                 setLoading(true);
                 const response = await progettiService.getAll();
 
-                    console.log('📦 Risposta API:', response);
+                console.log('📦 Risposta API:', response);
 
                 let progettiData = [];
 
@@ -123,54 +179,19 @@ const Docenti = () => {
     }, []);
 
     useEffect(() => {
-        const fetchDocente = async () => {
-            try {
-                let response = [];
-                // if (searchTerm && searchTerm.trim() !== '') {
-                //     Se c'è un termine di ricerca, usa l'endpoint search
-                //     response = await docentiService.getSearch(searchTerm);
-                // } else {
-                //     Altrimenti, prendi tutti i docenti
-                response = await docentiService.getAll();
-                // }
-                // ;
-
-                console.log('📦 Risposta API:', response);
-
-                const docentiData = response.data;
-
-                let filtered = selectedProgetto
-                    ? docentiData.filter(d =>
-                        d.codiciProgettiAnni?.split('\n')
-                            .some(pa => pa.split(':')[0].trim() === selectedProgetto.trim())
-                    )
-                    : docentiData;
-
-                filtered = selectedAnno
-                    ? filtered.filter(d => {
-                        if (selectedProgetto) {
-                            return d.codiciProgettiAnni?.split('\n')
-                                .some(pa => {
-                                    const [cod, anno] = pa.split(':');
-                                    return cod.trim() === selectedProgetto.trim() && anno?.trim() === String(selectedAnno);
-                                });
-                        }
-                        return d.anni?.split(',').map(s => s.trim()).includes(String(selectedAnno));
-                    })
-                    : filtered;
-                setDocenti(filtered);
-                setError('');
-
-            } catch (err) {
-                console.error('❌ Errore fetch:', err);
-                setError('Errore nel caricamento dei docenti');
-                setDocenti([]);
-            }
-        };
-
         fetchDocente();
 
     }, [selectedProgetto, selectedAnno]);
+
+    const handleNewTeacher = async (formData) => {
+        try {
+            await docentiService.create(formData);
+            await fetchDocente();
+            setShowNewTeacherModal(false);
+        } catch (error) {
+            console.error('Errore:', error);
+        }
+    };
 
     return (
         <div className="flex flex-col h-full w-full">
@@ -257,6 +278,7 @@ const Docenti = () => {
                                             path2='M23.35 7.81V3.19H24.64V7.81H23.35ZM21.62 6.11V4.89H26.38V6.11H21.62Z'
                                         />}
                                         className="xl:px-[2vh] h-fit"
+                                        onClick={() => setShowNewTeacherModal(true)}
                                     >
                                         Nuovo Docente
                                     </Button>
@@ -294,6 +316,34 @@ const Docenti = () => {
                     </div>
                 )
             )}
+
+            <ConfirmationModal
+                isOpen={showNewTeacherModal}
+                onClose={() => setShowNewTeacherModal(false)}
+                onConfirm={() => TeacherFormRef.current?.submit()}  // Chiama il submit del form
+                title="Nuovo Docente"
+                confirmText="Aggiungi"
+                buttonType="modify"
+                w='60%'
+                wMax='100%'
+            >
+                <Form
+                    ref={TeacherFormRef}
+                    onSubmit={handleNewTeacher}
+                    onCancel={() => setShowNewTeacherModal(false)}
+                    fields={['cf', 'nome', 'cognome', 'email', 'dataNascita', 'telefono', 'qualifica']}
+                    labels={['Codice Fiscale', 'Nome', 'Cognome', 'Email', 'Data di Nascita', 'Telefono', 'Qualifica']}
+                    types={['text', 'text', 'text', 'email', 'date', 'text', 'text']}
+                    placeholders={['BNCDVD92M22H501V', 'Davida', 'Bianchi', 'davida.bianchi@email.it', '24/05/1992', '012 345 6789', 'Data Science']}
+                    validators={[isCFValid, isNameValid, isSurnameValid, isEmailValid, isDateValid, isPhoneValid, isQualificationValid]}
+                    layout={[
+                        ['cf'],
+                        ['nome', 'cognome'],
+                        ['dataNascita', 'email'],
+                        ['telefono', 'qualifica']
+                    ]}
+                />
+            </ConfirmationModal>
         </div>
     );
 };

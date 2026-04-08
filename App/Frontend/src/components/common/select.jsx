@@ -24,7 +24,7 @@ const Select = ({ title, placeholder, options = [], value, error, onChange, clas
             )}
             <div className="relative" >
                 <button
-                    onClick={() => setIsOpen(prev => !prev)}
+                    onClick={(e) => {e.preventDefault(); setIsOpen(prev => !prev);}}
                     className={`w-full flex justify-between items-center border border-[#E0E6EB] bg-white rounded-[30px] px-4 py-3 text-left
                         ${error
                             ? 'border-red-500 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.1)]'

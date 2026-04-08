@@ -42,28 +42,33 @@ export const auleService = {
     return response.data;
   },
 
-  getSedeByNome: async (sede) => {
+  getSedeById: async (sede) => {
     const response = await api.get(`/aule/sede/${sede}`);
     return response.data;
   },
 
-//   getById: async (cf) => {
-//     const response = await api.get(`/docenti/${cf}`);
-//     return response.data;
-//   },
+  //   getById: async (cf) => {
+  //     const response = await api.get(`/docenti/${cf}`);
+  //     return response.data;
+  //   },
 
-//   create: async (docente) => {
-//     const response = await api.post('/docenti', docente);
-//     return response.data;
-//   },
+  createA: async (aula) => {
+    const response = await api.post('/aule', aula);
+    return response;
+  },
 
-//   update: async (cf, docente) => {
-//     const response = await api.put(`/docenti/${cf}`, docente);
-//     return response.data;
-//   },
+  createS: async (sede) => {
+    const response = await api.post('/aule/sede', sede);
+    return response;
+  },
 
-//   delete: async (cf) => {
-//     const response = await api.delete(`/docenti/${cf}`);
-//     return response.data;
-//   },
+  //   update: async (cf, docente) => {
+  //     const response = await api.put(`/docenti/${cf}`, docente);
+  //     return response.data;
+  //   },
+
+  deleteSede: async (sede) => {
+    const response = await api.delete(`/aule/sede/${sede}`);
+    return response;
+  }
 };
