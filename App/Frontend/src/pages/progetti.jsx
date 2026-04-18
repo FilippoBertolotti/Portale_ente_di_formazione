@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { progettiService } from '../services/progettiService';
 import { moduliService } from '../services/moduliService';
+import { docentiService } from '../services/docentiService';
 import Loader from '../components/common/Loader';
 import Header from '../components/common/header';
 import { useAuth } from '../hooks/useAuth';
@@ -10,181 +11,222 @@ import SvgIcon from '../assets/icons/svgIcon';
 import Card from '../components/common/card';
 import Table from '../components/common/table';
 import Select from '../components/common/select';
+import ConfirmationModal from '../components/common/confirmationModal';
+import Form from '../components/forms/form';
+import { isAcademicYearValid, isCodeValid, isColorValid, isCoordinatoreValid, isDescriptionValid, isHoursValid, isProjectValid, isYearValid, } from '../utils/validators';
 
 const Progetti = () => {
   const { user } = useAuth();
   const [progetti, setProgetti] = useState([]);
+  const [docenti, setDocenti] = useState([]);
   const [anni, setAnni] = useState([]);
   const [moduli, setModuli] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedProgetto, setSelectedProgetto] = useState(null);
   const [selectedAnno, setSelectedAnno] = useState(null);
+  const [showNewModuleModal, setShowNewModuleModal] = useState(false);
+  const [showNewCourseModal, setShowNewCourseModal] = useState(false);
+  const [showDeleteCourseModal, setShowDeleteCourseModal] = useState(false);
+  const CourseFormRef = useRef(null);
+  const ModuleFormRef = useRef(null);
+
+  const fetchProgetti = async () => {
+    try {
+      setLoading(true);
+      const response = selectedAnno ? await progettiService.getByCodiceAnno(selectedProgetto, selectedAnno) : await progettiService.getAll();
+
+      let progettiData = [];
+
+      if (Array.isArray(response)) {
+        progettiData = response;
+      } else if (response?.data && Array.isArray(response.data)) {
+        progettiData = response.data;
+      } else if (response?.progetti && Array.isArray(response.progetti)) {
+        progettiData = response.progetti;
+      } else if (response?.results && Array.isArray(response.results)) {
+        progettiData = response.results;
+      } else {
+        console.warn('Formato dati non riconosciuto:', response);
+        progettiData = [];
+      }
+
+      setProgetti(progettiData);
+      setError('');
+
+    } catch (err) {
+      setError('Errore nel caricamento dei progetti');
+      console.error('❌ Errore fetch:', err);
+      setProgetti([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchAnni = async () => {
+    try {
+      setLoading(true);
+      const response = await moduliService.getAnni();
+
+      let anniData = [];
+
+      if (Array.isArray(response)) {
+        anniData = response;
+      } else if (response?.data && Array.isArray(response.data)) {
+        anniData = response.data;
+      } else if (response?.results && Array.isArray(response.results)) {
+        anniData = response.results;
+      } else {
+        console.warn('Formato dati non riconosciuto:', response);
+        anniData = [];
+      }
+
+      setAnni(anniData);
+      setError('');
+
+    } catch (err) {
+      setError('Errore nel caricamento degli anni');
+      console.error('❌ Errore fetch anni:', err);
+      setAnni([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchDocenti = async () => {
+    try {
+      const response = await docentiService.getAll();
+
+      let docentiData = []
+      if (Array.isArray(response)) {
+        docentiData = response
+      } else if (response?.data && Array.isArray(response.data)) {
+        docentiData = response.data
+      }
+      setDocenti(docentiData);
+    } catch (err) {
+      console.error('❌ Errore fetch docenti:', err);
+      setDocenti([]);
+    }
+  };
 
   useEffect(() => {
-    const fetchProgetti = async () => {
-      try {
-        setLoading(true);
-        const response = selectedAnno ? await progettiService.getByCodiceAnno(selectedProgetto, selectedAnno) : await progettiService.getAll();
-
-        console.log('📦 Risposta API:', response);
-
-        let progettiData = [];
-
-        if (Array.isArray(response)) {
-          progettiData = response;
-        } else if (response?.data && Array.isArray(response.data)) {
-          progettiData = response.data;
-        } else if (response?.progetti && Array.isArray(response.progetti)) {
-          progettiData = response.progetti;
-        } else if (response?.results && Array.isArray(response.results)) {
-          progettiData = response.results;
-        } else {
-          console.warn('Formato dati non riconosciuto:', response);
-          progettiData = [];
-        }
-
-        setProgetti(progettiData);
-        setError('');
-
-      } catch (err) {
-        setError('Errore nel caricamento dei progetti');
-        console.error('❌ Errore fetch:', err);
-        setProgetti([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchAnni = async () => {
-      try {
-        setLoading(true);
-        const response = await moduliService.getAnni();
-
-        console.log('📦 Raw response anni:', response);
-
-        let anniData = [];
-
-        if (Array.isArray(response)) {
-          anniData = response;
-        } else if (response?.data && Array.isArray(response.data)) {
-          anniData = response.data;
-        } else if (response?.results && Array.isArray(response.results)) {
-          anniData = response.results;
-        } else {
-          console.warn('Formato dati non riconosciuto:', response);
-          anniData = [];
-        }
-
-        setAnni(anniData);
-        setError('');
-
-      } catch (err) {
-        setError('Errore nel caricamento degli anni');
-        console.error('❌ Errore fetch anni:', err);
-        setAnni([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProgetti();
     fetchAnni();
+    fetchDocenti();
   }, []);
 
+  const fetchModulo = async () => {
+    try {
+      let response = [];
+
+      if (selectedProgetto) {
+        response = await moduliService.getByCodiceProgetto(selectedProgetto);
+      } else if (selectedAnno) {
+        response = await moduliService.getByAnno(selectedAnno);
+      }
+      console.log('📦 Risposta API:', response);
+
+      const moduliData =
+        response?.data ??
+        response?.moduli ??
+        response?.results ??
+        (Array.isArray(response) ? response : []);
+
+      const filtered =
+        selectedProgetto && selectedAnno
+          ? moduliData.filter(m => m.anno == selectedAnno)
+          : moduliData;
+
+      setModuli(filtered);
+      setError('');
+
+    } catch (err) {
+      console.error('❌ Errore fetch:', err);
+      setError('Errore nel caricamento dei moduli');
+      setModuli([]);
+    }
+  };
+
   useEffect(() => {
-    const fetchModulo = async () => {
-      try {
-        let response = [];
-
-        if (selectedProgetto) {
-          response = await moduliService.getByCodiceProgetto(selectedProgetto);
-        } else if (selectedAnno) {
-          response = await moduliService.getByAnno(selectedAnno);
-        }
-        console.log('📦 Risposta API:', response);
-
-        const moduliData =
-          response?.data ??
-          response?.moduli ??
-          response?.results ??
-          (Array.isArray(response) ? response : []);
-
-        const filtered =
-          selectedProgetto && selectedAnno
-            ? moduliData.filter(m => m.anno == selectedAnno)
-            : moduliData;
-
-        setModuli(filtered);
-        setError('');
-
-      } catch (err) {
-        console.error('❌ Errore fetch:', err);
-        setError('Errore nel caricamento dei moduli');
-        setModuli([]);
-      }
-    };
-
-    const fetchProgetti = async () => {
-      try {
-        const response = selectedAnno ? await progettiService.getByAnno(selectedAnno) : await progettiService.getAll();
-
-        console.log('📦 Risposta API:', response);
-
-        let progettiData = [];
-
-        if (Array.isArray(response)) {
-          progettiData = response;
-        } else if (response?.data && Array.isArray(response.data)) {
-          progettiData = response.data;
-        } else if (response?.progetti && Array.isArray(response.progetti)) {
-          progettiData = response.progetti;
-        } else if (response?.results && Array.isArray(response.results)) {
-          progettiData = response.results;
-        } else {
-          console.warn('Formato dati non riconosciuto:', response);
-          progettiData = [];
-        }
-
-        setProgetti(progettiData);
-        setError('');
-
-      } catch (err) {
-        setError('Errore nel caricamento dei progetti');
-        console.error('❌ Errore fetch:', err);
-        setProgetti([]);
-      }
-    };
-
     if (selectedProgetto || selectedAnno) {
       fetchModulo();
     } else {
       setModuli(null);
     }
-
-    fetchProgetti();
-
   }, [selectedProgetto, selectedAnno]);
 
-const riepilogo = useMemo(() => {
-  if (selectedProgetto) {
-    return progetti.find(p => p.codice === selectedProgetto) || null;
-  }
-  if (selectedAnno && progetti.length > 0) {
-    return {
-      coordinatoreNomeCompleto: progetti.find(p => p.coordinatoreNomeCompleto)?.coordinatoreNomeCompleto || '',
-      ore_totali: progetti.reduce((s, p) => s + (+p.ore_totali || 0), 0),
-      ore_aula: progetti.reduce((s, p) => s + (+p.ore_aula || 0), 0),
-      ore_project: progetti.reduce((s, p) => s + (+p.ore_project || 0), 0),
-      ore_stage: progetti.reduce((s, p) => s + (+p.ore_stage || 0), 0),
-      ore_elarn: progetti.reduce((s, p) => s + (+p.ore_elarn || 0), 0),
-      numero_moduli: progetti.reduce((s, p) => s + (+p.numero_moduli || 0), 0),
-      numero_lezioni: progetti.reduce((s, p) => s + (+p.numero_lezioni || 0), 0),
-      numero_docenti: progetti.reduce((s, p) => s + (+p.numero_docenti || 0), 0),
-    };
-  }
-  return null;
-}, [progetti, selectedProgetto, selectedAnno]);
+  const handleNewModule = async (formData) => {
+    try {
+      await moduliService.create(formData);
+      await fetchModulo();
+      await fetchProgetti();
+      setShowNewModuleModal(false);
+    } catch (error) {
+      console.error('Errore:', error);
+    }
+  };
+
+  const handleNewCourse = async (formData) => {
+    try {
+      await progettiService.create(formData);
+      await fetchModulo();
+      await fetchProgetti();
+      setShowNewCourseModal(false);
+    } catch (error) {
+      console.error('Errore:', error);
+    }
+  };
+
+  const handleDeleteCourse = async () => {
+    try {
+      await progettiService.delete(selectedProgetto);
+      await fetchProgetti();
+      setSelectedProgetto(null);
+      setShowDeleteCourseModal(false);
+    } catch (error) {
+      console.error('Errore:', error);
+    }
+  };
+
+  const riepilogo = useMemo(() => {
+    // Caso 1: Progetto specifico selezionato
+    if (selectedProgetto && !selectedAnno) {
+      const progetto = progetti.find(p => p.codice === selectedProgetto);
+      if (progetto) {
+        return {
+          coordinatoreNomeCompleto: progetto.coordinatoreNomeCompleto || '',
+          ore_totali: progetto.ore_totali || 0,
+          ore_aula: progetto.ore_aula || 0,
+          ore_project: progetto.ore_project || 0,
+          ore_stage: progetto.ore_stage || 0,
+          ore_elarn: progetto.ore_elarn || 0,
+          numero_moduli: progetto.numero_moduli || 0,
+          numero_lezioni: progetto.numero_lezioni || 0,
+          numero_docenti: progetto.numero_docenti || 0,
+        };
+      }
+    }
+
+    // Caso 2: Solo anno selezionato - USA I MODULI, non i progetti!
+    if (selectedAnno && selectedProgetto && moduli && moduli.length > 0) {
+      const progetto = progetti.find(p => p.codice === selectedProgetto);
+      // Calcola i totali aggregando i moduli
+      return {
+        coordinatoreNomeCompleto: progetto.coordinatoreNomeCompleto,
+        ore_totali: moduli.reduce((sum, m) => sum + (Number(m.oreaula) || 0) + (Number(m.oreproject) || 0) + (Number(m.orestage) || 0) + (Number(m.oreelearn) || 0), 0),
+        ore_aula: moduli.reduce((sum, m) => sum + (Number(m.oreaula) || 0), 0),
+        ore_project: moduli.reduce((sum, m) => sum + (Number(m.oreproject) || 0), 0),
+        ore_stage: moduli.reduce((sum, m) => sum + (Number(m.orestage) || 0), 0),
+        ore_elarn: moduli.reduce((sum, m) => sum + (Number(m.oreelearn) || 0), 0),
+        numero_moduli: moduli.length,
+        numero_lezioni: moduli.reduce((sum, m) => sum + (Number(m.numero_lezioni) || 0), 0),
+        numero_docenti: moduli.reduce((sum, m) => sum + (String(m.lista_docenti || '').split(',').filter(d => d.trim()).length), 0),
+      };
+    }
+
+    return null;
+  }, [progetti, moduli, selectedProgetto, selectedAnno]); // <- AGGIUNTO moduli qui!
 
   return (
     <div className="flex flex-col h-full w-full">
@@ -207,35 +249,35 @@ const riepilogo = useMemo(() => {
             <div className='col-span-9 flex flex-col gap-[1vw] h-full overflow-hidden'>
               <Container className="flex flex-col h-full overflow-hidden p-[1vw] gap-[1vw]">
                 <div className="flex gap-[1vw] items-end">
-                    <Select
-                      title="Corso"
-                      placeholder="Seleziona un corso"
-                      options={progetti.map(progetto => ({ value: progetto.codice, label: progetto.descrizione }))}
-                      value={selectedProgetto}
-                      onChange={setSelectedProgetto}
-                      className="w-[40%]"
-                    />
-                    <Select
-                      title="Anno"
-                      placeholder="Seleziona un anno"
-                      options={anni.map(anno => ({ value: anno.anno, label: "Anno " + anno.anno }))}
-                      value={selectedAnno}
-                      onChange={setSelectedAnno}
-                      className="w-[20%]"
-                    />
-                    {(selectedAnno || selectedProgetto) &&
-                      <div className='pb-[0.5vh]'>
-                        <Button variant="noBg" size="small" onClick={() => { setSelectedProgetto(null); setSelectedAnno(null); }} className="shrink-0" title="Rimuovi filtri">
-                          <SvgIcon
-                            viewBox='0 0 24 24'
-                            color='#D64541'
-                            width="1.5vh"
-                            height="1.5vh"
-                            path1="M20.6523 4.34438C21.1819 3.73729 21.0976 2.83557 20.4601 2.33115C19.8227 1.82672 18.8759 1.90708 18.3463 2.51417L12 9.76804L5.65373 2.51417C5.1241 1.90708 4.17731 1.82673 3.53987 2.33115C2.90243 2.83558 2.81806 3.73729 3.3477 4.34438L10.0455 12L3.3477 19.6556C2.81806 20.2627 2.90243 21.1644 3.53987 21.6689C4.17731 22.1733 5.1241 22.0929 5.65373 21.4858L12 14.232L18.3463 21.4858C18.8759 22.0929 19.8227 22.1733 20.4601 21.6689C21.0976 21.1644 21.1819 20.2627 20.6523 19.6556L13.9545 12L20.6523 4.34438Z"
-                          />
-                        </Button>
-                      </div>
-                    }
+                  <Select
+                    title="Corso"
+                    placeholder="Seleziona un corso"
+                    options={progetti.map(progetto => ({ value: progetto.codice, label: progetto.descrizione }))}
+                    value={selectedProgetto}
+                    onChange={setSelectedProgetto}
+                    className="w-[40%]"
+                  />
+                  <Select
+                    title="Anno"
+                    placeholder="Seleziona un anno"
+                    options={anni.map(anno => ({ value: anno.anno, label: "Anno " + anno.anno }))}
+                    value={selectedAnno}
+                    onChange={setSelectedAnno}
+                    className="w-[20%]"
+                  />
+                  {(selectedAnno || selectedProgetto) &&
+                    <div className='pb-[0.5vh]'>
+                      <Button variant="noBg" size="small" onClick={() => { setSelectedProgetto(null); setSelectedAnno(null); }} className="shrink-0" title="Rimuovi filtri">
+                        <SvgIcon
+                          viewBox='0 0 24 24'
+                          color='#D64541'
+                          width="1.5vh"
+                          height="1.5vh"
+                          path1="M20.6523 4.34438C21.1819 3.73729 21.0976 2.83557 20.4601 2.33115C19.8227 1.82672 18.8759 1.90708 18.3463 2.51417L12 9.76804L5.65373 2.51417C5.1241 1.90708 4.17731 1.82673 3.53987 2.33115C2.90243 2.83558 2.81806 3.73729 3.3477 4.34438L10.0455 12L3.3477 19.6556C2.81806 20.2627 2.90243 21.1644 3.53987 21.6689C4.17731 22.1733 5.1241 22.0929 5.65373 21.4858L12 14.232L18.3463 21.4858C18.8759 22.0929 19.8227 22.1733 20.4601 21.6689C21.0976 21.1644 21.1819 20.2627 20.6523 19.6556L13.9545 12L20.6523 4.34438Z"
+                        />
+                      </Button>
+                    </div>
+                  }
                 </div>
                 <Table
                   headers={['Nome Modulo', 'Ore Aula', 'ProjectWork', 'E-Learning', 'Stage', 'Docenti']}
@@ -262,6 +304,7 @@ const riepilogo = useMemo(() => {
                       path1='M26.35 5.81V1.19H27.64V5.81H26.35ZM24.62 4.11V2.89H29.38V4.11H24.62Z'
                       path2='M23.2765 6.16667C23.1549 6.14265 23.0456 6.07873 22.9671 5.98572C22.8886 5.89271 22.8457 5.77632 22.8458 5.65625V4.08333C22.8458 3.5308 22.6188 3.00089 22.2149 2.61019C21.811 2.21949 21.2632 2 20.692 2H7.2307C6.37387 2 5.55212 2.32924 4.94625 2.91529C4.34038 3.50134 4 4.2962 4 5.125V23.875C4 24.7038 4.34038 25.4987 4.94625 26.0847C5.55212 26.6708 6.37387 27 7.2307 27H22.8458C23.417 27 23.9648 26.7805 24.3687 26.3898C24.7726 25.9991 24.9996 25.4692 24.9996 24.9167V8.25C25.0097 7.76261 24.8429 7.28721 24.528 6.90655C24.2132 6.52588 23.7703 6.26406 23.2765 6.16667ZM20.1535 15.8021C20.1502 15.8525 20.1325 15.901 20.1022 15.9422C20.0719 15.9833 20.0303 16.0154 19.9822 16.035C19.934 16.0545 19.8812 16.0605 19.8296 16.0525C19.7781 16.0445 19.7299 16.0227 19.6904 15.9896L17.6551 14.0104C17.6018 13.9643 17.5328 13.9388 17.4613 13.9388C17.3897 13.9388 17.3207 13.9643 17.2674 14.0104L15.2321 15.9896C15.1871 16.0174 15.1347 16.0322 15.0813 16.0322C15.0279 16.0322 14.9756 16.0174 14.9305 15.9896C14.8824 15.9693 14.8414 15.9357 14.8127 15.8932C14.784 15.8506 14.7688 15.8008 14.769 15.75V7.98958C14.769 7.92052 14.7974 7.85428 14.8479 7.80544C14.8983 7.7566 14.9668 7.72917 15.0382 7.72917H19.8843C19.9557 7.72917 20.0242 7.7566 20.0747 7.80544C20.1251 7.85428 20.1535 7.92052 20.1535 7.98958V15.8021ZM20.692 5.86458C20.6982 5.9021 20.696 5.9405 20.6853 5.97707C20.6746 6.01365 20.6558 6.04752 20.6301 6.07631C20.6045 6.1051 20.5726 6.1281 20.5368 6.14371C20.5009 6.15932 20.462 6.16716 20.4227 6.16667H7.2307C6.94509 6.16667 6.67118 6.05692 6.46922 5.86157C6.26726 5.66622 6.1538 5.40127 6.1538 5.125C6.1538 4.84873 6.26726 4.58378 6.46922 4.38843C6.67118 4.19308 6.94509 4.08333 7.2307 4.08333H20.4227C20.4941 4.08333 20.5626 4.11077 20.6131 4.15961C20.6636 4.20845 20.692 4.27468 20.692 4.34375V5.86458Z'
                     />}
+                    onClick={() => setShowNewCourseModal(true)}
                   >
                     Nuovo Corso
                   </Button>
@@ -276,6 +319,7 @@ const riepilogo = useMemo(() => {
                       path1='M30 3.04148V21.7882C30 22.3633 29.5203 22.8296 28.9286 22.8296H19.2857C17.5136 22.8296 16.0759 24.2237 16.0714 25.9463C16.0802 26.3821 15.8055 26.7759 15.3857 26.9292C14.6823 27.193 13.9261 26.6869 13.9286 25.9541C13.9286 24.2286 12.4894 22.8297 10.7143 22.8296H1.07143C0.479692 22.8296 0 22.3634 0 21.7882V3.04148C0 2.46627 0.47968 1.99998 1.07143 2H9.64286C12.0097 2.0001 13.9286 3.86522 13.9286 6.16593V17.5871C13.9208 18.1447 14.3575 18.6134 14.929 18.6611C15.5483 18.7011 16.0728 18.2229 16.0714 17.6196V6.16593C16.0714 3.86515 17.9902 2 20.3571 2H28.9286C29.5203 2 30 2.46628 30 3.04148Z'
                       path2='M26.35 7.81V3.19H27.64V7.81H26.35ZM24.62 6.11V4.89H29.38V6.11H24.62Z'
                     />}
+                    onClick={() => setShowNewModuleModal(true)}
                   >
                     Nuovo Modulo
                   </Button>
@@ -304,12 +348,13 @@ const riepilogo = useMemo(() => {
                       path2='M25.875 6.16666H20.9271C20.858 6.16666 20.7918 6.13922 20.7429 6.09039C20.6941 6.04155 20.6667 5.97531 20.6667 5.90624V4.60416C20.6667 3.9135 20.3923 3.25112 19.9039 2.76274C19.4155 2.27437 18.7532 2 18.0625 2H12.8542C12.1635 2 11.5011 2.27437 11.0127 2.76274C10.5244 3.25112 10.25 3.9135 10.25 4.60416V5.90624C10.25 5.97531 10.2226 6.04155 10.1737 6.09039C10.1249 6.13922 10.0586 6.16666 9.98958 6.16666H5.04167C4.7654 6.16666 4.50045 6.27641 4.3051 6.47176C4.10975 6.66711 4 6.93206 4 7.20832C4 7.48459 4.10975 7.74954 4.3051 7.94489C4.50045 8.14024 4.7654 8.24999 5.04167 8.24999H25.875C26.1513 8.24999 26.4162 8.14024 26.6116 7.94489C26.8069 7.74954 26.9167 7.48459 26.9167 7.20832C26.9167 6.93206 26.8069 6.66711 26.6116 6.47176C26.4162 6.27641 26.1513 6.16666 25.875 6.16666ZM12.3333 5.90624V4.60416C12.3333 4.46603 12.3882 4.33355 12.4859 4.23588C12.5836 4.1382 12.716 4.08333 12.8542 4.08333H18.0625C18.2006 4.08333 18.3331 4.1382 18.4308 4.23588C18.5284 4.33355 18.5833 4.46603 18.5833 4.60416V5.90624C18.5833 5.97531 18.5559 6.04155 18.507 6.09039C18.4582 6.13922 18.392 6.16666 18.3229 6.16666H12.5937C12.5247 6.16666 12.4584 6.13922 12.4096 6.09039C12.3608 6.04155 12.3333 5.97531 12.3333 5.90624Z'
                     />}
                     disabled={!selectedProgetto}
+                    onClick={() => setShowDeleteCourseModal(true)}
                   >
                     Elimina Corso
                   </Button>
                 </div>
               </Container>
-              <Container title={selectedAnno ? `Riepilogo Anno ${selectedAnno}` : 'Riepilogo'} className=" h-full overflow-hidden" button={<div className='text-black text-[0.9vw] font-bold'><span className ="text-[0.7vw] font-normal whitespace-nowrap">Coordinatore: </span>{riepilogo?.coordinatoreNomeCompleto || '...'}</div>}>
+              <Container title={selectedAnno ? `Riepilogo Anno ${selectedAnno}` : 'Riepilogo'} className=" h-full overflow-hidden" button={<div className='text-black text-[0.9vw] font-bold'><span className="text-[0.7vw] font-normal whitespace-nowrap">Coordinatore: </span>{riepilogo?.coordinatoreNomeCompleto || '...'}</div>}>
                 <div className='flex flex-col space-y-[2vh] h-full overflow-hidden'>
                   <div className='h-[47%] w-full items-stretch grid grid-cols-2 gap-[1vw] overflow-hidden'>
                     <Card
@@ -385,6 +430,103 @@ const riepilogo = useMemo(() => {
           </div>
         )
       )}
+
+      <ConfirmationModal
+        isOpen={showNewCourseModal}
+        onClose={() => setShowNewCourseModal(false)}
+        onConfirm={() => CourseFormRef.current?.submit()}  // Chiama il submit del form
+        title="Nuovo Corso"
+        confirmText="Aggiungi"
+        buttonType="modify"
+        w='60%'
+        wMax='100%'
+      >
+        <Form
+          ref={CourseFormRef}
+          onSubmit={handleNewCourse}
+          onCancel={() => setShowNewCourseModal(false)}
+          fields={['codice', 'rer', 'descrizione', 'annoInizio', 'annoFine', 'cfCoordinatore', 'colore']}
+          labels={['Codice', 'RER', 'Descrizione', 'Anno di Inizio', 'Anno di Fine', 'Coordinatore', 'Colore']}
+          types={['text', 'text', 'text', 'number', 'number', 'select', 'color']}
+          placeholders={['PROJ001', 'RER-2023-001', 'Corso Sviluppo Web Full Stack', new Date().getFullYear(), new Date().getFullYear() + 2, 'Seleziona un coordinatore', '#2B7BB4']}
+          options={{
+            cfCoordinatore: Array.isArray(docenti)
+              ? docenti.map(d => ({ value: d.cf, label: d.nomeCompleto }))
+              : []
+          }}
+          validators={[
+            isCodeValid,
+            isCodeValid,
+            isDescriptionValid,
+            isYearValid,
+            isYearValid,
+            isCoordinatoreValid,
+            isColorValid
+          ]}
+          layout={[
+            ['codice', 'rer'],
+            ['descrizione'],
+            ['annoInizio', 'annoFine'],
+            ['cfCoordinatore', 'colore']
+          ]}
+        />
+      </ConfirmationModal>
+
+      <ConfirmationModal
+        isOpen={showNewModuleModal}
+        onClose={() => setShowNewModuleModal(false)}
+        onConfirm={() => ModuleFormRef.current?.submit()}  // Chiama il submit del form
+        title="Nuovo Modulo"
+        confirmText="Aggiungi"
+        buttonType="modify"
+        w='60%'
+        wMax='100%'
+      >
+        <Form
+          ref={ModuleFormRef}
+          onSubmit={handleNewModule}
+          onCancel={() => setShowNewModuleModal(false)}
+          fields={['anno', 'oreAula', 'oreProject', 'oreStage', 'oreElearn', 'descrizione', 'codiceProgetto', 'cfDocente']}
+          labels={['Anno', 'Ore Aula', 'Ore Project', 'Ore Stage', 'Ore Elearn', 'Descrizione', 'Codice Progetto', 'CF Docente']}
+          types={['number', 'number', 'number', 'number', 'number', 'text', 'select', 'select']}
+          placeholders={[1, 50, 40, 30, 20, 'Descrizione del modulo', 'PROJ001', 'BNCGVN90D15F205X']}
+          options={{
+            codiceProgetto: Array.isArray(progetti)
+              ? progetti.map(p => ({ value: p.codice, label: p.descrizione }))
+              : [],
+            cfDocente: Array.isArray(docenti)
+              ? docenti.map(d => ({ value: d.cf, label: d.nomeCompleto }))
+              : []
+          }}
+          validators={[
+            isAcademicYearValid,
+            isHoursValid,
+            isHoursValid,
+            isHoursValid,
+            isHoursValid,
+            isDescriptionValid,
+            isProjectValid,
+            isCoordinatoreValid
+          ]}
+          layout={[
+            ['codiceProgetto', 'anno'],
+            ['descrizione', 'cfDocente'],
+            ['oreAula', 'oreProject'],
+            ['oreStage', 'oreElearn'],
+          ]}
+        />
+      </ConfirmationModal>
+
+      <ConfirmationModal
+        isOpen={showDeleteCourseModal}
+        onClose={() => setShowDeleteCourseModal(false)}
+        onConfirm={handleDeleteCourse}
+        title="Elimina Corso"
+        confirmText="Conferma"
+        buttonType="danger"
+      >
+        <p>Sei sicuro di voler eliminare questo corso?</p>
+      </ConfirmationModal>
     </div>
   );
 };

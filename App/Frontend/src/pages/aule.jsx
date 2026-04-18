@@ -501,7 +501,7 @@ const Aule = () => {
             <ConfirmationModal
                 isOpen={showDeleteSiteModal}
                 onClose={() => setShowDeleteSiteModal(false)}
-                onConfirm={handleDeleteSite}  // Chiama il submit del form
+                onConfirm={handleDeleteSite}
                 title="Elimina Sede"
                 confirmText="Conferma"
                 buttonType="danger"

@@ -287,14 +287,14 @@ export const getCompletionProgetti = async (req, res) => {
 
 // POST crea nuovo progetto
 export const createProgetto = async (req, res) => {
-  const { codice, rer, descrizione, annoInizio, annoFine, cfCoordinatore } = req.body;
+  const { codice, rer, descrizione, annoInizio, annoFine, cfCoordinatore, colore } = req.body;
 
   try {
     const result = await pool.query(
-      `INSERT INTO PROGETTO (Codice, RER, Descrizione, AnnoInizio, AnnoFine, CFCoordinatore)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING *`,
-      [codice, rer, descrizione, annoInizio, annoFine, cfCoordinatore]
+      `INSERT INTO PROGETTO (Codice, RER, Descrizione, AnnoInizio, AnnoFine, CFCoordinatore, Colore)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       `,
+      [codice, rer, descrizione, annoInizio, annoFine, cfCoordinatore, colore]
     );
 
     res.status(201).json({
@@ -329,15 +329,15 @@ export const createProgetto = async (req, res) => {
 // PUT aggiorna progetto
 export const updateProgetto = async (req, res) => {
   const { codice } = req.params;
-  const { rer, descrizione, annoInizio, annoFine, cfCoordinatore } = req.body;
+  const { rer, descrizione, annoInizio, annoFine, cfCoordinatore, colore } = req.body;
 
   try {
     const result = await pool.query(
       `UPDATE PROGETTO 
-       SET RER = $1, Descrizione = $2, AnnoInizio = $3, AnnoFine = $4, CFCoordinatore = $5
-       WHERE Codice = $6
-       RETURNING *`,
-      [rer, descrizione, annoInizio, annoFine, cfCoordinatore, codice]
+       SET RER = $1, Descrizione = $2, AnnoInizio = $3, AnnoFine = $4, CFCoordinatore = $5, Colore = $6
+       WHERE Codice = $7
+       `,
+      [rer, descrizione, annoInizio, annoFine, cfCoordinatore, colore, codice]
     );
 
     if (result.rows.length === 0) {

@@ -118,21 +118,32 @@ export const getAnni = async (req, res) => {
 
 // POST crea nuovo modulo
 export const createModulo = async (req, res) => {
-  const { codice, rer, descrizione, annoInizio, annoFine, cfCoordinatore } = req.body;
+  const { anno, oreAula, oreProject, oreStage, oreElearn, descrizione, codiceProgetto, cfDocente} = req.body;
 
   try {
-    //SISTEMARE QUERY PER CREARE MODULO
-    const result = await pool.query(
-      `INSERT INTO MODULO (Codice, RER, Descrizione, AnnoInizio, AnnoFine, CFCoordinatore)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING *`,
-      [codice, rer, descrizione, annoInizio, annoFine, cfCoordinatore]
+    await pool.query('BEGIN');
+
+    // Inserisce il modulo e recupera l'ID generato
+    const moduloResult = await pool.query(
+      `INSERT INTO MODULO (Anno, OreAula, OreProject, OreStage, OreElearn, Descrizione, CodiceProgetto)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING id`,
+      [anno, oreAula, oreProject, oreStage, oreElearn, descrizione, codiceProgetto]
     );
+
+    const idModulo = moduloResult.rows[0].id;
+
+    // Inserisce il docente in CATTEDRA
+    await pool.query(
+      `INSERT INTO CATTEDRA (IDModulo, CFDocente) VALUES ($1, $2)`,
+      [idModulo, cfDocente]
+    );
+
+    await pool.query('COMMIT');
 
     res.status(201).json({
       status: 'success',
-      message: 'Modulo creato con successo',
-      data: result.rows[0]
+      message: 'Modulo creato con successo'
     });
   } catch (error) {
     console.error('Errore creazione modulo:', error);
@@ -141,13 +152,6 @@ export const createModulo = async (req, res) => {
       return res.status(400).json({
         status: 'error',
         message: 'Codice modulo già esistente'
-      });
-    }
-
-    if (error.code === '23514') {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Anno inizio deve essere minore di anno fine'
       });
     }
 
@@ -168,8 +172,7 @@ export const updateModulo = async (req, res) => {
     const result = await pool.query(
       `UPDATE MODULO 
        SET RER = $1, Descrizione = $2, AnnoInizio = $3, AnnoFine = $4, CFCoordinatore = $5
-       WHERE Codice = $6
-       RETURNING *`,
+       WHERE Codice = $6`,
       [rer, descrizione, annoInizio, annoFine, cfCoordinatore, codice]
     );
 
@@ -201,7 +204,7 @@ export const deleteModulo = async (req, res) => {
   try {
     //SISTEMARE QUERY PER ELIMINARE MODULO
     const result = await pool.query(
-      'DELETE FROM MODULO WHERE Codice = $1 RETURNING *',
+      'DELETE FROM MODULO WHERE Codice = $1',
       [codice]
     );
 

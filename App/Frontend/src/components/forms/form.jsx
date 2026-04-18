@@ -22,7 +22,6 @@ const Form = forwardRef(({
             const fieldOptions = options[field];
             // Se il campo ha opzioni, imposta il primo valore come default
             if (fieldOptions && fieldOptions.length > 0 && !placeholders[index]) {
-                // Assicurati di prendere il value dell'oggetto
                 const firstValue = fieldOptions[0].value
                 initialData[field] = firstValue;
             } else {
@@ -103,6 +102,31 @@ const Form = forwardRef(({
                                         onChange={(value) => handleSelectChange(field, value)}
                                         classNameLa="text-[#777777]"
                                     />
+                                    <span className="text-red-500 text-sm ml-[30px]">
+                                        {errors[field] ?? '\u00A0'}
+                                    </span>
+                                </div>
+                            );
+                        }
+
+                        if (types[i] === 'color') {
+                            return (
+                                <div key={field} className="flex flex-col gap-2 w-full">
+                                    <label className="text-sm text-[#777777] font-bold ml-[30px]">
+                                        {labels[i] ?? field}
+                                    </label>
+                                    <div className="flex items-center gap-[1vw] border border-[#E0E6EB] rounded-[30px] px-4 py-2">
+                                        <input
+                                            type="color"
+                                            name={field}
+                                            value={formData[field] || '#EFA134'}
+                                            onChange={handleChange}
+                                            className="w-8 h-8 rounded-[30px] cursor-pointer border-none bg-transparent"
+                                        />
+                                        <span className="text-base font-bold text-black">
+                                            {formData[field] || '#EFA134'}
+                                        </span>
+                                    </div>
                                     <span className="text-red-500 text-sm ml-[30px]">
                                         {errors[field] ?? '\u00A0'}
                                     </span>

@@ -65,6 +65,7 @@ export const isPlaceNameValid = (v) => {
     if (v.trim().length > 100) return 'Nome troppo lungo (massimo 100 caratteri)';
     return null;
 };
+
 export const isCapacityValid = (v) => {
     if (!v || v < 10) return 'Capacità non valida (minimo 10)';
     return null;
@@ -97,5 +98,41 @@ export const isCapValid = (v, required = true) => {
 
 export const isDescriptionValid = (v) => {
     if (!v?.trim()) return 'Descrizione obbligatoria';
+    return null;
+};
+
+export const isCodeValid = (v) => {
+    if (!v?.trim()) return 'Codice obbligatorio';
+    if (v.trim().length < 4) return 'Codice troppo corto (minimo 4 caratteri)';
+    if (v.trim().length > 15) return 'Codice troppo lungo (massimo 15 caratteri)';
+    return null;
+};
+
+export const isYearValid = (v) => {
+    if (!v?.trim()) return 'Anno obbligatorio';
+    if (parseInt(v.trim()) < 2023) return 'Anno troppo passato (minimo 2023)';
+    if (parseInt(v.trim()) > new Date().getFullYear() + 15) return 'Anno troppo futuro (massimo ' + (new Date().getFullYear() + 15) + ')';
+    return null;
+};
+
+export const isCoordinatoreValid = (v) => {
+    if (!v) return 'Seleziona un coordinatore';
+    return null;
+};
+
+export const isProjectValid = (v) => {
+    if (!v) return 'Seleziona un progetto';
+    return null;
+};
+
+export const isColorValid = (v) => {
+    if (!v?.trim()) return 'Colore obbligatorio';
+    if (!/^#[0-9A-Fa-f]{6}$/.test(v.trim())) return 'Colore non valido (es. #EFA134)';
+    return null;
+};
+
+export const isHoursValid = (v) => {
+    if (!v?.trim()) return 'Ore obbligatorie';
+    if (isNaN(parseInt(v.trim())) || parseInt(v.trim()) < 0) return 'Inserisci un numero di ore valido';
     return null;
 };

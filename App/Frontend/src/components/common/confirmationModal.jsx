@@ -10,7 +10,13 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, children, confir
                 onClick={onClose}
             ></div>
 
-            <div className={`relative bg-white rounded-[30px] shadow-2xl max-w-[${wMax || 'md'}] w-[${w || 'full'}] mx-4 animate-scale-in`}>
+            <div
+                className="relative bg-white rounded-[30px] shadow-2xl mx-4 animate-scale-in"
+                style={{
+                    maxWidth: wMax || 'md',
+                    width: w || 'full'
+                }}
+            >
                 <div className="p-6 flex flex-col gap-6">
                     <div>
                         {/* Titolo */}

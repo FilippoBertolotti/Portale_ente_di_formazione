@@ -9,7 +9,7 @@ import {
   getCountProgetti,
   getCompletionProgetti
 } from '../controllers/progettiController.js';
-import { authenticateToken, isCoordinatore } from '../middleware/auth.js';
+import { authenticateToken, isAdmin, isCoordinatore } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -20,8 +20,8 @@ router.get('/conta', getCountProgetti);
 router.get('/completamento', getCompletionProgetti);
 router.get('/anno/:anno', getProgettiByAnno);
 router.get('/codice/:codice', getProgettiByCodice);
-router.post('/', isCoordinatore, createProgetto);
-router.put('/:codice', isCoordinatore, updateProgetto);
-router.delete('/:codice', isCoordinatore, deleteProgetto);
+router.post('/', isCoordinatore || isAdmin, createProgetto);
+router.put('/:codice', isAdmin, updateProgetto);
+router.delete('/:codice', isAdmin, deleteProgetto);
 
 export default router;

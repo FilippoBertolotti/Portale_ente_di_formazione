@@ -6,6 +6,7 @@ export const getAllDocenti = async (req, res) => {
         const result = await pool.query(`
             SELECT 
               u.cf,
+              u.nome || ' ' || u.cognome AS "nomeCompleto",
               u.nome || ' ' || u.cognome || '\n' || STRING_AGG(DISTINCT q.materia, ', ') AS "nomeCompletoQualifica",
               TO_CHAR(u.datanascita, 'DD/MM/YYYY') AS "dataNascita",
               u.email || '\n' || d.telefono AS "contatti",
@@ -15,7 +16,8 @@ export const getAllDocenti = async (req, res) => {
             JOIN docente d ON u.cf = d.cf
             JOIN posseduto po ON po.cfdocente = d.cf
             JOIN qualifica q ON po.idqualifica = q.id
-            LEFT JOIN modulo m ON m.cfdocente = d.cf
+            LEFT JOIN cattedra c ON c.cfdocente = d.cf
+            LEFT JOIN modulo m ON m.id = c.idmodulo
             LEFT JOIN progetto p ON m.codiceprogetto = p.codice
             GROUP BY u.cf, u.nome, u.cognome, u.datanascita, u.email, d.telefono
             ORDER BY u.cognome, u.nome;

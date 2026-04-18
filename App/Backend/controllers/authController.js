@@ -86,7 +86,7 @@ export const register = async (req, res) => {
       const userResult = await client.query(
         `INSERT INTO UTENTE (CF, Nome, Cognome, DataNascita, Email, Password, Livello)
          VALUES ($1, $2, $3, $4, $5, $6, $7)
-         RETURNING *`,
+         `,
         [cf, nome, cognome, dataNascita, email, hashedPassword, livello]
       );
 
