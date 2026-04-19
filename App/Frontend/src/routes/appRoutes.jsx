@@ -7,6 +7,7 @@ import Studenti from '../pages/studenti';
 import Docenti from '../pages/docenti';
 import Aule from '../pages/aule';
 import Loader from '../components/common/Loader';
+import Calendario from '../pages/calendario';
 
 const AppRoutes = () => {
   const { user, loading } = useAuth();
@@ -24,6 +25,7 @@ const AppRoutes = () => {
           <Route path="/docenti" element={user ? <Docenti /> : <Navigate to="/login" />} />
           <Route path="/aule" element={user ? <Aule /> : <Navigate to="/login" />} />
           <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" />} />
+          <Route path="/calendario" element={user ? <Calendario /> : <Navigate to="/login" />} />
           <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} /> {/*user ? <Navigate to="/progetti" /> : <Login /> */}
         </Routes>
   );

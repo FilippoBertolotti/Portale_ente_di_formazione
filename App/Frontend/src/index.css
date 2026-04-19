@@ -1,3 +1,117 @@
+/* react-calendar custom */
+.react-calendar {
+  width: 100% !important;
+  height: 100% !important;
+  border: none !important;
+  background: transparent !important;
+  font-family: "Montserrat", sans-serif !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.react-calendar__navigation {
+  display: flex !important;
+  align-items: center !important;
+  margin-bottom: 1rem !important;
+  height: auto !important;
+}
+
+.react-calendar__navigation button {
+  font-size: 1rem !important;
+  font-weight: bold !important;
+  border-radius: 30px !important;
+  min-width: 2rem !important;
+}
+
+.react-calendar__navigation button:hover {
+  background: #F5F7F9 !important;
+}
+
+.react-calendar__month-view {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.react-calendar__month-view > div {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.react-calendar__month-view > div > div {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.react-calendar__month-view__weekdays {
+  font-size: 0.75rem !important;
+  color: #777777 !important;
+  font-weight: bold !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.react-calendar__month-view__weekdays abbr {
+  text-decoration: none !important;
+}
+
+.react-calendar__month-view__days {
+  flex: 1 !important;
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr) !important;
+  gap: 1rem !important;
+  align-content: stretch !important;
+}
+
+.react-calendar__month-view__days__day {
+  flex: none !important;
+}
+
+.react-calendar__tile {
+  border-radius: 12px !important;
+  height: 100% !important;
+  min-height: 4rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  padding-top: 0.5rem !important;
+  background: white !important;
+  border: none !important;
+  cursor: pointer !important;
+  text: 4rem !important;
+}
+
+.react-calendar__tile:hover {
+  background: #F5F7F9 !important;
+}
+
+.react-calendar__tile--active {
+  background: white !important;
+  border: 2px solid #EFA134 !important;
+  color: black !important;
+}
+
+.react-calendar__tile--now {
+  background: white !important;
+  border: 2px solid #2B7BB4 !important;
+  color: black !important;
+}
+
+.react-calendar__tile--now.react-calendar__tile--active {
+  border: 2px solid #EFA134 !important;
+}
+
+.react-calendar__month-view__days__day--neighboringMonth {
+  color: #cccccc !important;
+}
+
+.react-calendar__month-view__days__day--weekend {
+  color: black !important; /* resetta entrambi i weekend */
+}
+
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
