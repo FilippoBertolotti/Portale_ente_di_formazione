@@ -18,6 +18,11 @@ const Calendario = () => {
   const [lezioni, setLezioni] = useState([]);
   const [loadingLezioni, setLoadingLezioni] = useState(true);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [activeDate, setActiveDate] = useState(new Date());
+
+  const meseAnno = activeDate.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+  const mesePrecedente = () => setActiveDate(new Date(activeDate.getFullYear(), activeDate.getMonth() - 1, 1));
+  const meseSeguente = () => setActiveDate(new Date(activeDate.getFullYear(), activeDate.getMonth() + 1, 1));
 
   const fetchLezioni = async () => {
     try {
@@ -124,6 +129,13 @@ const Calendario = () => {
         {/* Calendario */}
         <div className='col-span-8 flex flex-col gap-[1vw] h-full overflow-hidden'>
           <Container
+            title={
+              <div className="flex items-center gap-[0.5vw]">
+                <Button onClick={mesePrecedente} variant="modify" icon="‹"></Button>
+                <span className="font-bold text-[1vw] capitalize min-w-[8vw] text-center">{meseAnno}</span>
+                <Button onClick={meseSeguente} variant="modify" icon='›'></Button>
+              </div>
+            }
             button={
               <Button variant="tertiary" size="medium"
                 icon={<SvgIcon color='#FFFFFF' width="2.5vh" height="2.5vh"
@@ -134,20 +146,24 @@ const Calendario = () => {
                 Nuova Lezione
               </Button>
             }
-            className='h-full'
+            className="h-full overflow-hidden"
           >
             {loadingLezioni ? (
               <div className="flex items-center justify-center h-full">
                 <Loader />
               </div>
             ) : (
-              <div className="calendario-wrapper h-full flex items-start justify-center">
+              <div className="flex-1 min-h-0 w-full">
                 <Calendar
                   onChange={setSelectedDate}
                   value={selectedDate}
+                  activeStartDate={activeDate}
+                  onActiveStartDateChange={({ activeStartDate }) => setActiveDate(activeStartDate)}
                   tileContent={tileContent}
                   tileClassName={tileClassName}
                   locale="it-IT"
+                  showNavigation={false}
+                  showFixedNumberOfWeeks={true}
                 />
               </div>
             )}
@@ -176,7 +192,7 @@ const Calendario = () => {
                     />
                   ))
                 ) : (
-                  <div className="flex flex-col items-center gap-[1vh] pt-[10vh]">
+                  <div className="flex flex-col items-center justify-center gap-[1vh] h-full">
                     <SvgIcon
                       color="#777777b9"
                       width="50"
@@ -186,7 +202,7 @@ const Calendario = () => {
                       path2="M27.3398 18.3633V27.3516H2.61328V18.3633L7.10156 2.625H22.8398L27.3398 18.3633Z M3.73828 18.3633H10.4766C10.4454 18.9728 10.5386 19.5822 10.7504 20.1546C10.9622 20.7269 11.2882 21.2502 11.7086 21.6926C12.1289 22.135 12.6349 22.4873 13.1957 22.728C13.7565 22.9687 14.3604 23.0928 14.9707 23.0928C15.581 23.0928 16.1849 22.9687 16.7457 22.728C17.3065 22.4873 17.8125 22.135 18.2328 21.6926C18.6532 21.2502 18.9792 20.7269 19.191 20.1546C19.4028 19.5822 19.496 18.9728 19.4648 18.3633H26.2148 M27.3398 18.3633H19.4648C19.406 19.5155 18.9068 20.6011 18.0705 21.3959C17.2341 22.1906 16.1244 22.6337 14.9707 22.6337C13.817 22.6337 12.7073 22.1906 11.8709 21.3959C11.0346 20.6011 10.5354 19.5155 10.4766 18.3633H2.61328"   // Corpo e manici della borsa
                     />
                     <div className="flex items-center justify-center text-[#777777b9] ">
-                      Nessuna lezione in programma prossimamente
+                      Nessuna lezione in programma per oggi
                     </div>
                   </div>
                 )}
