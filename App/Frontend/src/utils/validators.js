@@ -35,8 +35,60 @@ export const isDateValid = (v) => {
     return null;
 };
 
+export const isDateValid2 = (v) => {
+    if (!v) return 'Data obbligatoria';
+    const date = new Date(v);
+    if (isNaN(date.getTime())) return 'Data non valida';
+    if (date < new Date()) return 'La data non può essere nel passato';
+    return null;
+};
+
+// Validatore per ora inizio
+export const isOraInizioValid = (v) => {
+  if (!v) return 'Ora inizio obbligatoria';
+  
+  const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+  if (!timeRegex.test(v)) return 'Formato non valido (HH:MM)';
+  
+  return null;
+};
+
+// Validatore per ora fine (che controlla anche rispetto all'ora inizio)
+export const isOraFineValid = (v, formValues) => {
+  if (!v) return 'Ora fine obbligatoria';
+  
+  const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+  if (!timeRegex.test(v)) return 'Formato non valido (HH:MM)';
+  
+  // Ottieni l'ora inizio dal form
+  const oraInizio = formValues?.orainizio;
+  if (oraInizio) {
+    const [startHours, startMinutes] = oraInizio.split(':').map(Number);
+    const [endHours, endMinutes] = v.split(':').map(Number);
+    
+    const startTotalMinutes = startHours * 60 + startMinutes;
+    const endTotalMinutes = endHours * 60 + endMinutes;
+    
+    if (endTotalMinutes <= startTotalMinutes || (endTotalMinutes - startTotalMinutes) < 60) {
+      return 'L\'ora di fine deve essere almeno 1 ora dopo quella di inizio';
+    }
+  }
+  
+  return null;
+};
+
 export const isCourseValid = (v) => {
     if (!v) return 'Seleziona un corso';
+    return null;
+};
+
+export const isModuleValid = (v) => {
+    if (!v) return 'Seleziona un modulo';
+    return null;
+};
+
+export const isClassroomValid = (v) => {
+    if (!v) return 'Seleziona un\'aula';
     return null;
 };
 

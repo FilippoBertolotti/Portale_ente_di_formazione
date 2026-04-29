@@ -5,6 +5,7 @@ export const getAllAule = async (req, res) => {
   try {
     const result = await pool.query(`
             SELECT 
+              a.id,
               a.descrizione, 
               a.capienza, 
               a.numeropc, 
@@ -18,7 +19,7 @@ export const getAllAule = async (req, res) => {
             LEFT JOIN sede s ON a.idsede = s.id
             LEFT JOIN citta c ON s.capcitta = c.cap
             LEFT JOIN lezione l ON a.id = l.idaula AND l.data = CURRENT_DATE
-            GROUP BY a.descrizione,a.capienza,a.numeropc,a.piano,a.attiva,s.nome,c.nome_citta,a.idsede
+            GROUP BY a.descrizione,a.capienza,a.numeropc,a.piano,a.attiva,s.nome,c.nome_citta,a.idsede,a.id
             ORDER BY a.descrizione; 
         `);
     res.json({

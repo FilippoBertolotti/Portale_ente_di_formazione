@@ -55,3 +55,30 @@ export const getAllLezioni = async (req, res) => {
         });
     }
 };
+
+// POST crea nuova lezione
+export const createLezione = async (req, res) => {
+  const { data, orainizio, orafine, idmodulo, idaula, cfdocente } = req.body;
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO LEZIONE (Data, OraInizio, OraFine, IdModulo, IdAula, CFDocente)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       `,
+      [data, orainizio, orafine, idmodulo, idaula, cfdocente]
+    );
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Lezione creata con successo',
+      data: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Errore creazione lezione:', error);
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nella creazione della lezione'
+    });
+  }
+};
