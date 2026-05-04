@@ -24,7 +24,7 @@ const Form = forwardRef(({
             // 1. Se c'è un defaultValues specifico per questo campo, usalo
             // 2. Se il campo ha opzioni (select), usa il primo valore disponibile
             // 3. Altrimenti stringa vuota
-            
+
             if (defaultValues[field] !== undefined) {
                 // Valore passato esplicitamente (per modifica)
                 initialData[field] = defaultValues[field];
@@ -91,7 +91,7 @@ const Form = forwardRef(({
 
     // aggiorna formData se cambiano defaultValues (es. carica dati diversi)
     // Utile quando si modifica un record diverso nella stessa sessione
-    useState(() => {
+    useEffect(() => {
         const newData = {};
         fields.forEach((field, index) => {
             if (defaultValues[field] !== undefined) {
@@ -105,10 +105,10 @@ const Form = forwardRef(({
                 }
             }
         });
-        
+
         setFormData(newData);
         setErrors({}); // Pulisci errori quando cambiano i dati
-    }, [defaultValues, fields, options, placeholders]);
+    }, [JSON.stringify(defaultValues)]);
 
     return (
         <form
