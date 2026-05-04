@@ -12,6 +12,8 @@ const Table = forwardRef(({
     frase2 = frase1,
     centered = false,
     centerFromIndex = 1,
+    onModify = () => {},
+    onDelete = () => {},
     className = ''
 }, ref) => {
     const colors = ['#EFA667', '#76A1CF'];
@@ -62,7 +64,7 @@ const Table = forwardRef(({
                                     ))}
                                     <td className='p-[1vw] align-middle'>
                                         <div className='flex gap-[1vh] items-center justify-center h-full'>
-                                            <Button variant="modify" size="small">
+                                            <Button variant="modify" size="small" onClick={() => onModify(dato)}>
                                                 <SvgIcon
                                                     color='#ffffff'
                                                     width="15"
@@ -70,7 +72,7 @@ const Table = forwardRef(({
                                                     path1="M8.43352 28.0213L0 30L1.9786 21.5674L22.7781 0.764441C23.0203 0.52209 23.3079 0.329841 23.6245 0.198676C23.941 0.0675107 24.2803 0 24.623 0C24.9656 0 25.3049 0.0675107 25.6215 0.198676C25.938 0.329841 26.2257 0.52209 26.4679 0.764441L29.2356 3.53095C29.4779 3.77321 29.6702 4.06083 29.8013 4.3774C29.9325 4.69397 30 5.03328 30 5.37595C30 5.71861 29.9325 6.05792 29.8013 6.37449C29.6702 6.69106 29.4779 6.97869 29.2356 7.22094L8.43352 28.0213Z" />
                                             </Button>
 
-                                            <Button variant="danger" size="small">
+                                            <Button variant="danger" size="small" onClick={() => onDelete(dato)}>
                                                 <SvgIcon
                                                     color='#ffffff'
                                                     width="15"

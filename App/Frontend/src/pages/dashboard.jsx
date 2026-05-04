@@ -13,7 +13,7 @@ import Button from '../components/common/button';
 import SvgIcon from '../assets/icons/svgIcon';
 import ConfirmationModal from '../components/common/confirmationModal';
 import Form from '../components/forms/form';
-import { isCFValid, isCourseValid, isDateValid, isEmailValid, isNameValid, isSurnameValid, isAcademicYearValid, isPhoneValid, isQualificationValid, isCapacityValid, isSedeValid, isPianoValid, isPlaceNameValid } from '../utils/validators';
+import { isCourseValid, isDateValid, isEmailValid, isNameValid, isSurnameValid, isAcademicYearValid, isPhoneValid, isQualificationValid, isCapacityValid, isSedeValid, isPianoValid, isPlaceNameValid, isCFValid, isOraInizioValid, isOraFineValid, isModuleValid, isClassroomValid, isDateValid2 } from '../utils/validators';
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -22,10 +22,12 @@ const Dashboard = () => {
   const [showNewStudentModal, setShowNewStudentModal] = useState(false);
   const [showNewTeacherModal, setShowNewTeacherModal] = useState(false);
   const [showNewClassroomModal, setShowNewClassroomModal] = useState(false);
+  const [showNewLessonModal, setShowNewLessonModal] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const StudentFormRef = useRef(null);
   const TeacherFormRef = useRef(null);
   const ClassroomFormRef = useRef(null);
+  const LessonFormRef = useRef();
 
   const fetchAll = async () => {
     try {
@@ -76,6 +78,16 @@ const Dashboard = () => {
       console.error('Errore:', error);
     }
   };
+
+  const handleNewLesson = async (formData) => {
+      try {
+        await dashboardService.newLesson(formData);
+        await fetchAll();
+        setShowNewLessonModal(false);
+      } catch (error) {
+        console.error('Errore:', error);
+      }
+    };
 
   if (loading) {
     return (
@@ -212,6 +224,7 @@ const Dashboard = () => {
                   path2='M2 23.8246C2 24.7552 2.37628 25.6477 3.04603 26.3057C3.71583 26.9637 4.62421 27.3334 5.57144 27.3334H23.4286C24.3758 27.3334 25.2842 26.9637 25.954 26.3057C26.6238 25.6477 27 24.7552 27 23.8246V10.8312C27 10.7875 26.9824 10.7457 26.9509 10.7149C26.9196 10.684 26.877 10.6667 26.8326 10.6667H2.16741C2.12303 10.6667 2.08041 10.684 2.04905 10.7149C2.01764 10.7457 2 10.7875 2 10.8312V23.8246ZM21.1964 12.4211C21.4613 12.4211 21.7203 12.4983 21.9406 12.6429C22.1607 12.7874 22.3325 12.9929 22.4338 13.2334C22.5352 13.4738 22.5617 13.7384 22.51 13.9936C22.4583 14.2488 22.3308 14.4833 22.1435 14.6673C21.9561 14.8513 21.7176 14.9766 21.4577 15.0274C21.1979 15.0781 20.9286 15.0521 20.6839 14.9525C20.4392 14.8529 20.23 14.6842 20.0829 14.4679C19.9358 14.2515 19.8572 13.9972 19.8572 13.7369C19.8572 13.3879 19.9983 13.0532 20.2494 12.8064C20.5006 12.5598 20.8412 12.4211 21.1964 12.4211ZM21.1964 16.8071C21.4613 16.8071 21.7203 16.8843 21.9406 17.0288C22.1607 17.1734 22.3325 17.3789 22.4338 17.6194C22.5352 17.8598 22.5617 18.1244 22.51 18.3795C22.4583 18.6348 22.3308 18.8692 22.1435 19.0533C21.9561 19.2373 21.7176 19.3626 21.4577 19.4134C21.1979 19.4641 20.9286 19.4381 20.6839 19.3384C20.4392 19.2389 20.23 19.0702 20.0829 18.8539C19.9358 18.6375 19.8572 18.3831 19.8572 18.1229C19.8572 17.7739 19.9983 17.4392 20.2494 17.1924C20.5006 16.9457 20.8412 16.8071 21.1964 16.8071ZM16.7322 12.4211C16.9971 12.4211 17.256 12.4983 17.4763 12.6429C17.6964 12.7874 17.8682 12.9929 17.9695 13.2334C18.0709 13.4738 18.0974 13.7384 18.0457 13.9936C17.9941 14.2488 17.8665 14.4833 17.6792 14.6673C17.4918 14.8513 17.2533 14.9766 16.9934 15.0274C16.7337 15.0781 16.4643 15.0521 16.2196 14.9525C15.9749 14.8529 15.7657 14.6842 15.6186 14.4679C15.4715 14.2515 15.3929 13.9972 15.3929 13.7369C15.3929 13.3879 15.534 13.0532 15.7851 12.8064C16.0363 12.5598 16.377 12.4211 16.7322 12.4211ZM16.7322 16.8071C16.9971 16.8071 17.256 16.8843 17.4763 17.0288C17.6964 17.1734 17.8682 17.3789 17.9695 17.6194C18.0709 17.8598 18.0974 18.1244 18.0457 18.3795C17.9941 18.6348 17.8665 18.8692 17.6792 19.0533C17.4918 19.2373 17.2533 19.3626 16.9934 19.4134C16.7337 19.4641 16.4643 19.4381 16.2196 19.3384C15.9749 19.2389 15.7657 19.0702 15.6186 18.8539C15.4715 18.6375 15.3929 18.3831 15.3929 18.1229C15.3929 17.7739 15.534 17.4392 15.7851 17.1924C16.0363 16.9457 16.377 16.8071 16.7322 16.8071ZM16.7322 21.193C16.9971 21.193 17.256 21.2702 17.4763 21.4148C17.6964 21.5594 17.8682 21.7649 17.9695 22.0053C18.0709 22.2457 18.0974 22.5103 18.0457 22.7655C17.9941 23.0208 17.8665 23.2552 17.6792 23.4393C17.4918 23.6232 17.2533 23.7485 16.9934 23.7994C16.7337 23.8501 16.4643 23.824 16.2196 23.7244C15.9749 23.6249 15.7657 23.4561 15.6186 23.2398C15.4715 23.0234 15.3929 22.7691 15.3929 22.5088C15.3929 22.1598 15.534 21.8251 15.7851 21.5784C16.0363 21.3317 16.377 21.193 16.7322 21.193ZM12.2678 16.8071C12.5328 16.8071 12.7917 16.8843 13.012 17.0288C13.2321 17.1734 13.4039 17.3789 13.5052 17.6194C13.6066 17.8598 13.6331 18.1244 13.5814 18.3795C13.5298 18.6348 13.4022 18.8692 13.2149 19.0533C13.0276 19.2373 12.789 19.3626 12.5292 19.4134C12.2694 19.4641 12 19.4381 11.7554 19.3384C11.5106 19.2389 11.3015 19.0702 11.1543 18.8539C11.0072 18.6375 10.9286 18.3831 10.9286 18.1229C10.9286 17.7739 11.0697 17.4392 11.3208 17.1924C11.572 16.9457 11.9127 16.8071 12.2678 16.8071ZM12.2678 21.193C12.5328 21.193 12.7917 21.2702 13.012 21.4148C13.2321 21.5594 13.4039 21.7649 13.5052 22.0053C13.6066 22.2457 13.6331 22.5103 13.5814 22.7655C13.5298 23.0208 13.4022 23.2552 13.2149 23.4393C13.0276 23.6232 12.789 23.7485 12.5292 23.7994C12.2694 23.8501 12 23.824 11.7554 23.7244C11.5106 23.6249 11.3015 23.4561 11.1543 23.2398C11.0072 23.0234 10.9286 22.7691 10.9286 22.5088C10.9286 22.1598 11.0697 21.8251 11.3208 21.5784C11.572 21.3317 11.9127 21.193 12.2678 21.193ZM7.80354 16.8071C8.06848 16.8071 8.32741 16.8843 8.54765 17.0288C8.76783 17.1734 8.9396 17.3789 9.0409 17.6194C9.1423 17.8598 9.16882 18.1244 9.11716 18.3795C9.06545 18.6348 8.9379 18.8692 8.75061 19.0533C8.56327 19.2373 8.3247 19.3626 8.06486 19.4134C7.80508 19.4641 7.53574 19.4381 7.2911 19.3384C7.04636 19.2389 6.83718 19.0702 6.69002 18.8539C6.54286 18.6375 6.4643 18.3831 6.4643 18.1229C6.4643 17.7739 6.60546 17.4392 6.85653 17.1924C7.1077 16.9457 7.44836 16.8071 7.80354 16.8071ZM7.80354 21.193C8.06848 21.193 8.32741 21.2702 8.54765 21.4148C8.76783 21.5594 8.9396 21.7649 9.0409 22.0053C9.1423 22.2457 9.16882 22.5103 9.11716 22.7655C9.06545 23.0208 8.9379 23.2552 8.75061 23.4393C8.56327 23.6232 8.3247 23.7485 8.06486 23.7994C7.80508 23.8501 7.53574 23.824 7.2911 23.7244C7.04636 23.6249 6.83718 23.4561 6.69002 23.2398C6.54286 23.0234 6.4643 22.7691 6.4643 22.5088C6.4643 22.1598 6.60546 21.8251 6.85653 21.5784C7.1077 21.3317 7.44836 21.193 7.80354 21.193ZM26.35 4.81V0.19H27.64V4.81H26.35ZM24.62 3.11V1.89H29.38V3.11H24.62Z'
                 />}
                 className="xl:px-[2vh]"
+                onClick={() => setShowNewLessonModal(true)}
               >
                 Nuova Lezione
               </Button>
@@ -378,6 +391,39 @@ const Dashboard = () => {
             ['capienza', 'numeropc'],
             ['idsede', 'piano'],
             ['attiva']
+          ]}
+        />
+      </ConfirmationModal>
+
+      <ConfirmationModal
+        isOpen={showNewLessonModal}
+        onClose={() => setShowNewLessonModal(false)}
+        onConfirm={() => LessonFormRef.current?.submit()}  // Chiama il submit del form
+        title="Nuova Lezione"
+        confirmText="Aggiungi"
+        buttonType="modify"
+        w='60%'
+        wMax='100%'
+      >
+        <Form
+          ref={LessonFormRef}
+          onSubmit={handleNewLesson}
+          onCancel={() => setShowNewLessonModal(false)}
+          fields={['data', 'orainizio', 'orafine', 'idmodulo', 'idaula', 'cfdocente']}
+          labels={['Data', 'Ora Inizio', 'Ora Fine', 'Modulo', 'Aula', 'Docente']}
+          types={['date', 'time', 'time', 'select', 'select', 'select']}
+          placeholders={[null, null, null, 'Seleziona un modulo', 'Seleziona un aula', 'Seleziona un docente']}
+          validators={[isDateValid2, isOraInizioValid, isOraFineValid, isModuleValid, isClassroomValid, isCFValid]}
+          options={{
+            idmodulo: Array.isArray(v('allModuli')) ? v('allModuli').map(m => ({ value: m.id, label: m.descrizione })) : [],
+            idaula: Array.isArray(v('allAule')) ? v('allAule').map(a => ({ value: a.id, label: a.descrizione })) : [],
+            cfdocente: Array.isArray(v('allDocenti')) ? v('allDocenti').map(d => ({ value: d.cf, label: d.nomeCompleto })) : []
+          }}
+          layout={[
+            ['idmodulo', 'idaula'],
+            ['cfdocente'],
+            ['data'],
+            ['orainizio', 'orafine']
           ]}
         />
       </ConfirmationModal>

@@ -3,6 +3,7 @@ import { studentiService } from './studentiService';
 import { docentiService } from './docentiService';
 import { auleService } from './auleService';
 import { lezioniService } from './lezioniService';
+import { moduliService } from './moduliService';
 
 export const dashboardService = {
 
@@ -18,7 +19,10 @@ export const dashboardService = {
       sedi,
       lezioni,
       allProgetti,
-      allSedi
+      allSedi,
+      allAule,
+      allModuli,
+      allDocenti
     ] = await Promise.allSettled([
       progettiService.getCount(),
       progettiService.getCompletion(),
@@ -29,7 +33,10 @@ export const dashboardService = {
       auleService.getCountS(),
       lezioniService.getComingLezioni(),
       progettiService.getAll(),
-      auleService.getAllSedi()
+      auleService.getAllSedi(),
+      auleService.getAllAule(),
+      moduliService.getAll(),
+      docentiService.getAll()
     ]);
 
     // Promise.allSettled non lancia errori, ogni risultato ha status: 'fulfilled' o 'rejected'
@@ -44,6 +51,9 @@ export const dashboardService = {
       lezioni:           lezioni.status === 'fulfilled'           ? lezioni.value.data            : [],
       allProgetti:       allProgetti.status === 'fulfilled'       ? allProgetti.value.data        : [],
       allSedi:           allSedi.status === 'fulfilled'           ? allSedi.value.data            : [],
+      allAule:           allAule.status === 'fulfilled'           ? allAule.value.data            : [],
+      allModuli:         allModuli.status === 'fulfilled'         ? allModuli.value.data          : [],
+      allDocenti:        allDocenti.status === 'fulfilled'        ? allDocenti.value.data         : []
     };
   },
 
@@ -76,4 +86,14 @@ export const dashboardService = {
       throw error;
     }
   },
+
+  newLesson: async (lessonData) => {
+    try {
+      const response = await lezioniService.createLezione(lessonData);
+      return response;
+    } catch (error) {
+      console.error('Errore nella creazione della lezione:', error);
+      throw error;
+    }
+  }
 };

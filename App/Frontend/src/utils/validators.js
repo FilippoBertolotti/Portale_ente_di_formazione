@@ -93,8 +93,8 @@ export const isClassroomValid = (v) => {
 };
 
 export const isAcademicYearValid = (v) => {
-    if (!v?.trim()) return 'Anno accademico obbligatorio';
-    if (isNaN(parseInt(v.trim())) || parseInt(v.trim()) <= 0 || parseInt(v.trim()) > 2) return 'Inserisci un anno valido';
+    if (!v) return 'Anno accademico obbligatorio';
+    if (isNaN(parseInt(v)) || parseInt(v) <= 0 || parseInt(v) > 2) return 'Inserisci un anno valido';
     return null;
 };
 
@@ -184,7 +184,6 @@ export const isColorValid = (v) => {
 };
 
 export const isHoursValid = (v) => {
-    if (!v?.trim()) return 'Ore obbligatorie';
-    if (isNaN(parseInt(v.trim())) || parseInt(v.trim()) < 0) return 'Inserisci un numero di ore valido';
+    if (isNaN(parseInt(v)) || parseInt(v) < 0) return 'Inserisci un numero di ore valido';
     return null;
 };

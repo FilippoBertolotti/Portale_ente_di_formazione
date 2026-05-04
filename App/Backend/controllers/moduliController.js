@@ -6,7 +6,8 @@ export const getAllModuli = async (req, res) => {
     const result = await pool.query(`
         SELECT 
             m.*,
-            STRING_AGG(DISTINCT 'Prof. ' || u.Cognome, ', ') as lista_docenti
+            STRING_AGG(DISTINCT 'Prof. ' || u.Cognome, ', ') as lista_docenti,
+            STRING_AGG(DISTINCT c.CFDocente, ', ') as cfdocente
         FROM MODULO m
         JOIN CATTEDRA c ON c.IDModulo = m.ID
         JOIN DOCENTE d ON c.CFDocente = d.CF
@@ -37,7 +38,8 @@ export const getByCodiceProgetto = async (req, res) => {
     const result = await pool.query(`
         SELECT 
             m.*,
-            STRING_AGG(DISTINCT 'Prof. ' || u.Cognome, ', ') as lista_docenti
+            STRING_AGG(DISTINCT 'Prof. ' || u.Cognome, ', ') as lista_docenti,
+            STRING_AGG(DISTINCT c.CFDocente, ', ') as cfdocente
         FROM MODULO m
         JOIN CATTEDRA c ON c.IDModulo = m.ID
         JOIN DOCENTE d ON c.CFDocente = d.CF
@@ -68,7 +70,8 @@ export const getByAnno = async (req, res) => {
     const result = await pool.query(`
         SELECT 
             m.*,
-            STRING_AGG(DISTINCT 'Prof. ' || u.Cognome, ', ') as lista_docenti
+            STRING_AGG(DISTINCT 'Prof. ' || u.Cognome, ', ') as lista_docenti,
+            STRING_AGG(DISTINCT c.CFDocente, ', ') as cfdocente
         FROM MODULO m
         JOIN CATTEDRA c ON c.IDModulo = m.ID
         JOIN DOCENTE d ON c.CFDocente = d.CF
@@ -118,7 +121,7 @@ export const getAnni = async (req, res) => {
 
 // POST crea nuovo modulo
 export const createModulo = async (req, res) => {
-  const { anno, oreAula, oreProject, oreStage, oreElearn, descrizione, codiceProgetto, cfDocente} = req.body;
+  const { anno, oreAula, oreProject, oreStage, oreElearn, descrizione, codiceProgetto, cfDocente } = req.body;
 
   try {
     await pool.query('BEGIN');
@@ -164,29 +167,27 @@ export const createModulo = async (req, res) => {
 
 // PUT aggiorna modulo
 export const updateModulo = async (req, res) => {
-  const { codice } = req.params;
-  const { rer, descrizione, annoInizio, annoFine, cfCoordinatore } = req.body;
+  const { id } = req.params;
+  const { anno, oreaula, oreproject, orestage, oreelearn, descrizione, codiceprogetto, cfdocente } = req.body;
 
   try {
     //SISTEMARE QUERY PER AGGIORNARE MODULO
     const result = await pool.query(
       `UPDATE MODULO 
-       SET RER = $1, Descrizione = $2, AnnoInizio = $3, AnnoFine = $4, CFCoordinatore = $5
-       WHERE Codice = $6`,
-      [rer, descrizione, annoInizio, annoFine, cfCoordinatore, codice]
+       SET Anno = $1, OreAula = $2, OreProject = $3, oreStage = $4, OreELearn = $5, Descrizione = $6, CodiceProgetto = $7
+       WHERE id = $8`,
+      [anno, oreaula, oreproject, orestage, oreelearn, descrizione, codiceprogetto, id]
     );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'Modulo non trovato'
-      });
-    }
+    const result2 = await pool.query(
+      `UPDATE CATTEDRA
+         SET CFDocente = $1
+         WHERE IDModulo = $2`,
+      [cfdocente.split(',')[0], id]
+    );
 
     res.json({
       status: 'success',
-      message: 'Modulo aggiornato con successo',
-      data: result.rows[0]
+      message: 'Modulo aggiornato con successo'
     });
   } catch (error) {
     console.error('Errore aggiornamento modulo:', error);
@@ -199,21 +200,14 @@ export const updateModulo = async (req, res) => {
 
 // DELETE elimina modulo
 export const deleteModulo = async (req, res) => {
-  const { codice } = req.params;
+  const { id } = req.params;
 
   try {
     //SISTEMARE QUERY PER ELIMINARE MODULO
     const result = await pool.query(
-      'DELETE FROM MODULO WHERE Codice = $1',
-      [codice]
+      'DELETE FROM MODULO WHERE id = $1',
+      [id]
     );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'Modulo non trovato'
-      });
-    }
 
     res.json({
       status: 'success',

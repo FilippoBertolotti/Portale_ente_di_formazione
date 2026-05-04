@@ -26,13 +26,13 @@ export const moduliService = {
     return response.data;
   },
 
-  update: async (codice, progetto) => {
-    const response = await api.put(`/moduli/${codice}`, progetto);
+  update: async (id, dati) => {
+    const response = await api.put(`/moduli/${id}`, dati);
     return response.data;
   },
 
-  delete: async (codice) => {
-    const response = await api.delete(`/moduli/${codice}`);
+  delete: async (id) => {
+    const response = await api.delete(`/moduli/${id}`);
     return response.data;
   },
 };

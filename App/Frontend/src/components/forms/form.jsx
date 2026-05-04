@@ -1,4 +1,4 @@
-import { forwardRef, useImperativeHandle, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import Input from '../common/input';
 import Select from '../common/select';
 
@@ -12,20 +12,31 @@ const Form = forwardRef(({
     placeholders = [], // ['mario@example.com', '••••••••']
     validators = {},   // { email: (v) => !v ? 'Obbligatorio' : null, ... }
     options = {},   // { nomecampo: [{ value: '...', label: '...' }] }
-    layout = null,        // [['email'], ['password', 'confirmPassword']]
+    layout = null,  // [['email'], ['password', 'confirmPassword']]
+    defaultValues = {}  // { email: ' ', ... }    
 }, ref) => {
 
-    // Inizializza formData dinamicamente dai fields ricevuti
+    //Inizializza formData dinamicamente dai fields ricevuti
     const [formData, setFormData] = useState(() => {
         const initialData = {};
         fields.forEach((field, index) => {
-            const fieldOptions = options[field];
-            // Se il campo ha opzioni, imposta il primo valore come default
-            if (fieldOptions && fieldOptions.length > 0 && !placeholders[index]) {
-                const firstValue = fieldOptions[0].value
-                initialData[field] = firstValue;
+            // PRIORITÀ:
+            // 1. Se c'è un defaultValues specifico per questo campo, usalo
+            // 2. Se il campo ha opzioni (select), usa il primo valore disponibile
+            // 3. Altrimenti stringa vuota
+            
+            if (defaultValues[field] !== undefined) {
+                // Valore passato esplicitamente (per modifica)
+                initialData[field] = defaultValues[field];
             } else {
-                initialData[field] = '';
+                const fieldOptions = options[field];
+                // Se il campo ha opzioni, imposta il primo valore come default
+                if (fieldOptions && fieldOptions.length > 0 && !placeholders[index]) {
+                    const firstValue = fieldOptions[0].value;
+                    initialData[field] = firstValue;
+                } else {
+                    initialData[field] = '';
+                }
             }
         });
         return initialData;
@@ -77,6 +88,27 @@ const Form = forwardRef(({
             onSubmit(formData);
         }
     };
+
+    // aggiorna formData se cambiano defaultValues (es. carica dati diversi)
+    // Utile quando si modifica un record diverso nella stessa sessione
+    useState(() => {
+        const newData = {};
+        fields.forEach((field, index) => {
+            if (defaultValues[field] !== undefined) {
+                newData[field] = defaultValues[field];
+            } else {
+                const fieldOptions = options[field];
+                if (fieldOptions && fieldOptions.length > 0 && !placeholders[index]) {
+                    newData[field] = fieldOptions[0].value;
+                } else {
+                    newData[field] = '';
+                }
+            }
+        });
+        
+        setFormData(newData);
+        setErrors({}); // Pulisci errori quando cambiano i dati
+    }, [defaultValues, fields, options, placeholders]);
 
     return (
         <form

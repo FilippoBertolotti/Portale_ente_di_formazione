@@ -28,6 +28,9 @@ const Progetti = () => {
   const [showNewModuleModal, setShowNewModuleModal] = useState(false);
   const [showNewCourseModal, setShowNewCourseModal] = useState(false);
   const [showDeleteCourseModal, setShowDeleteCourseModal] = useState(false);
+  const [showDeleteModuleModal, setShowDeleteModuleModal] = useState(false);
+  const [showUpdateModuleModal, setShowUpdateModuleModal] = useState(false);
+  const [selectedModulo, setSelectedModulo] = useState(null);
   const CourseFormRef = useRef(null);
   const ModuleFormRef = useRef(null);
 
@@ -189,6 +192,38 @@ const Progetti = () => {
     }
   };
 
+  const handleDeleteModule = async () => {
+    try {
+      await moduliService.delete(selectedModulo.id);
+      await fetchModulo();
+      setSelectedModulo(null);
+      setShowDeleteModuleModal(false);
+    } catch (error) {
+      console.error('Errore:', error);
+    }
+  };
+
+  const handleUpdateModule = async () => {
+    try {
+      await moduliService.update(selectedModulo.id, selectedModulo);
+      await fetchModulo();
+      setSelectedModulo(null);
+      setShowUpdateModuleModal(false);
+    } catch (error) {
+      console.error('Errore:', error);
+    }
+  };
+
+  const handleUpdateModuleClick = (modulo) => {
+    setSelectedModulo(modulo);
+    setShowUpdateModuleModal(true);
+  };
+
+  const handleDeleteModuleClick = (modulo) => {
+    setSelectedModulo(modulo);
+    setShowDeleteModuleModal(true);
+  };
+
   const riepilogo = useMemo(() => {
     // Caso 1: Progetto specifico selezionato
     if (selectedProgetto && !selectedAnno) {
@@ -287,6 +322,8 @@ const Progetti = () => {
                   frase2="Seleziona Un Corso Per Visualizzare I Dati"
                   frase1="Nessun modulo trovato"
                   centered={true}
+                  onModify={handleUpdateModuleClick}
+                  onDelete={handleDeleteModuleClick}
                   className="h-full"
                 />
               </Container>
@@ -489,7 +526,7 @@ const Progetti = () => {
           fields={['anno', 'oreAula', 'oreProject', 'oreStage', 'oreElearn', 'descrizione', 'codiceProgetto', 'cfDocente']}
           labels={['Anno', 'Ore Aula', 'Ore Project', 'Ore Stage', 'Ore Elearn', 'Descrizione', 'Codice Progetto', 'CF Docente']}
           types={['number', 'number', 'number', 'number', 'number', 'text', 'select', 'select']}
-          placeholders={[1, 50, 40, 30, 20, 'Descrizione del modulo', 'PROJ001', 'BNCGVN90D15F205X']}
+          placeholders={[1, 50, 40, 30, 20, 'Descrizione del modulo', 'Seleziona un progetto', 'Seleziona un docente']}
           options={{
             codiceProgetto: Array.isArray(progetti)
               ? progetti.map(p => ({ value: p.codice, label: p.descrizione }))
@@ -518,6 +555,61 @@ const Progetti = () => {
       </ConfirmationModal>
 
       <ConfirmationModal
+        isOpen={showUpdateModuleModal}
+        onClose={() => setShowUpdateModuleModal(false)}
+        onConfirm={() => ModuleFormRef.current?.submit()}  // Chiama il submit del form
+        title="Modifica Modulo"
+        confirmText="Aggiorna"
+        buttonType="modify"
+        w='60%'
+        wMax='100%'
+      >
+        <Form
+          ref={ModuleFormRef}
+          onSubmit={handleUpdateModule}
+          onCancel={() => setShowUpdateModuleModal(false)}
+          fields={['anno', 'oreAula', 'oreProject', 'oreStage', 'oreElearn', 'descrizione', 'codiceProgetto', 'cfDocente']}
+          labels={['Anno', 'Ore Aula', 'Ore Project', 'Ore Stage', 'Ore Elearn', 'Descrizione', 'Codice Progetto', 'CF Docente']}
+          types={['number', 'number', 'number', 'number', 'number', 'text', 'select', 'select']}
+          placeholders={[1, 50, 40, 30, 20, 'Descrizione del modulo', 'Seleziona un progetto', 'Seleziona un docente']}
+          options={{
+            codiceProgetto: Array.isArray(progetti)
+              ? progetti.map(p => ({ value: p.codice, label: p.descrizione }))
+              : [],
+            cfDocente: Array.isArray(docenti)
+              ? docenti.map(d => ({ value: d.cf, label: d.nomeCompleto }))
+              : []
+          }}
+          validators={[
+            isAcademicYearValid,
+            isHoursValid,
+            isHoursValid,
+            isHoursValid,
+            isHoursValid,
+            isDescriptionValid,
+            isProjectValid,
+            isCoordinatoreValid
+          ]}
+          layout={[
+            ['codiceProgetto', 'anno'],
+            ['descrizione', 'cfDocente'],
+            ['oreAula', 'oreProject'],
+            ['oreStage', 'oreElearn'],
+          ]}
+          defaultValues={{
+            anno: selectedModulo ? selectedModulo.anno : '',
+            oreAula: selectedModulo ? selectedModulo.oreaula : '',
+            oreProject: selectedModulo ? selectedModulo.oreproject : '',
+            oreStage: selectedModulo ? selectedModulo.orestage : '',
+            oreElearn: selectedModulo ? selectedModulo.oreelearn : '',
+            descrizione: selectedModulo ? selectedModulo.descrizione : '',
+            codiceProgetto: selectedModulo ? selectedModulo.codiceprogetto : '',
+            cfDocente: selectedModulo ? selectedModulo.cfdocente.split(',')[0] : ''
+          }}
+        />
+      </ConfirmationModal>
+
+      <ConfirmationModal
         isOpen={showDeleteCourseModal}
         onClose={() => setShowDeleteCourseModal(false)}
         onConfirm={handleDeleteCourse}
@@ -526,6 +618,17 @@ const Progetti = () => {
         buttonType="danger"
       >
         <p>Sei sicuro di voler eliminare questo corso?</p>
+      </ConfirmationModal>
+
+      <ConfirmationModal
+        isOpen={showDeleteModuleModal}
+        onClose={() => setShowDeleteModuleModal(false)}
+        onConfirm={handleDeleteModule}
+        title="Elimina Modulo"
+        confirmText="Conferma"
+        buttonType="danger"
+      >
+        <p>Sei sicuro di voler eliminare questo modulo?</p>
       </ConfirmationModal>
     </div>
   );
