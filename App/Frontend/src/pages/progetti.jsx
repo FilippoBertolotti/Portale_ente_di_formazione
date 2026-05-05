@@ -196,6 +196,7 @@ const Progetti = () => {
     try {
       await moduliService.delete(selectedModulo.id);
       await fetchModulo();
+      await fetchProgetti();
       setSelectedModulo(null);
       setShowDeleteModuleModal(false);
     } catch (error) {
@@ -203,10 +204,11 @@ const Progetti = () => {
     }
   };
 
-  const handleUpdateModule = async () => {
+  const handleUpdateModule = async (formData) => {
     try {
-      await moduliService.update(selectedModulo.id, selectedModulo);
+      await moduliService.update(selectedModulo.id, formData);
       await fetchModulo();
+      await fetchProgetti();
       setSelectedModulo(null);
       setShowUpdateModuleModal(false);
     } catch (error) {

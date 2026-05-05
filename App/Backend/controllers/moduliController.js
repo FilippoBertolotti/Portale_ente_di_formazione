@@ -168,21 +168,21 @@ export const createModulo = async (req, res) => {
 // PUT aggiorna modulo
 export const updateModulo = async (req, res) => {
   const { id } = req.params;
-  const { anno, oreaula, oreproject, orestage, oreelearn, descrizione, codiceprogetto, cfdocente } = req.body;
+  const { anno, oreAula, oreProject, oreStage, oreElearn, descrizione, codiceProgetto, cfDocente } = req.body;
 
   try {
     //SISTEMARE QUERY PER AGGIORNARE MODULO
     const result = await pool.query(
       `UPDATE MODULO 
-       SET Anno = $1, OreAula = $2, OreProject = $3, oreStage = $4, OreELearn = $5, Descrizione = $6, CodiceProgetto = $7
+       SET Anno = $1, OreAula = $2, OreProject = $3, OreStage = $4, OreElearn = $5, Descrizione = $6, CodiceProgetto = $7
        WHERE id = $8`,
-      [anno, oreaula, oreproject, orestage, oreelearn, descrizione, codiceprogetto, id]
+      [anno, oreAula, oreProject, oreStage, oreElearn, descrizione, codiceProgetto, id]
     );
     const result2 = await pool.query(
       `UPDATE CATTEDRA
          SET CFDocente = $1
          WHERE IDModulo = $2`,
-      [cfdocente.split(',')[0], id]
+      [cfDocente.split(',')[0], id]
     );
 
     res.json({
