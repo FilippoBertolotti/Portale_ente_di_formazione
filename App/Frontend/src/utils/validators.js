@@ -39,7 +39,7 @@ export const isDateValid2 = (v) => {
     if (!v) return 'Data obbligatoria';
     const date = new Date(v);
     if (isNaN(date.getTime())) return 'Data non valida';
-    if (date < new Date()) return 'La data non può essere nel passato';
+    if (date < new Date().setHours(0, 0, 0, 0)) return 'La data non può essere nel passato';
     return null;
 };
 
