@@ -27,6 +27,7 @@ const Progetti = () => {
   const [selectedAnno, setSelectedAnno] = useState(null);
   const [showNewModuleModal, setShowNewModuleModal] = useState(false);
   const [showNewCourseModal, setShowNewCourseModal] = useState(false);
+  const [showUpdateCourseModal, setShowUpdateCourseModal] = useState(false);
   const [showDeleteCourseModal, setShowDeleteCourseModal] = useState(false);
   const [showDeleteModuleModal, setShowDeleteModuleModal] = useState(false);
   const [showUpdateModuleModal, setShowUpdateModuleModal] = useState(false);
@@ -39,6 +40,7 @@ const Progetti = () => {
       setLoading(true);
       const response = selectedAnno ? await progettiService.getByCodiceAnno(selectedProgetto, selectedAnno) : await progettiService.getAll();
 
+      console.log('📦 Risposta API Progetti:', response);
       let progettiData = [];
 
       if (Array.isArray(response)) {
@@ -187,6 +189,16 @@ const Progetti = () => {
       await fetchProgetti();
       setSelectedProgetto(null);
       setShowDeleteCourseModal(false);
+    } catch (error) {
+      console.error('Errore:', error);
+    }
+  };
+
+  const handleUpdateCourse = async (formData) => {
+    try {
+      await progettiService.update(selectedProgetto, formData);
+      await fetchProgetti();
+      setShowUpdateCourseModal(false);
     } catch (error) {
       console.error('Errore:', error);
     }
@@ -372,6 +384,7 @@ const Progetti = () => {
                       path1='M9.02793 25.3511L2 27L3.64884 19.9728L20.9817 2.63703C21.1836 2.43507 21.4233 2.27487 21.6871 2.16556C21.9509 2.05626 22.2336 2 22.5191 2C22.8047 2 23.0874 2.05626 23.3512 2.16556C23.615 2.27487 23.8547 2.43507 24.0566 2.63703L26.363 4.94246C26.5649 5.14434 26.7251 5.38403 26.8344 5.64784C26.9437 5.91164 27 6.1944 27 6.47996C27 6.76551 26.9437 7.04827 26.8344 7.31208C26.7251 7.57589 26.5649 7.81557 26.363 8.01745L9.02793 25.3511Z'
                     />}
                     disabled={!selectedProgetto}
+                    onClick={() => setShowUpdateCourseModal(true)}
                   >
                     Modifica Corso
                   </Button>
@@ -508,6 +521,60 @@ const Progetti = () => {
             ['annoInizio', 'annoFine'],
             ['cfCoordinatore', 'colore']
           ]}
+        />
+      </ConfirmationModal>
+
+      <ConfirmationModal
+        isOpen={showUpdateCourseModal}
+        onClose={() => setShowUpdateCourseModal(false)}
+        onConfirm={() => CourseFormRef.current?.submit()}  // Chiama il submit del form
+        title="Aggiorna Corso"
+        confirmText="Aggiorna"
+        buttonType="modify"
+        w='60%'
+        wMax='100%'
+      >
+        <Form
+          ref={CourseFormRef}
+          onSubmit={handleUpdateCourse}
+          onCancel={() => setShowUpdateCourseModal(false)}
+          fields={['codice', 'rer', 'descrizione', 'annoInizio', 'annoFine', 'cfCoordinatore', 'colore']}
+          labels={['Codice', 'RER', 'Descrizione', 'Anno di Inizio', 'Anno di Fine', 'Coordinatore', 'Colore']}
+          types={['text', 'text', 'text', 'number', 'number', 'select', 'color']}
+          placeholders={['PROJ001', 'RER-2023-001', 'Corso Sviluppo Web Full Stack', new Date().getFullYear(), new Date().getFullYear() + 2, 'Seleziona un coordinatore', '#2B7BB4']}
+          options={{
+            cfCoordinatore: Array.isArray(docenti)
+              ? docenti.map(d => ({ value: d.cf, label: d.nomeCompleto }))
+              : []
+          }}
+          validators={[
+            isCodeValid,
+            isCodeValid,
+            isDescriptionValid,
+            isYearValid,
+            isYearValid,
+            isCoordinatoreValid,
+            isColorValid
+          ]}
+          layout={[
+            ['codice', 'rer'],
+            ['descrizione'],
+            ['annoInizio', 'annoFine'],
+            ['cfCoordinatore', 'colore']
+          ]}
+          defaultValues={(() => {
+            const progetto = progetti.find(p => p.codice === selectedProgetto);
+            if (!progetto) return {};
+            return {
+              codice: progetto.codice ?? '',
+              rer: progetto.rer ?? '',
+              descrizione: progetto.descrizione ?? '',
+              annoInizio: progetto.annoinizio ?? '',
+              annoFine: progetto.annofine ?? '',
+              cfCoordinatore: progetto.cfcoordinatore ?? '',
+              colore: progetto.colore ?? ''
+            };
+          })()}
         />
       </ConfirmationModal>
 

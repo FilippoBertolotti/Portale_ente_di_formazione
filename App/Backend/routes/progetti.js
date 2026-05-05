@@ -21,7 +21,7 @@ router.get('/completamento', getCompletionProgetti);
 router.get('/anno/:anno', getProgettiByAnno);
 router.get('/codice/:codice', getProgettiByCodice);
 router.post('/', isCoordinatore || isAdmin, createProgetto);
-router.put('/:codice', isAdmin, updateProgetto);
+router.put('/:codice',isCoordinatore || isAdmin, updateProgetto);
 router.delete('/:codice', isAdmin, deleteProgetto);
 
 export default router;
