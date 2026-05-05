@@ -12,5 +12,13 @@ export const lezioniService = {
   createLezione: async (lezioneData) => {
     const response = await api.post('/lezioni', lezioneData);
     return response.data;
+  },
+  updateLezione: async (id, lezioneData) => {
+    const response = await api.put(`/lezioni/${id}`, lezioneData);
+    return response.data;
+  },
+  deleteLezione: async (id) => {
+    const response = await api.delete(`/lezioni/${id}`);
+    return response.data;
   }
 };

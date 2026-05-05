@@ -26,7 +26,43 @@ const Calendario = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [activeDate, setActiveDate] = useState(new Date());
   const [showNewLessonModal, setShowNewLessonModal] = useState(false);
+  const [showUpdateLessonModal, setShowUpdateLessonModal] = useState(false);
+  const [showDeleteLessonModal, setShowDeleteLessonModal] = useState(false);
+  const [selectedLezione, setSelectedLezione] = useState(null);
   const LessonFormRef = useRef();
+
+  const handleUpdateLessonClick = (lezione) => {
+    setSelectedLezione(lezione);
+    setShowUpdateLessonModal(true);
+  };
+
+  const handleDeleteLessonClick = (lezione) => {
+    setSelectedLezione(lezione);
+    console.log('Lezione selezionata per eliminazione:', lezione);
+    setShowDeleteLessonModal(true);
+  };
+
+  const handleUpdateLesson = async (formdata) => {
+    try {
+      await lezioniService.updateLezione(selectedLezione.id, formdata);
+      await fetchLezioni();
+      setShowUpdateLessonModal(false);
+      setSelectedLezione(null);
+    } catch (error) {
+      console.error('Errore:', error);
+    }
+  };
+
+  const handleDeleteLesson = async () => {
+    try {
+      await lezioniService.deleteLezione(selectedLezione.id);
+      await fetchLezioni();
+      setShowDeleteLessonModal(false);
+      setSelectedLezione(null);
+    } catch (error) {
+      console.error('Errore:', error);
+    }
+  };
 
   const meseAnno = activeDate.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
   const mesePrecedente = () => setActiveDate(new Date(activeDate.getFullYear(), activeDate.getMonth() - 1, 1));
@@ -217,6 +253,8 @@ const Calendario = () => {
                       colore={lezione.colore_progetto}
                       aula={lezione.aula}
                       docente={lezione.docente}
+                      onModify={() => handleUpdateLessonClick(lezione)}
+                      onDelete={() => handleDeleteLessonClick(lezione)}
                     />
                   ))
                 ) : (
@@ -269,6 +307,60 @@ const Calendario = () => {
             ['orainizio', 'orafine']
           ]}
         />
+      </ConfirmationModal>
+
+      <ConfirmationModal
+        isOpen={showUpdateLessonModal}
+        onClose={() => setShowUpdateLessonModal(false)}
+        onConfirm={() => LessonFormRef.current?.submit()}  // Chiama il submit del form
+        title="Modifica Lezione"
+        confirmText="Aggiorna"
+        buttonType="modify"
+        w='60%'
+        wMax='100%'
+      >
+        <Form
+          ref={LessonFormRef}
+          onSubmit={handleUpdateLesson}
+          onCancel={() => setShowUpdateLessonModal(false)}
+          fields={['data', 'orainizio', 'orafine', 'idmodulo', 'idaula', 'cfdocente']}
+          labels={['Data', 'Ora Inizio', 'Ora Fine', 'Modulo', 'Aula', 'Docente']}
+          types={['date', 'time', 'time', 'select', 'select', 'select']}
+          placeholders={[null, null, null, 'Seleziona un modulo', 'Seleziona un aula', 'Seleziona un docente']}
+          validators={[isDateValid2, isOraInizioValid, isOraFineValid, isModuleValid, isClassroomValid, isCFValid]}
+          options={{
+            idmodulo: Array.isArray(moduli) ? moduli.map(m => ({ value: m.id, label: m.descrizione })) : [],
+            idaula: Array.isArray(aule) ? aule.map(a => ({ value: a.id, label: a.descrizione })) : [],
+            cfdocente: Array.isArray(docenti) ? docenti.map(d => ({ value: d.cf, label: d.nomeCompleto })) : []
+          }}
+          layout={[
+            ['idmodulo', 'idaula'],
+            ['cfdocente'],
+            ['data'],
+            ['orainizio', 'orafine']
+          ]}
+          defaultValues={{
+            data: selectedLezione?.data
+              ? new Date(selectedLezione.data).toLocaleDateString('en-CA')
+              : '',
+            orainizio: selectedLezione?.orainizio ? selectedLezione.orainizio.substring(0, 5) : '',
+            orafine: selectedLezione?.orafine ? selectedLezione.orafine.substring(0, 5) : '',
+            idmodulo: moduli.find(m => m.descrizione === selectedLezione?.modulo)?.id || '',
+            idaula: selectedLezione?.idaula || '',
+            cfdocente: selectedLezione?.cfdocente || ''
+          }}
+        />
+      </ConfirmationModal>
+
+      <ConfirmationModal
+        isOpen={showDeleteLessonModal}
+        onClose={() => setShowDeleteLessonModal(false)}
+        onConfirm={handleDeleteLesson}
+        title="Elimina Lezione"
+        confirmText="Conferma"
+        buttonType="danger"
+      >
+        <p>Sei sicuro di voler eliminare questa lezione?</p>
       </ConfirmationModal>
     </div>
   );
