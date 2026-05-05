@@ -340,13 +340,6 @@ export const updateProgetto = async (req, res) => {
       [rer, descrizione, annoInizio, annoFine, cfCoordinatore, colore, codice]
     );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'Progetto non trovato'
-      });
-    }
-
     res.json({
       status: 'success',
       message: 'Progetto aggiornato con successo',

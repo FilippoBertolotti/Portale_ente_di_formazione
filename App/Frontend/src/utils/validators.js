@@ -161,9 +161,9 @@ export const isCodeValid = (v) => {
 };
 
 export const isYearValid = (v) => {
-    if (!v?.trim()) return 'Anno obbligatorio';
-    if (parseInt(v.trim()) < 2023) return 'Anno troppo passato (minimo 2023)';
-    if (parseInt(v.trim()) > new Date().getFullYear() + 15) return 'Anno troppo futuro (massimo ' + (new Date().getFullYear() + 15) + ')';
+    if (!v) return 'Anno obbligatorio';
+    if (parseInt(v) < 2023) return 'Anno troppo passato (minimo 2023)';
+    if (parseInt(v) > new Date().getFullYear() + 15) return 'Anno troppo futuro (massimo ' + (new Date().getFullYear() + 15) + ')';
     return null;
 };
 
