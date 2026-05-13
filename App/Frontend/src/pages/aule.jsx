@@ -36,9 +36,13 @@ const Aule = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [selectedSede, setSelectedSede] = useState(null);
+    const [selectedAula, setselectedAula] = useState(null);
     const [selectedPiano, setSelectedPiano] = useState(null);
     const [showNewClassroomModal, setShowNewClassroomModal] = useState(false);
+    const [showUpdateClassroomModal, setShowUpdateClassroomModal] = useState(false);
+    const [showDeleteClassroomModal, setShowDeleteClassroomModal] = useState(false);
     const [showNewSiteModal, setShowNewSiteModal] = useState(false);
+    const [showUpdateSiteModal, setShowUpdateSiteModal] = useState(false);
     const [showDeleteSiteModal, setShowDeleteSiteModal] = useState(false);
     const ClassroomFormRef = useRef(null);
     const SiteFormRef = useRef(null);
@@ -190,11 +194,62 @@ const Aule = () => {
         }
     };
 
+    const handleUpdateClassroomClick = (classe) => {
+        setselectedAula(classe);
+        setShowUpdateClassroomModal(true);
+    };
+
+    const handleDeleteClassroomClick = (classe) => {
+        setselectedAula(classe);
+        setShowDeleteClassroomModal(true);
+    };
+
+    const handleUpdateClassroom = async (formData) => {
+        try {
+            await auleService.updateA(selectedAula.id, formData);
+            setselectedAula(null);
+            await fetchAula();
+            await fetchStats();
+            await fetchRiepilogo();
+            setShowUpdateClassroomModal(false);
+        } catch (error) {
+            console.error('Errore:', error);
+        }
+    };
+
+    const handleDeleteClassroom = async () => {
+        try {
+            await auleService.deleteA(selectedAula.id);
+            setselectedAula(null);
+            await fetchAula();
+            await fetchStats();
+            await fetchRiepilogo();
+            setShowDeleteClassroomModal(false);
+        } catch (error) {
+            console.error('Errore:', error);
+        }
+    };
+
     const handleNewSite = async (formData) => {
         try {
             await auleService.createS(formData);
             await fetchSedi();
+            await fetchRiepilogo();
+            await fetchAula();
             setShowNewSiteModal(false);
+        } catch (error) {
+            console.error('Errore:', error);
+        }
+    };
+
+    const handleUpdateSite = async (formData) => {
+        try {
+            await auleService.updateS(selectedSede, formData);
+            await fetchSedi();
+            await fetchAula();
+            await fetchStats();
+            await fetchRiepilogo();
+            setShowUpdateSiteModal(false);
         } catch (error) {
             console.error('Errore:', error);
         }
@@ -202,8 +257,10 @@ const Aule = () => {
 
     const handleDeleteSite = async () => {
         try {
-            await auleService.deleteSede(selectedSede);
+            await auleService.deleteS(selectedSede);
             await fetchSedi();
+            await fetchRiepilogo();
+            await fetchAula();
             setSelectedSede(null);
             setSelectedPiano(null);
             setShowDeleteSiteModal(false);
@@ -212,6 +269,7 @@ const Aule = () => {
         }
     };
 
+    
     return (
         <div className="flex flex-col h-full w-full">
             <Header user={user} title="Aule" subtitle="Aule, sedi e capienze disponibili" />
@@ -278,6 +336,8 @@ const Aule = () => {
                                         }}
                                         frase1="Nessuna aula trovata"
                                         className="h-full"
+                                        onModify={handleUpdateClassroomClick}
+                                        onDelete={handleDeleteClassroomClick}
                                     />
                                 </Container>
                             </div>
@@ -323,6 +383,7 @@ const Aule = () => {
                                             path1='M9.02793 25.3511L2 27L3.64884 19.9728L20.9817 2.63703C21.1836 2.43507 21.4233 2.27487 21.6871 2.16556C21.9509 2.05626 22.2336 2 22.5191 2C22.8047 2 23.0874 2.05626 23.3512 2.16556C23.615 2.27487 23.8547 2.43507 24.0566 2.63703L26.363 4.94246C26.5649 5.14434 26.7251 5.38403 26.8344 5.64784C26.9437 5.91164 27 6.1944 27 6.47996C27 6.76551 26.9437 7.04827 26.8344 7.31208C26.7251 7.57589 26.5649 7.81557 26.363 8.01745L9.02793 25.3511Z'
                                         />}
                                         disabled={!selectedSede}
+                                        onClick={() => setShowUpdateSiteModal(true)}
                                     >
                                         Modifica Sede
                                     </Button>
@@ -464,6 +525,75 @@ const Aule = () => {
             </ConfirmationModal>
 
             <ConfirmationModal
+                isOpen={showUpdateClassroomModal}
+                onClose={() => setShowUpdateClassroomModal(false)}
+                onConfirm={() => ClassroomFormRef.current?.submit()}  // Chiama il submit del form
+                title="Modifica Aula"
+                confirmText="Aggiorna"
+                buttonType="modify"
+                w='60%'
+                wMax='100%'
+            >
+                <Form
+                    ref={ClassroomFormRef}
+                    onSubmit={handleUpdateClassroom}
+                    onCancel={() => setShowUpdateClassroomModal(false)}
+                    fields={['descrizione', 'capienza', 'numeropc', 'idsede', 'piano', 'attiva']}
+                    labels={['Nome', 'Capienza', 'Numero PC', 'Sede', 'Piano', 'Stato']}
+                    types={['text', 'number', 'number', 'select', 'text', 'select']}
+                    placeholders={['Aula 101', '50', '10', 'Sede A', 'Piano Terra, Primo Piano...','Seleziona uno stato']}
+                    validators={[
+                        isPlaceNameValid,
+                        isCapacityValid,
+                        (pcCount, formValues) => {  // per numeropc - funzione personalizzata
+                            const capacity = formValues?.capienza;
+                            if (!capacity) return 'Inserisci prima la capienza';
+                            if (!pcCount || pcCount < 0) return 'Numero PC non valido';
+                            if (pcCount > capacity) return `Numero PC (${pcCount}) non può superare la capienza (${capacity})`;
+                            return null;
+                        },
+                        isSedeValid,
+                        isPianoValid
+                    ]}
+                    options={{
+                        idsede: Array.isArray(sedi)
+                            ? sedi.map(s => ({ value: s.id, label: s.nome }))
+                            : [],
+
+                        attiva: [
+                            { value: true, label: 'Attiva' },
+                            { value: false, label: 'In Manutenzione' }
+                        ],
+                    }}
+                    layout={[
+                        ['descrizione'],
+                        ['capienza', 'numeropc'],
+                        ['idsede', 'piano'],
+                        ['attiva']
+                    ]}
+                    defaultValues={{
+                        descrizione: selectedAula?.descrizione || '',
+                        capienza: selectedAula?.capienza || '',
+                        numeropc: selectedAula?.numeropc || '0',
+                        idsede: selectedAula?.idsede || '',
+                        piano: selectedAula?.piano || '',
+                        attiva: selectedAula?.attiva == false ? false : true
+                    }}
+                />
+            </ConfirmationModal>
+
+            <ConfirmationModal
+                isOpen={showDeleteClassroomModal}
+                onClose={() => setShowDeleteClassroomModal(false)}
+                onConfirm={handleDeleteClassroom}
+                title="Elimina Aula"
+                confirmText="Conferma"
+                buttonType="danger"
+            >
+                <p>Sei sicuro di voler eliminare questa aula? </p>
+            </ConfirmationModal>
+
+            <ConfirmationModal
                 isOpen={showNewSiteModal}
                 onClose={() => setShowNewSiteModal(false)}
                 onConfirm={() => SiteFormRef.current?.submit()}  // Chiama il submit del form
@@ -495,6 +625,49 @@ const Aule = () => {
                         ['nome_citta', 'cap'],
                         ['descrizione']
                     ]}
+                />
+            </ConfirmationModal>
+
+            <ConfirmationModal
+                isOpen={showUpdateSiteModal}
+                onClose={() => setShowUpdateSiteModal(false)}
+                onConfirm={() => SiteFormRef.current?.submit()}  // Chiama il submit del form
+                title="Aggiorna Sede"
+                confirmText="Aggiorna"
+                buttonType="modify"
+                w='60%'
+                wMax='100%'
+            >
+                <Form
+                    ref={SiteFormRef}
+                    onSubmit={handleUpdateSite}
+                    onCancel={() => setShowUpdateSiteModal(false)}
+                    fields={['nome', 'telefono', 'indirizzo', 'nome_citta', 'cap', 'descrizione']}
+                    labels={['Nome', 'Telefono', 'Indirizzo', 'Città', 'CAP', 'Descrizione']}
+                    types={['text', 'text', 'text', 'text', 'text', 'text']}
+                    placeholders={['Sede A', '0123456789', 'Via Roma 1', 'Reggio Emilia', '00100', 'Descrizione della sede']}
+                    validators={[
+                        isPlaceNameValid,
+                        isPhoneValid,
+                        isAddressValid,
+                        isNameValid,
+                        isCapValid,
+                        isDescriptionValid
+                    ]}
+                    layout={[
+                        ['nome', 'telefono'],
+                        ['indirizzo'],
+                        ['nome_citta', 'cap'],
+                        ['descrizione']
+                    ]}
+                    defaultValues={{
+                        nome: selectedSede ? sedi.find(s => s.id === selectedSede)?.nome || '' : '',
+                        telefono: selectedSede ? sedi.find(s => s.id === selectedSede)?.telefono || '' : '',
+                        indirizzo: selectedSede ? sedi.find(s => s.id === selectedSede)?.indirizzo || '' : '',
+                        nome_citta: selectedSede ? sedi.find(s => s.id === selectedSede)?.nome_citta || '' : '',
+                        cap: selectedSede ? sedi.find(s => s.id === selectedSede)?.capcitta || '' : '',
+                        descrizione: selectedSede ? sedi.find(s => s.id === selectedSede)?.descrizione || '' : '',
+                    }}
                 />
             </ConfirmationModal>
 

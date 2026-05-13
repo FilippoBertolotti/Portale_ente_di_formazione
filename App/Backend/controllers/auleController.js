@@ -40,8 +40,9 @@ export const getAllAule = async (req, res) => {
 export const getAllSedi = async (req, res) => {
   try {
     const result = await pool.query(`
-            SELECT id, nome
+            SELECT id, nome, indirizzo, telefono, descrizione, capcitta, nome_citta
             FROM sede
+            JOIN citta ON sede.capcitta = citta.cap
             ORDER BY nome;
         `);
     res.json({
@@ -129,7 +130,7 @@ export const getAuleStats = async (req, res) => {
 
   try {
     let query = `
-      SELECT 
+      SELECT
         COUNT(a.id) as aule_totali,
         COALESCE(SUM(a.capienza), 0) as posti_totali,
         COUNT(CASE WHEN numeropc > 0 THEN 1 END) as aule_pc,
@@ -223,6 +224,68 @@ export const createAula = async (req, res) => {
   }
 };
 
+export const updateAula = async (req, res) => {
+  const { id } = req.params;
+  const { descrizione, capienza, numeropc, piano, attiva, idsede } = req.body;
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    await client.query(
+      `UPDATE AULA SET descrizione = $1, capienza = $2, numeropc = $3, piano = $4, attiva = $5, idsede = $6 WHERE id = $7`,
+      [descrizione, capienza, numeropc, piano, attiva, idsede, id]
+    );
+
+    await client.query('COMMIT');
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Aula aggiornata con successo',
+    });
+
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Errore aggiornamento aula:', error);
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nell\'aggiornamento dell\'aula'
+    });
+  } finally {
+    client.release();
+  }
+};
+
+export const deleteAula = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query(
+      'DELETE FROM AULA WHERE id = $1 RETURNING *',
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Aula non trovata'
+      });
+    }
+
+    res.json({
+      status: 'success',
+      message: 'Aula eliminata con successo'
+    });
+  } catch (error) {
+    console.error('Errore eliminazione aula:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nell\'eliminazione dell\'aula'
+    });
+  }
+};
+
 export const createSede = async (req, res) => {
   const { nome, indirizzo, telefono, descrizione, cap, nome_citta } = req.body;
 
@@ -265,19 +328,61 @@ export const createSede = async (req, res) => {
   }
 };
 
+export const updateSede = async (req, res) => {
+  const { id } = req.params;
+  const { nome, indirizzo, telefono, descrizione, cap, nome_citta } = req.body;
+
+  const client = await pool.connect();
+  try {
+    let citta = await client.query('SELECT nome_citta FROM citta WHERE cap = $1', [cap]);
+
+    if (citta.rows.length === 0) {
+      await client.query(
+        `INSERT INTO citta (cap, nome_citta) VALUES ($1, $2)`,
+        [cap, nome_citta]
+      );
+    }
+
+    await client.query('BEGIN');
+
+    await client.query(
+      `UPDATE SEDE SET nome = $1, indirizzo = $2, telefono = $3, descrizione = $4, capcitta = $5 WHERE id = $6`,
+      [nome, indirizzo, telefono, descrizione, cap, id]
+    );
+
+    await client.query('COMMIT');
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Sede aggiornata con successo',
+    });
+
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Errore aggiornamento sede:', error);
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nell\'aggiornamento della sede'
+    });
+  } finally {
+    client.release();
+  }
+};
+
 export const deleteSede = async (req, res) => {
-  const { sede } = req.params;
+  const { id } = req.params;
 
   const client = await pool.connect();
   try {
     await client.query(
       `UPDATE aula SET attiva = false WHERE idsede = $1;`,
-      [sede]
+      [id]
     );
     
     await client.query(
       `DELETE FROM sede WHERE id = $1;`,
-      [sede]
+      [id]
     );
 
     res.status(201).json({

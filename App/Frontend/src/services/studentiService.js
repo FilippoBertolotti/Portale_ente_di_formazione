@@ -56,13 +56,13 @@ export const studentiService = {
     return response.status;
   },
 
-  //   update: async (cf, studente) => {
-  //     const response = await api.put(`/studenti/${cf}`, studente);
-  //     return response.data;
-  //   },
+  update: async (cf, studente) => {
+    const response = await api.put(`/studenti/${cf}`, studente);
+    return response.data;
+  },
 
-  //   delete: async (cf) => {
-  //     const response = await api.delete(`/studenti/${cf}`);
-  //     return response.data;
-  //   },
+  delete: async (cf) => {
+    const response = await api.delete(`/studenti/${cf}`);
+    return response.data;
+  },
 };

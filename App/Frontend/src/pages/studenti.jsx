@@ -25,12 +25,15 @@ const Studenti = () => {
   const [selectedAnno, setSelectedAnno] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showNewStudentModal, setShowNewStudentModal] = useState(false);
+  const [showUpdateStudentModal, setShowUpdateStudentModal] = useState(false);
+  const [showDeleteStudentModal, setShowDeleteStudentModal] = useState(false);
+  const [selectedStudente, setSelectedStudente] = useState(null);
   const StudentFormRef = useRef();
 
   const fetchStudente = async () => {
-      try {
-        let response = [];
-        if (searchTerm && searchTerm.trim() !== '') {
+    try {
+      let response = [];
+      if (searchTerm && searchTerm.trim() !== '') {
         // Se c'è un termine di ricerca, usa l'endpoint search
         response = await studentiService.getSearch(searchTerm);
       } else {
@@ -38,56 +41,56 @@ const Studenti = () => {
         response = await studentiService.getAll();
       }
 
-        const studentiData = response.data;
+      const studentiData = response.data;
 
-        let filtered =
-          selectedProgetto
-            ? studentiData.filter(s => s.codiceprogetto == selectedProgetto)
-            : studentiData;
+      let filtered =
+        selectedProgetto
+          ? studentiData.filter(s => s.codiceprogetto == selectedProgetto)
+          : studentiData;
 
-        filtered =
-          selectedAnno
-            ? filtered.filter(s => s.annoaccademico == selectedAnno)
-            : filtered;
+      filtered =
+        selectedAnno
+          ? filtered.filter(s => s.annoaccademico == selectedAnno)
+          : filtered;
 
-        setStudenti(filtered);
-        setError('');
+      setStudenti(filtered);
+      setError('');
 
-      } catch (err) {
-        console.error('❌ Errore fetch:', err);
-        setError('Errore nel caricamento dei studenti');
-        setStudenti([]);
+    } catch (err) {
+      console.error('❌ Errore fetch:', err);
+      setError('Errore nel caricamento dei studenti');
+      setStudenti([]);
+    }
+  };
+
+  const fetchProgetti = async () => {
+    try {
+      const response = selectedAnno ? await progettiService.getByAnno(selectedAnno) : await progettiService.getAll();
+
+      let progettiData = [];
+
+      if (Array.isArray(response)) {
+        progettiData = response;
+      } else if (response?.data && Array.isArray(response.data)) {
+        progettiData = response.data;
+      } else if (response?.progetti && Array.isArray(response.progetti)) {
+        progettiData = response.progetti;
+      } else if (response?.results && Array.isArray(response.results)) {
+        progettiData = response.results;
+      } else {
+        console.warn('Formato dati non riconosciuto:', response);
+        progettiData = [];
       }
-    };
 
-    const fetchProgetti = async () => {
-      try {
-        const response = selectedAnno ? await progettiService.getByAnno(selectedAnno) : await progettiService.getAll();
+      setProgetti(progettiData);
+      setError('');
 
-        let progettiData = [];
-
-        if (Array.isArray(response)) {
-          progettiData = response;
-        } else if (response?.data && Array.isArray(response.data)) {
-          progettiData = response.data;
-        } else if (response?.progetti && Array.isArray(response.progetti)) {
-          progettiData = response.progetti;
-        } else if (response?.results && Array.isArray(response.results)) {
-          progettiData = response.results;
-        } else {
-          console.warn('Formato dati non riconosciuto:', response);
-          progettiData = [];
-        }
-
-        setProgetti(progettiData);
-        setError('');
-
-      } catch (err) {
-        setError('Errore nel caricamento dei progetti');
-        console.error('❌ Errore fetch:', err);
-        setProgetti([]);
-      }
-    };
+    } catch (err) {
+      setError('Errore nel caricamento dei progetti');
+      console.error('❌ Errore fetch:', err);
+      setProgetti([]);
+    }
+  };
 
   useEffect(() => {
 
@@ -134,14 +137,46 @@ const Studenti = () => {
   }, [selectedProgetto, selectedAnno, searchTerm]);
 
   const handleNewStudent = async (formData) => {
-      try {
-        await studentiService.create(formData);
-        fetchStudente(); // Ricarica la lista degli studenti dopo l'aggiunta
-        setShowNewStudentModal(false);
-      } catch (error) {
-        console.error('Errore:', error);
-      }
-    };
+    try {
+      await studentiService.create(formData);
+      fetchStudente(); // Ricarica la lista degli studenti dopo l'aggiunta
+      setShowNewStudentModal(false);
+    } catch (error) {
+      console.error('Errore:', error);
+    }
+  };
+
+  const handleUpdateStudentClick = (studente) => {
+    setSelectedStudente(studente);
+    setShowUpdateStudentModal(true);
+  };
+
+  const handleDeleteStudentClick = (studente) => {
+    setSelectedStudente(studente);
+    setShowDeleteStudentModal(true);
+  };
+
+  const handleUpdateStudent = async (formdata) => {
+    try {
+      await studentiService.update(selectedStudente.cf, formdata);
+      await fetchStudente();
+      setShowUpdateStudentModal(false);
+      setSelectedStudente(null);
+    } catch (error) {
+      console.error('Errore:', error);
+    }
+  };
+
+  const handleDeleteStudent = async () => {
+    try {
+      await studentiService.delete(selectedStudente.cf);
+      await fetchStudente();
+      setShowDeleteStudentModal(false);
+      setSelectedStudente(null);
+    } catch (error) {
+      console.error('Errore:', error);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full w-full">
@@ -199,7 +234,7 @@ const Studenti = () => {
                         placeholder={"Cerca studenti..."}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        noerror = {true}
+                        noerror={true}
                         icon={
                           <SvgIcon
                             color="#777777"
@@ -234,10 +269,12 @@ const Studenti = () => {
                 </div>
                 <Table
                   headers={['Nome Cognome', 'Codice Fiscale', 'Data Nascita', 'Email', 'Corso']}
-                  labels={['nomeCompleto', 'cf', 'dataNascita', 'email', 'corso']}
+                  labels={['nomeCompleto', 'cf', 'FromattedDataNascita', 'email', 'corso']}
                   data={studenti}
                   frase1="Nessuno studente trovato"
                   className="h-full"
+                  onModify = {handleUpdateStudentClick}
+                  onDelete = {handleDeleteStudentClick}
                 />
               </Container>
             </div>
@@ -275,6 +312,61 @@ const Studenti = () => {
             ['corso', 'annoAccademico']
           ]}
         />
+      </ConfirmationModal>
+
+      <ConfirmationModal
+        isOpen={showUpdateStudentModal}
+        onClose={() => setShowUpdateStudentModal(false)}
+        onConfirm={() => StudentFormRef.current?.submit()}  // Chiama il submit del form
+        title="Modifica Studente"
+        confirmText="Aggiorna"
+        buttonType="modify"
+        w='60%'
+        wMax='100%'
+      >
+        <Form
+          ref={StudentFormRef}
+          onSubmit={handleUpdateStudent}
+          onCancel={() => setShowUpdateStudentModal(false)}
+          fields={['cf', 'nome', 'cognome', 'email', 'dataNascita', 'corso', 'annoAccademico']}
+          labels={['Codice Fiscale', 'Nome', 'Cognome', 'Email', 'Data di Nascita', 'Corso', 'Anno Accademico']}
+          types={['text', 'text', 'text', 'email', 'date', 'select', 'select']}
+          placeholders={['BNCDVD92M22H501V', 'Davida', 'Bianchi', 'davida.bianchi@email.it', '24/05/1992', 'Informatica, Economia, ...', '1']}
+          validators={[isCFValid, isNameValid, isSurnameValid, isEmailValid, isDateValid, isCourseValid, isAcademicYearValid]}
+          options={{
+            corso: Array.isArray(progetti)
+              ? progetti.map(p => ({ value: p.codice, label: p.descrizione }))
+              : []
+          }}
+          layout={[
+            ['cf'],
+            ['nome', 'cognome'],
+            ['dataNascita', 'email'],
+            ['corso', 'annoAccademico']
+          ]}
+          defaultValues={{
+            cf: selectedStudente?.cf || '',
+            nome: selectedStudente?.nome || '',
+            cognome: selectedStudente?.cognome || '',
+            email: selectedStudente?.email || '',
+            dataNascita: selectedStudente?.dataNascita
+              ? new Date(selectedStudente.dataNascita).toLocaleDateString('en-CA')
+              : '',
+            corso: selectedStudente?.codiceprogetto || '',
+            annoAccademico: selectedStudente?.annoaccademico || ''
+          }}
+        />
+      </ConfirmationModal>
+
+      <ConfirmationModal
+        isOpen={showDeleteStudentModal}
+        onClose={() => setShowDeleteStudentModal(false)}
+        onConfirm={handleDeleteStudent}
+        title="Elimina Studente"
+        confirmText="Conferma"
+        buttonType="danger"
+      >
+        <p>Sei sicuro di voler eliminare questo studente?</p>
       </ConfirmationModal>
     </div>
   );

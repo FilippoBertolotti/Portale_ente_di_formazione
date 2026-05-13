@@ -23,6 +23,9 @@ const Dashboard = () => {
   const [showNewTeacherModal, setShowNewTeacherModal] = useState(false);
   const [showNewClassroomModal, setShowNewClassroomModal] = useState(false);
   const [showNewLessonModal, setShowNewLessonModal] = useState(false);
+  const [showUpdateLessonModal, setShowUpdateLessonModal] = useState(false);
+  const [showDeleteLessonModal, setShowDeleteLessonModal] = useState(false);
+  const [selectedLezione, setSelectedLezione] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const StudentFormRef = useRef(null);
   const TeacherFormRef = useRef(null);
@@ -80,14 +83,47 @@ const Dashboard = () => {
   };
 
   const handleNewLesson = async (formData) => {
-      try {
-        await dashboardService.newLesson(formData);
-        await fetchAll();
-        setShowNewLessonModal(false);
-      } catch (error) {
-        console.error('Errore:', error);
-      }
-    };
+    try {
+      await dashboardService.newLesson(formData);
+      await fetchAll();
+      setShowNewLessonModal(false);
+    } catch (error) {
+      console.error('Errore:', error);
+    }
+  };
+
+  const handleUpdateLessonClick = (lezione) => {
+    setSelectedLezione(lezione);
+    setShowUpdateLessonModal(true);
+  };
+
+  const handleDeleteLessonClick = (lezione) => {
+    setSelectedLezione(lezione);
+    console.log('Lezione selezionata per eliminazione:', lezione);
+    setShowDeleteLessonModal(true);
+  };
+
+  const handleUpdateLesson = async (formdata) => {
+    try {
+      await dashboardService.updateLesson(selectedLezione.id, formdata);
+      await fetchAll();
+      setShowUpdateLessonModal(false);
+      setSelectedLezione(null);
+    } catch (error) {
+      console.error('Errore:', error);
+    }
+  };
+
+  const handleDeleteLesson = async () => {
+    try {
+      await dashboardService.deleteLesson(selectedLezione.id);
+      await fetchAll();
+      setShowDeleteLessonModal(false);
+      setSelectedLezione(null);
+    } catch (error) {
+      console.error('Errore:', error);
+    }
+  };
 
   if (loading) {
     return (
@@ -263,6 +299,8 @@ const Dashboard = () => {
                       colore={lezione.colore_progetto}
                       aula={lezione.aula}
                       docente={lezione.docente}
+                      onModify={() => handleUpdateLessonClick(lezione)}
+                      onDelete={() => handleDeleteLessonClick(lezione)}
                     />
                   ))
                 ) : (
@@ -425,7 +463,64 @@ const Dashboard = () => {
             ['data'],
             ['orainizio', 'orafine']
           ]}
+          defaultValues={{
+            data: new Date().toLocaleDateString('en-CA')
+          }}
         />
+      </ConfirmationModal>
+
+      <ConfirmationModal
+        isOpen={showUpdateLessonModal}
+        onClose={() => setShowUpdateLessonModal(false)}
+        onConfirm={() => LessonFormRef.current?.submit()}  // Chiama il submit del form
+        title="Modifica Lezione"
+        confirmText="Aggiorna"
+        buttonType="modify"
+        w='60%'
+        wMax='100%'
+      >
+        <Form
+          ref={LessonFormRef}
+          onSubmit={handleUpdateLesson}
+          onCancel={() => setShowUpdateLessonModal(false)}
+          fields={['data', 'orainizio', 'orafine', 'idmodulo', 'idaula', 'cfdocente']}
+          labels={['Data', 'Ora Inizio', 'Ora Fine', 'Modulo', 'Aula', 'Docente']}
+          types={['date', 'time', 'time', 'select', 'select', 'select']}
+          placeholders={[null, null, null, 'Seleziona un modulo', 'Seleziona un aula', 'Seleziona un docente']}
+          validators={[isDateValid2, isOraInizioValid, isOraFineValid, isModuleValid, isClassroomValid, isCFValid]}
+          options={{
+            idmodulo: Array.isArray(v('allModuli')) ? v('allModuli').map(m => ({ value: m.id, label: m.descrizione })) : [],
+            idaula: Array.isArray(v('allAule')) ? v('allAule').map(a => ({ value: a.id, label: a.descrizione })) : [],
+            cfdocente: Array.isArray(v('allDocenti')) ? v('allDocenti').map(d => ({ value: d.cf, label: d.nomeCompleto })) : []
+          }}
+          layout={[
+            ['idmodulo', 'idaula'],
+            ['cfdocente'],
+            ['data'],
+            ['orainizio', 'orafine']
+          ]}
+          defaultValues={{
+            data: selectedLezione?.data
+              ? new Date(selectedLezione.data).toLocaleDateString('en-CA')
+              : '',
+            orainizio: selectedLezione?.orainizio ? selectedLezione.orainizio.substring(0, 5) : '',
+            orafine: selectedLezione?.orafine ? selectedLezione.orafine.substring(0, 5) : '',
+            idmodulo: Array.isArray(v('allModuli')) ? v('allModuli').find(m => m.descrizione === selectedLezione?.modulo)?.id : '',
+            idaula: selectedLezione?.idaula || '',
+            cfdocente: selectedLezione?.cfdocente || ''
+          }}
+        />
+      </ConfirmationModal>
+
+      <ConfirmationModal
+        isOpen={showDeleteLessonModal}
+        onClose={() => setShowDeleteLessonModal(false)}
+        onConfirm={handleDeleteLesson}
+        title="Elimina Lezione"
+        confirmText="Conferma"
+        buttonType="danger"
+      >
+        <p>Sei sicuro di voler eliminare questa lezione?</p>
       </ConfirmationModal>
     </div>
   );

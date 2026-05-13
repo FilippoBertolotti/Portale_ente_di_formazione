@@ -9,7 +9,9 @@ import {
   getStudentiByProgetto,
   getAnni,
   getAllStudentiSearch,
-  createStudente
+  createStudente,
+  updateStudente,
+  deleteStudente
 } from '../controllers/studentiController.js';
 import { authenticateToken, isAdmin } from '../middleware/auth.js';
 
@@ -29,9 +31,9 @@ router.get('/codice/:codice', getStudentiByProgetto);
 router.get('/anno/:anno', getStudentiByAnno);
 
 router.get('/:search', getAllStudentiSearch);
-// router.get('/:codice', getStudenteById);
+// router.get('/:cf', getStudenteById);
 router.post('/', isAdmin, createStudente);
-// router.put('/:codice', isAdmin, updateStudente);
-// router.delete('/:codice', isAdmin, deleteStudente);
+router.put('/:cf', isAdmin, updateStudente);
+router.delete('/:cf', isAdmin, deleteStudente);
 
 export default router;

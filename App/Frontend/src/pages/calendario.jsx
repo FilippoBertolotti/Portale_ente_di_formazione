@@ -31,39 +31,6 @@ const Calendario = () => {
   const [selectedLezione, setSelectedLezione] = useState(null);
   const LessonFormRef = useRef();
 
-  const handleUpdateLessonClick = (lezione) => {
-    setSelectedLezione(lezione);
-    setShowUpdateLessonModal(true);
-  };
-
-  const handleDeleteLessonClick = (lezione) => {
-    setSelectedLezione(lezione);
-    console.log('Lezione selezionata per eliminazione:', lezione);
-    setShowDeleteLessonModal(true);
-  };
-
-  const handleUpdateLesson = async (formdata) => {
-    try {
-      await lezioniService.updateLezione(selectedLezione.id, formdata);
-      await fetchLezioni();
-      setShowUpdateLessonModal(false);
-      setSelectedLezione(null);
-    } catch (error) {
-      console.error('Errore:', error);
-    }
-  };
-
-  const handleDeleteLesson = async () => {
-    try {
-      await lezioniService.deleteLezione(selectedLezione.id);
-      await fetchLezioni();
-      setShowDeleteLessonModal(false);
-      setSelectedLezione(null);
-    } catch (error) {
-      console.error('Errore:', error);
-    }
-  };
-
   const meseAnno = activeDate.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
   const mesePrecedente = () => setActiveDate(new Date(activeDate.getFullYear(), activeDate.getMonth() - 1, 1));
   const meseSeguente = () => setActiveDate(new Date(activeDate.getFullYear(), activeDate.getMonth() + 1, 1));
@@ -97,6 +64,39 @@ const Calendario = () => {
       await lezioniService.createLezione(formData);
       await fetchLezioni();
       setShowNewLessonModal(false);
+    } catch (error) {
+      console.error('Errore:', error);
+    }
+  };
+
+  const handleUpdateLessonClick = (lezione) => {
+    setSelectedLezione(lezione);
+    setShowUpdateLessonModal(true);
+  };
+
+  const handleDeleteLessonClick = (lezione) => {
+    setSelectedLezione(lezione);
+    console.log('Lezione selezionata per eliminazione:', lezione);
+    setShowDeleteLessonModal(true);
+  };
+
+  const handleUpdateLesson = async (formdata) => {
+    try {
+      await lezioniService.updateLezione(selectedLezione.id, formdata);
+      await fetchLezioni();
+      setShowUpdateLessonModal(false);
+      setSelectedLezione(null);
+    } catch (error) {
+      console.error('Errore:', error);
+    }
+  };
+
+  const handleDeleteLesson = async () => {
+    try {
+      await lezioniService.deleteLezione(selectedLezione.id);
+      await fetchLezioni();
+      setShowDeleteLessonModal(false);
+      setSelectedLezione(null);
     } catch (error) {
       console.error('Errore:', error);
     }
@@ -293,7 +293,7 @@ const Calendario = () => {
           fields={['data', 'orainizio', 'orafine', 'idmodulo', 'idaula', 'cfdocente']}
           labels={['Data', 'Ora Inizio', 'Ora Fine', 'Modulo', 'Aula', 'Docente']}
           types={['date', 'time', 'time', 'select', 'select', 'select']}
-          placeholders={[null, null, null, 'Seleziona un modulo', 'Seleziona un aula', 'Seleziona un docente']}
+          placeholders={[selectedDate, null, null, 'Seleziona un modulo', 'Seleziona un aula', 'Seleziona un docente']}
           validators={[isDateValid2, isOraInizioValid, isOraFineValid, isModuleValid, isClassroomValid, isCFValid]}
           options={{
             idmodulo: Array.isArray(moduli) ? moduli.map(m => ({ value: m.id, label: m.descrizione })) : [],
@@ -306,6 +306,9 @@ const Calendario = () => {
             ['data'],
             ['orainizio', 'orafine']
           ]}
+          defaultValues={{
+            data: selectedDate.toLocaleDateString('en-CA')
+          }}
         />
       </ConfirmationModal>
 

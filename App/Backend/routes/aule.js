@@ -9,7 +9,10 @@ import {
   getSedeById,
   createAula,
   createSede,
-  deleteSede
+  deleteSede,
+  updateAula,
+  updateSede,
+  deleteAula
 } from '../controllers/auleController.js';
 import { authenticateToken, isAdmin } from '../middleware/auth.js';
 
@@ -28,10 +31,11 @@ router.get('/sede/:sede', getSedeById);
 router.get('/stats/sede/:sede', getAuleStats);
 router.get('/stats/piano/:piano', getAuleStats);
 router.get('/stats/sede/:sede/piano/:piano', getAuleStats);
-// router.get('/:cf', getDocenteById);
-  router.post('/', isAdmin, createAula);
-  router.post('/sede', isAdmin, createSede);
-// router.put('/:cf', isAdmin, updateDocente);
-  router.delete('/sede/:sede', isAdmin, deleteSede);
+router.post('/', isAdmin, createAula);
+router.put('/aula/:id', isAdmin, updateAula);
+router.delete('/aula/:id', isAdmin, deleteAula);
+router.post('/sede', isAdmin, createSede);
+router.put('/sede/:id', isAdmin, updateSede);
+router.delete('/sede/:id', isAdmin, deleteSede);
 
 export default router;

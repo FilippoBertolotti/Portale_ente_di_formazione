@@ -7,7 +7,10 @@ export const getAllStudenti = async (req, res) => {
             SELECT 
               u.cf,
               u.nome || ' ' || u.cognome AS "nomeCompleto",
-              TO_CHAR(u.datanascita, 'DD/MM/YYYY') AS "dataNascita",
+              u.nome,
+              u.cognome,
+              TO_CHAR(u.datanascita, 'DD/MM/YYYY') AS "FromattedDataNascita",
+              u.datanascita AS "dataNascita",
               u.email,
               p.descrizione || ' ' || s.annoaccademico AS "corso",
               s.codiceprogetto,
@@ -292,5 +295,90 @@ export const createStudente = async (req, res) => {
     });
   } finally {
     client.release();
+  }
+};
+
+export const updateStudente = async (req, res) => {
+  const { cf } = req.params;
+  const { nome, cognome, email, dataNascita, corso, annoAccademico } = req.body;
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Inserisce i dati anagrafici in UTENTE
+    await client.query(
+      `UPDATE UTENTE
+       SET Nome = $2, Cognome = $3, DataNascita = TO_DATE($4, 'YYYY-MM-DD'), Email = $5, Password = $6, Livello = 1
+       WHERE CF = $1`,
+      [cf, nome, cognome, dataNascita, email, cf]
+    );
+
+    // Inserisce i dati di iscrizione in STUDENTE
+    await client.query(
+      `UPDATE STUDENTE
+       SET CodiceProgetto = $2, AnnoAccademico = $3, DataInserimento = CURRENT_DATE
+       WHERE CF = $1`,
+      [cf, corso, annoAccademico]
+    );
+
+    await client.query('COMMIT');
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Studente aggiornato con successo',
+    });
+
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Errore aggiornamento studente:', error);
+
+    if (error.code === '23505') {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Codice fiscale o email già esistente'
+      });
+    }
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nell\'aggiornamento dello studente'
+    });
+  } finally {
+    client.release();
+  }
+};
+
+export const deleteStudente = async (req, res) => {
+  const { cf } = req.params;
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Elimina lo studente da STUDENTE
+    await client.query(
+      `DELETE FROM STUDENTE WHERE CF = $1;`,
+      [cf]
+    );
+
+    // Elimina lo studente da UTENTE
+    await client.query(
+      `DELETE FROM UTENTE WHERE CF = $1;`,
+      [cf]
+    );
+
+    await client.query('COMMIT');
+
+    res.json({
+      status: 'success',
+      message: 'Studente eliminato con successo'
+    });
+  } catch (error) {
+    console.error('Errore eliminazione studente:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nell\'eliminazione dello studente'
+    });
   }
 };

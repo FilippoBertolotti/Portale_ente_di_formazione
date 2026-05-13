@@ -95,5 +95,25 @@ export const dashboardService = {
       console.error('Errore nella creazione della lezione:', error);
       throw error;
     }
+  },
+
+  updateLesson: async (lessonId, lessonData) => {
+    try {
+      const response = await lezioniService.updateLezione(lessonId, lessonData);
+      return response;
+    } catch (error) {
+      console.error('Errore nella creazione della lezione:', error);
+      throw error;
+    }
+  },
+
+  deleteLesson: async (lessonId) => {
+    try {
+      const response = await lezioniService.deleteLezione(lessonId);
+      return response;
+    } catch (error) {
+      console.error('Errore nella creazione della lezione:', error);
+      throw error;
+    }
   }
 };

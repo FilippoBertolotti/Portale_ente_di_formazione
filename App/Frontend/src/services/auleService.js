@@ -57,18 +57,28 @@ export const auleService = {
     return response;
   },
 
+  updateA: async (id, aula) => {
+    const response = await api.put(`/aule/aula/${id}`, aula);
+    return response.data;
+  },
+
+  deleteA: async (id) => {
+    const response = await api.delete(`/aule/aula/${id}`);
+    return response;
+  },
+
   createS: async (sede) => {
     const response = await api.post('/aule/sede', sede);
     return response;
   },
 
-  //   update: async (cf, docente) => {
-  //     const response = await api.put(`/docenti/${cf}`, docente);
-  //     return response.data;
-  //   },
+  updateS: async (id, sede) => {
+    const response = await api.put(`/aule/sede/${id}`, sede);
+    return response.data;
+  },
 
-  deleteSede: async (sede) => {
-    const response = await api.delete(`/aule/sede/${sede}`);
+  deleteS: async (id) => {
+    const response = await api.delete(`/aule/sede/${id}`);
     return response;
   }
 };
