@@ -207,7 +207,7 @@ export const getTrendStudenti = async (req, res) => {
 export const getCompositionStudenti = async (req, res) => {
   try {
     const result = await pool.query(`
-      SELECT p.descrizione AS progetto, COUNT(*) AS studenti_corso
+      SELECT p.descrizione AS progetto, p.colore, COUNT(*) AS studenti_corso
       FROM STUDENTE s
       JOIN PROGETTO p ON s.codiceprogetto = p.codice
       WHERE p.annoInizio >= EXTRACT(YEAR FROM CURRENT_DATE) 
@@ -317,7 +317,7 @@ export const updateStudente = async (req, res) => {
     // Inserisce i dati di iscrizione in STUDENTE
     await client.query(
       `UPDATE STUDENTE
-       SET CodiceProgetto = $2, AnnoAccademico = $3, DataInserimento = CURRENT_DATE
+       SET CodiceProgetto = $2, AnnoAccademico = $3
        WHERE CF = $1`,
       [cf, corso, annoAccademico]
     );

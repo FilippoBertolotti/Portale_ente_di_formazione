@@ -31,19 +31,13 @@ const CompositionGraph = () => {
                 const response = await studentiService.getComposition();
                 const labels = response.data.map(item => item.progetto);
                 const data = response.data.map(item => Number(item.studenti_corso));
+                const colori = response.data.map(item => item.colore || 'rgba(75, 192, 192, 0.8)');
                 setChartData({
                     labels,
                     datasets: [ {
                         label: 'Studenti per Progetto',
                         data,
-                        backgroundColor: [
-                            'rgba(75, 192, 192, 0.8)',
-                            'rgba(255, 99, 132, 0.8)',
-                            'rgba(255, 206, 86, 0.8)',
-                            'rgba(54, 162, 235, 0.8)',
-                            'rgba(153, 102, 255, 0.8)',
-                            'rgba(255, 159, 64, 0.8)',
-                        ],
+                        backgroundColor: colori,
                         borderColor: '#fff',
                         borderWidth: 2,
                     } ]

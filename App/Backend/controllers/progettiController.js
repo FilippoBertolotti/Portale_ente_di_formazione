@@ -78,7 +78,7 @@ export const getAllProgetti = async (req, res) => {
 };
 
 export const getProgettiByCodice = async (req, res) => {
-  const { codice} = req.params;
+  const { codice } = req.params;
   try {
     const result = await pool.query(`
       WITH progetto_aggregato AS (
@@ -262,15 +262,24 @@ export const getCompletionProgetti = async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT 
-        p.descrizione, 
-        SUM(m.oreaula + m.oreproject + m.orestage) AS ore_totali,
-        COALESCE(SUM(EXTRACT(EPOCH FROM (l.orafine - l.orainizio)) / 3600), 0) AS ore_svolte,
-        p.colore
+        p.descrizione,
+        p.colore,
+        COALESCE((
+          SELECT SUM(oreaula + oreproject + orestage + oreelearn) 
+          FROM modulo 
+          WHERE codiceprogetto = p.codice
+        ), 0) AS ore_totali,
+        COALESCE(SUM(
+          CASE WHEN l.data <= CURRENT_DATE 
+          THEN EXTRACT(EPOCH FROM (l.orafine - l.orainizio)) / 3600 
+          ELSE 0 END
+        ), 0) AS ore_svolte
       FROM progetto p
       LEFT JOIN modulo m ON m.codiceprogetto = p.codice
       LEFT JOIN lezione l ON l.idmodulo = m.id
-      WHERE p.annofine >= EXTRACT(YEAR FROM CURRENT_DATE) AND p.annoinizio <= EXTRACT(YEAR FROM CURRENT_DATE)
-      GROUP BY p.codice, p.descrizione;`);
+      WHERE p.annofine >= EXTRACT(YEAR FROM CURRENT_DATE) 
+        AND p.annoinizio <= EXTRACT(YEAR FROM CURRENT_DATE)
+      GROUP BY p.codice, p.descrizione, p.colore;`);
     res.json({
       status: 'success',
       data: result.rows
@@ -291,9 +300,9 @@ export const createProgetto = async (req, res) => {
 
   try {
     const result = await pool.query(
-      `INSERT INTO PROGETTO (Codice, RER, Descrizione, AnnoInizio, AnnoFine, CFCoordinatore, Colore)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
-       `,
+      `INSERT INTO PROGETTO(Codice, RER, Descrizione, AnnoInizio, AnnoFine, CFCoordinatore, Colore)
+       VALUES($1, $2, $3, $4, $5, $6, $7)
+        `,
       [codice, rer, descrizione, annoInizio, annoFine, cfCoordinatore, colore]
     );
 
@@ -336,7 +345,7 @@ export const updateProgetto = async (req, res) => {
       `UPDATE PROGETTO 
        SET RER = $1, Descrizione = $2, AnnoInizio = $3, AnnoFine = $4, CFCoordinatore = $5, Colore = $6
        WHERE Codice = $7
-       `,
+      `,
       [rer, descrizione, annoInizio, annoFine, cfCoordinatore, colore, codice]
     );
 

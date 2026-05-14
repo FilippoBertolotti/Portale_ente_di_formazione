@@ -56,6 +56,30 @@ export const getAllLezioni = async (req, res) => {
     }
 };
 
+export const getAllNote = async (req, res) => {
+    const cfUtente = req.user.cf; // Ottieni il CF dell'utente autenticato
+    try {
+        const result = await pool.query(`
+            SELECT n.id, n.data, n.titolo, n.descrizione
+            FROM nota n
+            JOIN utente u ON n.cfUtente = u.cf
+            WHERE n.cfUtente = $1
+            ORDER BY n.data;
+            `, [cfUtente]);
+        res.json({
+            status: 'success',
+            count: result.rows.length,
+            data: result.rows
+        });
+    } catch (error) {
+        console.error('Errore get note:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Errore nel recupero delle note'
+        });
+    }
+};
+
 // POST crea nuova lezione
 export const createLezione = async (req, res) => {
     const { data, orainizio, orafine, idmodulo, idaula, cfdocente } = req.body;
@@ -128,6 +152,79 @@ export const deleteLezione = async (req, res) => {
         res.status(500).json({
             status: 'error',
             message: 'Errore nell\'eliminazione della lezione'
+        });
+    }
+};
+
+export const createNota = async (req, res) => {
+    const cfUtente = req.user.cf; // Ottieni il CF dell'utente autenticato
+    const { titolo, data, descrizione} = req.body;
+
+    try {
+        const result = await pool.query(
+            `INSERT INTO NOTA (Titolo, Data, Descrizione, CFUtente)
+            VALUES ($1, $2, $3, $4)`,
+        [titolo, data, descrizione, cfUtente]);
+
+        res.status(201).json({
+            status: 'success',
+            message: 'Nota creata con successo',
+            data: result.rows[0]
+        });
+    } catch (error) {
+        console.error('Errore creazione nota:', error);
+
+        res.status(500).json({
+            status: 'error',
+            message: 'Errore nella creazione della nota'
+        });
+    }
+};
+
+export const updateNota = async (req, res) => {
+    const { id } = req.params;
+    const { titolo, data, descrizione } = req.body;
+
+    try {
+        const result = await pool.query(
+            `UPDATE NOTA
+       SET Titolo = $1, Data = $2, Descrizione = $3
+       WHERE Id = $4`,
+            [titolo, data, descrizione, id]
+        );
+
+        res.json({
+            status: 'success',
+            message: 'Nota aggiornata con successo',
+            data: result.rows[0]
+        });
+    } catch (error) {
+        console.error('Errore aggiornamento nota:', error);
+
+        res.status(500).json({
+            status: 'error',
+            message: 'Errore nell\'aggiornamento della nota'
+        });
+    }
+};
+
+// DELETE elimina nota
+export const deleteNota = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        await pool.query(`DELETE FROM NOTA WHERE Id = $1`, [id]);
+
+        res.json({
+            status: 'success',
+            message: 'Nota eliminata con successo'
+        });
+    } catch (error) {
+        console.error('Errore eliminazione nota:', error);
+
+        res.status(500).json({
+            status: 'error',
+            message: 'Errore nell\'eliminazione della nota'
         });
     }
 };

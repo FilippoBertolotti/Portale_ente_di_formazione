@@ -14,6 +14,7 @@ import SvgIcon from '../assets/icons/svgIcon';
 import ConfirmationModal from '../components/common/confirmationModal';
 import Form from '../components/forms/form';
 import { isCourseValid, isDateValid, isEmailValid, isNameValid, isSurnameValid, isAcademicYearValid, isPhoneValid, isQualificationValid, isCapacityValid, isSedeValid, isPianoValid, isPlaceNameValid, isCFValid, isOraInizioValid, isOraFineValid, isModuleValid, isClassroomValid, isDateValid2 } from '../utils/validators';
+import NoteTag from '../components/common/noteTag';
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -302,6 +303,15 @@ const Dashboard = () => {
                       onModify={() => handleUpdateLessonClick(lezione)}
                       onDelete={() => handleDeleteLessonClick(lezione)}
                     />
+                  ))
+                ) : Array.isArray(v('note')) && v('note').length > 0 ? (
+                    v('note').map((nota, index) => (
+                      <NoteTag
+                        key={index}
+                        titolo={nota.titolo}
+                        descrizione={nota.descrizione}
+                        data={nota.data}
+                      />
                   ))
                 ) : (
                   <div className="flex flex-col items-center gap-[1vh] pt-[10vh]">
