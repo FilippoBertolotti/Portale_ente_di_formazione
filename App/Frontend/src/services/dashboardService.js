@@ -118,5 +118,25 @@ export const dashboardService = {
       console.error('Errore nella creazione della lezione:', error);
       throw error;
     }
+  },
+
+  updateNota: async (notaId, notaData) => {
+    try {
+      const response = await lezioniService.updateNota(notaId, notaData);
+      return response;
+    } catch (error) {
+      console.error('Errore nella creazione della nota:', error);
+      throw error;
+    }
+  },
+
+  deleteNota: async (notaId) => {
+    try {
+      const response = await lezioniService.deleteNota(notaId);
+      return response;
+    } catch (error) {
+      console.error('Errore nella creazione della nota:', error);
+      throw error;
+    }
   }
 };

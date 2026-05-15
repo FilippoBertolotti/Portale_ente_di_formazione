@@ -13,7 +13,7 @@ import Button from '../components/common/button';
 import SvgIcon from '../assets/icons/svgIcon';
 import ConfirmationModal from '../components/common/confirmationModal';
 import Form from '../components/forms/form';
-import { isCourseValid, isDateValid, isEmailValid, isNameValid, isSurnameValid, isAcademicYearValid, isPhoneValid, isQualificationValid, isCapacityValid, isSedeValid, isPianoValid, isPlaceNameValid, isCFValid, isOraInizioValid, isOraFineValid, isModuleValid, isClassroomValid, isDateValid2 } from '../utils/validators';
+import { isCourseValid, isDateValid, isEmailValid, isNameValid, isSurnameValid, isAcademicYearValid, isPhoneValid, isQualificationValid, isCapacityValid, isSedeValid, isPianoValid, isPlaceNameValid, isCFValid, isOraInizioValid, isOraFineValid, isModuleValid, isClassroomValid, isDateValid2, isDescriptionValid } from '../utils/validators';
 import NoteTag from '../components/common/noteTag';
 
 const Dashboard = () => {
@@ -27,11 +27,15 @@ const Dashboard = () => {
   const [showUpdateLessonModal, setShowUpdateLessonModal] = useState(false);
   const [showDeleteLessonModal, setShowDeleteLessonModal] = useState(false);
   const [selectedLezione, setSelectedLezione] = useState(null);
+  const [showUpdateNoteModal, setShowUpdateNoteModal] = useState(false);
+  const [showDeleteNoteModal, setShowDeleteNoteModal] = useState(false);
+  const [selectedNota, setSelectedNota] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const StudentFormRef = useRef(null);
   const TeacherFormRef = useRef(null);
   const ClassroomFormRef = useRef(null);
   const LessonFormRef = useRef();
+  const NoteFormRef = useRef();
 
   const fetchAll = async () => {
     try {
@@ -125,6 +129,39 @@ const Dashboard = () => {
       console.error('Errore:', error);
     }
   };
+  
+    const handleUpdateNoteClick = (nota) => {
+      setSelectedNota(nota);
+      setShowUpdateNoteModal(true);
+    };
+  
+    const handleDeleteNoteClick = (nota) => {
+      setSelectedNota(nota);
+      console.log('Nota selezionata per eliminazione:', nota);
+      setShowDeleteNoteModal(true);
+    };
+  
+    const handleUpdateNote = async (formdata) => {
+      try {
+        await dashboardService.updateNota(selectedNota.id, formdata);
+        await fetchAll();
+        setShowUpdateNoteModal(false);
+        setSelectedNota(null);
+      } catch (error) {
+        console.error('Errore:', error);
+      }
+    };
+  
+    const handleDeleteNote = async () => {
+      try {
+        await dashboardService.deleteNota(selectedNota.id);
+        await fetchAll();
+        setShowDeleteNoteModal(false);
+        setSelectedNota(null);
+      } catch (error) {
+        console.error('Errore:', error);
+      }
+    };
 
   if (loading) {
     return (
@@ -311,6 +348,8 @@ const Dashboard = () => {
                         titolo={nota.titolo}
                         descrizione={nota.descrizione}
                         data={nota.data}
+                        onModify={() => handleUpdateNoteClick(nota)}
+                        onDelete={() => handleDeleteNoteClick(nota)}
                       />
                   ))
                 ) : (
@@ -531,6 +570,48 @@ const Dashboard = () => {
         buttonType="danger"
       >
         <p>Sei sicuro di voler eliminare questa lezione?</p>
+      </ConfirmationModal>
+
+      <ConfirmationModal
+        isOpen={showUpdateNoteModal}
+        onClose={() => setShowUpdateNoteModal(false)}
+        onConfirm={() => NoteFormRef.current?.submit()}  // Chiama il submit del form
+        title="Modifica Nota"
+        confirmText="Aggiorna"
+        buttonType="modify"
+        w='60%'
+        wMax='100%'
+      >
+        <Form
+          ref={NoteFormRef}
+          onSubmit={handleUpdateNote}
+          onCancel={() => setShowUpdateNoteModal(false)}
+          fields={['titolo', 'descrizione', 'data']}
+          labels={['Titolo', 'Descrizione', 'Data']}
+          types={['text', 'textarea', 'date']}
+          placeholders={[null, null, null]}
+          validators={[isPlaceNameValid, isDescriptionValid, isDateValid2]}
+          layout={[
+            ['titolo', 'data'],
+            ['descrizione']
+          ]}
+          defaultValues={{
+            titolo: selectedNota?.titolo || '',
+            data: selectedNota?.data ? new Date(selectedNota.data).toLocaleDateString('en-CA') : new Date().toLocaleDateString('en-CA'),
+            descrizione: selectedNota?.descrizione || ''
+          }}
+        />
+      </ConfirmationModal>
+
+      <ConfirmationModal
+        isOpen={showDeleteNoteModal}
+        onClose={() => setShowDeleteNoteModal(false)}
+        onConfirm={handleDeleteNote}
+        title="Elimina Nota"
+        confirmText="Conferma"
+        buttonType="danger"
+      >
+        <p>Sei sicuro di voler eliminare questa nota?</p>
       </ConfirmationModal>
     </div>
   );

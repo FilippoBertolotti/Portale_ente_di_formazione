@@ -21,6 +21,15 @@ Endpoint disponibili:
 - GET /api/aule → tutte le aule
 - GET /api/aule/sedi → tutte le sedi
 - GET /api/lezioni → prossime lezioni
+- GET /api/lezioni/note → tutte le note
+- POST /api/lezioni → crea una lezione (admin/coordinatore)
+POST (creazione):
+- POST /api/lezioni → crea una nuova lezione
+  Richiede nel body: { data, orainizio, orafine, idmodulo, idaula, cfdocente }
+
+POST (note):
+- POST /api/lezioni/nota → aggiunge una nota
+  Richiede nel body: { data, titolo, descrizione }
 `;
 
 const callGroq = async (systemPrompt, userMessage) => {

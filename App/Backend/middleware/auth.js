@@ -46,3 +46,12 @@ export const isAdmin = checkLevel(0);
 export const isStudente = checkLevel(1);
 export const isDocente = checkLevel(2);
 export const isCoordinatore = checkLevel(3);
+export const isAdminOrCoordinatore = (req, res, next) => {
+  if (checkLevel(0) || checkLevel(3)) {
+    return next();
+  }
+  return res.status(403).json({
+    status: 'error',
+    message: 'Accesso negato. Solo amministratori e coordinatori.'
+  });
+};
