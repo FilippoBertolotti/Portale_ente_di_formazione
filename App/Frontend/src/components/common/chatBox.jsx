@@ -46,6 +46,7 @@ const ChatBox = () => {
         }
     };
 
+
     return (
         <>
             {/* Input nell'header */}
@@ -63,7 +64,7 @@ const ChatBox = () => {
                     >
                         {/* Header panel */}
                         <div className="flex items-center justify-between px-[2vh] py-[1.5vh] border-b border-[#E0E6EB] shrink-0">
-                                <span className="font-bold text-sm">Assistente AI</span>
+                            <span className="font-bold text-sm">Assistente AI</span>
                             <button
                                 onClick={() => setIsOpen(false)}
                                 className="text-[#777777] hover:text-black transition-colors text-xl leading-none px-[1vh]"
@@ -89,7 +90,7 @@ const ChatBox = () => {
                                                 <span className="w-[6px] h-[6px] bg-gray-400 rounded-full animate-bounce [animation-delay:150ms]" />
                                                 <span className="w-[6px] h-[6px] bg-gray-400 rounded-full animate-bounce [animation-delay:300ms]" />
                                             </div>
-                                        ) : msg.content}
+                                        ) : <div dangerouslySetInnerHTML={{ __html: msg.content }} />}
                                     </div>
                                 </div>
                             ))}
@@ -122,13 +123,13 @@ const ChatBox = () => {
                     </div>
                 </div>
             ) : (
-                <div className="absolute z-50 w-[100%]">
-                <div
-                    className="flex justify-center gap-[1vh] bg-gradient-to-r from-[#82A9D3]/50 to-[#F07F13]/50 border border-[#E0E6EB] rounded-[30px] px-[1.5vh] py-[1vh] cursor-pointer w-[15%] hover:border-[#2B7BB4] transition-all m-auto"
-                    onClick={() => setIsOpen(true)}
-                >
-                    <span className="text-[#000000] text-sm font-normal">Chiedi all'IA</span>
-                </div>
+                <div className="absolute z-10 w-[100%]">
+                    <div
+                        className="flex justify-center gap-[1vh] bg-gradient-to-r from-[#82A9D3]/50 to-[#F07F13]/50 border border-[#E0E6EB] rounded-[30px] px-[1.5vh] py-[1vh] cursor-pointer w-[15%] hover:border-[#2B7BB4] transition-all m-auto"
+                        onClick={() => setIsOpen(true)}
+                    >
+                        <span className="text-[#000000] text-sm font-normal">Chiedi all'IA</span>
+                    </div>
                 </div>
             )}
         </>

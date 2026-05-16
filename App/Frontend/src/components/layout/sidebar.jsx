@@ -12,7 +12,7 @@ const Sidebar = () => {
                 <Image className="w-[70%] mx-auto" src={Logo} />
             </div>
             {/* Navigazione */}
-            <div className="w-full h-[80%] flex flex-col justify-center items-end">
+            <div className="w-full h-[80%] flex flex-col justify-center">
                 <SidebarButton
                     icon={<SvgIcon
                         color="#ffffff"

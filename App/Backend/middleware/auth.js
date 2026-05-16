@@ -17,7 +17,7 @@ export const authenticateToken = (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    return res.status(403).json({
+    return res.status(401).json({
       status: 'error',
       message: 'Token non valido o scaduto'
     });

@@ -8,7 +8,7 @@ const UserCard = ({ user }) => {
         3: 'Studente'
     }
     return (
-        <div className="flex items-center space-x-[1vh] px-[2vh] py-[1vh] bg-[#F5F7F9] border border-[#E0E6EB] rounded-[30px]">
+        <div className="flex items-center justify-center space-x-[1rem] px-[1rem] py-[0.5rem] lg:bg-[#F5F7F9] lg:border lg:border-[#E0E6EB] rounded-[30px]">
             <div className="rounded-full bg-[#2A7BB3] w-[3.2vw] h-[3.2vw] flex items-center justify-center">
                 <SvgIcon
                     width="50%"
@@ -16,9 +16,9 @@ const UserCard = ({ user }) => {
                     color="#FFFFFF"
                 />
             </div>
-            <div>
-                <p className="text-[1.8vh] text-black font-bold">{user.nome}</p>
-                <p className="text-[#777777] text-[1.8vh] font-bold">{livelloText[user.livello]}</p>
+            <div className="hidden lg:block">
+                <p className="text-[1rem] text-black font-bold">{user.nome}</p>
+                <p className="text-[#777777] text-[1rem] font-bold">{livelloText[user.livello]}</p>
             </div>
         </div>
     );

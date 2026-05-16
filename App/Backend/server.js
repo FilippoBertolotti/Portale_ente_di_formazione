@@ -17,8 +17,22 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
+
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: (origin, callback) => {
+    // Permetti localhost, LAN e richieste senza origin (es. Postman)
+    const allowed = [
+      'http://localhost:5173',
+      'http://127.0.0.1:5173',
+      'http://192.168.1.86:5173',
+    ];
+    // Permetti qualsiasi IP della LAN 192.168.x.x
+    if (!origin || allowed.includes(origin) || /^http:\/\/192\.168\.\d+\.\d+:5173$/.test(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS non permesso'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 }));
@@ -80,16 +94,9 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.use(cors({
-  origin: 'http://localhost:5173',  // ← Aggiungi questa riga
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true
-}));
-
 // Avvio del server
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server avviato sulla porta ${PORT}`);
-  console.log(`📍 http://localhost:${PORT}`);
   console.log(`🏥 Health check: http://localhost:${PORT}/api/health`);
 });
 

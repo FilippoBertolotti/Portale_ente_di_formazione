@@ -13,7 +13,7 @@ const Header = ({
             <p className="text-[#777777] font-bold text-[2.5vh] -mt-[1rem]">{subtitle}</p>
           </div>
           <ChatBox />
-          <div className="w-[14%]">
+          <div className="fit-content">
             {user && <UserCard user={user} />}
           </div>
         </div>
