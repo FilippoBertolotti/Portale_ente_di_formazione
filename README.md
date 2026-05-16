@@ -5,6 +5,7 @@ Portale che centralizza la gestione amministrativa delle aule, delle lezioni, de
 * Backend – Node.js
 * Database – PostgreSQL
 ## Installazione e configurazione
+Passaggi necessari per eseguire l'intallazione del programma fino a quando non verrà pubblicato online
 * clonare repository
 * avere informazioni necessarie da inserire in file .env (chiave API e credenziali per accesso a proprio database)
 * accedere a cartelle con terminale
