@@ -251,7 +251,7 @@ export const getAnni = async (req, res) => {
 };
 
 export const createStudente = async (req, res) => {
-  const { cf, nome, cognome, email, dataNascita, corso, annoAccademico } = req.body;
+  const { cf, nome, cognome, email, dataNascita, codiceCorso, annoAccademico } = req.body;
 
   const client = await pool.connect();
   try {
@@ -268,7 +268,7 @@ export const createStudente = async (req, res) => {
     await client.query(
       `INSERT INTO STUDENTE (CF, CodiceProgetto, AnnoAccademico, DataInserimento)
              VALUES ($1, $2, $3, CURRENT_DATE)`,
-      [cf, corso, annoAccademico]
+      [cf, codiceCorso, annoAccademico]
     );
 
     await client.query('COMMIT');
@@ -300,7 +300,7 @@ export const createStudente = async (req, res) => {
 
 export const updateStudente = async (req, res) => {
   const { cf } = req.params;
-  const { nome, cognome, email, dataNascita, corso, annoAccademico } = req.body;
+  const { nome, cognome, email, dataNascita, codiceCorso, annoAccademico } = req.body;
 
   const client = await pool.connect();
   try {
@@ -319,7 +319,7 @@ export const updateStudente = async (req, res) => {
       `UPDATE STUDENTE
        SET CodiceProgetto = $2, AnnoAccademico = $3
        WHERE CF = $1`,
-      [cf, corso, annoAccademico]
+      [cf, codiceCorso, annoAccademico]
     );
 
     await client.query('COMMIT');

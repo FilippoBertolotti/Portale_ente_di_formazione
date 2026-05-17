@@ -13,6 +13,7 @@ import Input from '../components/common/input';
 import ConfirmationModal from '../components/common/confirmationModal';
 import Form from '../components/forms/form';
 import { isAcademicYearValid, isCFValid, isCourseValid, isDateValid, isEmailValid, isNameValid, isSurnameValid } from '../utils/validators';
+import { useToast } from '../components/common/toastProvider';
 
 const Studenti = () => {
   const { user } = useAuth();
@@ -28,6 +29,7 @@ const Studenti = () => {
   const [showUpdateStudentModal, setShowUpdateStudentModal] = useState(false);
   const [showDeleteStudentModal, setShowDeleteStudentModal] = useState(false);
   const [selectedStudente, setSelectedStudente] = useState(null);
+  const { showToast } = useToast();
   const StudentFormRef = useRef();
 
   const fetchStudente = async () => {
@@ -99,8 +101,6 @@ const Studenti = () => {
         setLoading(true);
         const response = await studentiService.getAnni();
 
-        console.log('📦 Raw response anni:', response);
-
         let anniData = [];
 
         if (Array.isArray(response)) {
@@ -139,10 +139,12 @@ const Studenti = () => {
   const handleNewStudent = async (formData) => {
     try {
       await studentiService.create(formData);
+      showToast('Studente aggiunto con successo', 'success');
       fetchStudente(); // Ricarica la lista degli studenti dopo l'aggiunta
       setShowNewStudentModal(false);
     } catch (error) {
       console.error('Errore:', error);
+      showToast('Errore: ' + error.message, 'error');
     }
   };
 
@@ -162,19 +164,23 @@ const Studenti = () => {
       await fetchStudente();
       setShowUpdateStudentModal(false);
       setSelectedStudente(null);
+      showToast('Studente aggiornato con successo', 'success');
     } catch (error) {
       console.error('Errore:', error);
+      showToast('Errore: ' + error.message, 'error');
     }
   };
 
   const handleDeleteStudent = async () => {
     try {
       await studentiService.delete(selectedStudente.cf);
+      showToast('Studente eliminato con successo', 'success');
       await fetchStudente();
       setShowDeleteStudentModal(false);
       setSelectedStudente(null);
     } catch (error) {
       console.error('Errore:', error);
+      showToast('Errore: ' + error.message, 'error');
     }
   };
 

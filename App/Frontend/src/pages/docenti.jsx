@@ -13,6 +13,7 @@ import Select from '../components/common/select';
 import { moduliService } from '../services/moduliService';
 import { isCFValid, isDateValid, isEmailValid, isNameValid, isPhoneValid, isQualificationValid, isSurnameValid } from '../utils/validators';
 import ConfirmationModal from '../components/common/confirmationModal';
+import { useToast } from '../components/common/toastProvider';
 import Form from '../components/forms/form';
 
 const CorsoModuloCell = ({ value }) => {
@@ -62,6 +63,7 @@ const Docenti = () => {
     const [selectedAnno, setSelectedAnno] = useState(null);
     const [showNewTeacherModal, setShowNewTeacherModal] = useState(false);
     const TeacherFormRef = useRef(null);
+    const { showToast } = useToast();
     // const [searchTerm, setSearchTerm] = useState('');
 
     const fetchDocente = async () => {
@@ -113,8 +115,6 @@ const Docenti = () => {
                 setLoading(true);
                 const response = await progettiService.getAll();
 
-                console.log('📦 Risposta API:', response);
-
                 let progettiData = [];
 
                 if (Array.isArray(response)) {
@@ -146,8 +146,6 @@ const Docenti = () => {
             try {
                 setLoading(true);
                 const response = await moduliService.getAnni();
-
-                console.log('📦 Raw response anni:', response);
 
                 let anniData = [];
 
@@ -188,8 +186,10 @@ const Docenti = () => {
             await docentiService.create(formData);
             await fetchDocente();
             setShowNewTeacherModal(false);
+            showToast('Docente creato con successo', 'success');
         } catch (error) {
             console.error('Errore:', error);
+            showToast('Errore: ' + error.message, 'error');
         }
     };
 

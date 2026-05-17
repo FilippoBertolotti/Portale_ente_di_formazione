@@ -80,6 +80,30 @@ export const getAllNote = async (req, res) => {
     }
 };
 
+export const getComingNote = async (req, res) => {
+    const cfUtente = req.user.cf; // Ottieni il CF dell'utente autenticato
+    try {
+        const result = await pool.query(`
+            SELECT n.id, n.data, n.titolo, n.descrizione
+            FROM nota n
+            JOIN utente u ON n.cfUtente = u.cf
+            WHERE n.cfUtente = $1 AND n.data >= CURRENT_DATE AND n.data <= CURRENT_DATE + INTERVAL '7 days'
+            ORDER BY n.data;
+            `, [cfUtente]);
+        res.json({
+            status: 'success',
+            count: result.rows.length,
+            data: result.rows
+        });
+    } catch (error) {
+        console.error('Errore get note:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Errore nel recupero delle note'
+        });
+    }
+};
+
 // POST crea nuova lezione
 export const createLezione = async (req, res) => {
     const { data, orainizio, orafine, idmodulo, idaula, cfdocente } = req.body;

@@ -13,6 +13,10 @@ export const lezioniService = {
     const response = await api.get('/lezioni/coming');
     return response.data;
   },
+  getComingNote: async () => {
+    const response = await api.get('/lezioni/coming/note');
+    return response.data;
+  },
   createLezione: async (lezioneData) => {
     const response = await api.post('/lezioni', lezioneData);
     return response.data;

@@ -18,7 +18,6 @@ const Login = () => {
 
     try {
       await login(formData.email, formData.password);
-      console.log('Token salvato:', localStorage.getItem('token'));
       navigate('/dashboard',{ replace: true });
     } catch (err) {
       setError(err.response?.data?.message || 'Errore durante il login');

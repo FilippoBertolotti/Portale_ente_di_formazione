@@ -15,6 +15,7 @@ import ConfirmationModal from '../components/common/confirmationModal';
 import Form from '../components/forms/form';
 import { isCourseValid, isDateValid, isEmailValid, isNameValid, isSurnameValid, isAcademicYearValid, isPhoneValid, isQualificationValid, isCapacityValid, isSedeValid, isPianoValid, isPlaceNameValid, isCFValid, isOraInizioValid, isOraFineValid, isModuleValid, isClassroomValid, isDateValid2, isDescriptionValid } from '../utils/validators';
 import NoteTag from '../components/common/noteTag';
+import { useToast } from '../components/common/toastProvider';
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -36,12 +37,12 @@ const Dashboard = () => {
   const ClassroomFormRef = useRef(null);
   const LessonFormRef = useRef();
   const NoteFormRef = useRef();
+  const { showToast } = useToast();
 
   const fetchAll = async () => {
     try {
       setLoadingStats(true);
       const data = await dashboardService.getAll();
-      console.log('Dashboard stats:', data);
       setStats(data);
     } catch (error) {
       console.error('Errore dashboard:', error);
@@ -59,41 +60,49 @@ const Dashboard = () => {
   const handleNewStudent = async (formData) => {
     try {
       await dashboardService.newStudent(formData);
+      showToast('Studente creato con successo', 'success');
       await fetchAll();
       setRefreshKey(prev => prev + 1); // forza il refresh dei grafici
       setShowNewStudentModal(false);
     } catch (error) {
       console.error('Errore:', error);
+      showToast('Errore: ' + error.message, 'error');
     }
   };
 
   const handleNewTeacher = async (formData) => {
     try {
       await dashboardService.newTeacher(formData);
+      showToast('Docente creato con successo', 'success');
       await fetchAll();
       setShowNewTeacherModal(false);
     } catch (error) {
       console.error('Errore:', error);
+      showToast('Errore: ' + error.message, 'error');
     }
   };
 
   const handleNewClassroom = async (formData) => {
     try {
       await dashboardService.newClassroom(formData);
+      showToast('Aula creata con successo', 'success');
       await fetchAll();
       setShowNewClassroomModal(false);
     } catch (error) {
       console.error('Errore:', error);
+      showToast('Errore: ' + error.message, 'error');
     }
   };
 
   const handleNewLesson = async (formData) => {
     try {
       await dashboardService.newLesson(formData);
+      showToast('Lezione creata con successo', 'success');
       await fetchAll();
       setShowNewLessonModal(false);
     } catch (error) {
       console.error('Errore:', error);
+      showToast('Errore: ' + error.message, 'error');
     }
   };
 
@@ -104,29 +113,32 @@ const Dashboard = () => {
 
   const handleDeleteLessonClick = (lezione) => {
     setSelectedLezione(lezione);
-    console.log('Lezione selezionata per eliminazione:', lezione);
     setShowDeleteLessonModal(true);
   };
 
   const handleUpdateLesson = async (formdata) => {
     try {
       await dashboardService.updateLesson(selectedLezione.id, formdata);
+      showToast('Lezione aggiornata con successo', 'success');
       await fetchAll();
       setShowUpdateLessonModal(false);
       setSelectedLezione(null);
     } catch (error) {
       console.error('Errore:', error);
+      showToast('Errore: ' + error.message, 'error');
     }
   };
 
   const handleDeleteLesson = async () => {
     try {
       await dashboardService.deleteLesson(selectedLezione.id);
+      showToast('Lezione eliminata con successo', 'success');
       await fetchAll();
       setShowDeleteLessonModal(false);
       setSelectedLezione(null);
     } catch (error) {
       console.error('Errore:', error);
+      showToast('Errore: ' + error.message, 'error');
     }
   };
   
@@ -137,29 +149,32 @@ const Dashboard = () => {
   
     const handleDeleteNoteClick = (nota) => {
       setSelectedNota(nota);
-      console.log('Nota selezionata per eliminazione:', nota);
       setShowDeleteNoteModal(true);
     };
   
     const handleUpdateNote = async (formdata) => {
       try {
         await dashboardService.updateNota(selectedNota.id, formdata);
+        showToast('Nota aggiornata con successo', 'success');
         await fetchAll();
         setShowUpdateNoteModal(false);
         setSelectedNota(null);
       } catch (error) {
         console.error('Errore:', error);
+        showToast('Errore: ' + error.message, 'error');
       }
     };
   
     const handleDeleteNote = async () => {
       try {
         await dashboardService.deleteNota(selectedNota.id);
+        showToast('Nota eliminata con successo', 'success');
         await fetchAll();
         setShowDeleteNoteModal(false);
         setSelectedNota(null);
       } catch (error) {
         console.error('Errore:', error);
+        showToast('Errore: ' + error.message, 'error');
       }
     };
 
@@ -326,22 +341,49 @@ const Dashboard = () => {
               </div>
             ) : (
               <div className="space-y-[1vh] overflow-y-auto h-full pr-2 flex-1">
-                {Array.isArray(v('lezioni')) && v('lezioni').length > 0 ? (
-                  v('lezioni').map((lezione, index) => (
-                    <LessonTag
-                      key={index}
-                      modulo={lezione.modulo}
-                      data={lezione.data}
-                      oraInizio={lezione.orainizio}
-                      oraFine={lezione.orafine}
-                      colore={lezione.colore_progetto}
-                      aula={lezione.aula}
-                      docente={lezione.docente}
-                      onModify={() => handleUpdateLessonClick(lezione)}
-                      onDelete={() => handleDeleteLessonClick(lezione)}
-                    />
-                  ))
-                ) : Array.isArray(v('note')) && v('note').length > 0 ? (
+                { Array.isArray(v('lezioni')) && v('lezioni').length > 0 && Array.isArray(v('note')) && v('note').length > 0 ? (
+                    <>
+                      {v('note').map((nota, index) => (
+                        <NoteTag
+                          key={`nota-${index}`}
+                          titolo={nota.titolo}
+                          descrizione={nota.descrizione}
+                          data={nota.data}
+                          onModify={() => handleUpdateNoteClick(nota)}
+                          onDelete={() => handleDeleteNoteClick(nota)}
+                        />
+                      ))}
+                      {v('lezioni').map((lezione, index) => (
+                        <LessonTag
+                          key={`lezione-${index}`}
+                          modulo={lezione.modulo}
+                          data={lezione.data}
+                          oraInizio={lezione.orainizio}
+                          oraFine={lezione.orafine}
+                          colore={lezione.colore_progetto}
+                          aula={lezione.aula}
+                          docente={lezione.docente}
+                          onModify={() => handleUpdateLessonClick(lezione)}
+                          onDelete={() => handleDeleteLessonClick(lezione)} 
+                        />
+                      ))}
+                    </>
+                  ) : v('lezioni').length > 0 ? (
+                    v('lezioni').map((lezione, index) => (
+                      <LessonTag
+                        key={`lezione-${index}`}
+                        modulo={lezione.modulo}
+                        data={lezione.data}
+                        oraInizio={lezione.orainizio}
+                        oraFine={lezione.orafine}
+                        colore={lezione.colore_progetto}
+                        aula={lezione.aula}
+                        docente={lezione.docente}
+                        onModify={() => handleUpdateLessonClick(lezione)}
+                        onDelete={() => handleDeleteLessonClick(lezione)}
+                      />
+                    ))
+                  ) : v('note').length > 0 ? (
                     v('note').map((nota, index) => (
                       <NoteTag
                         key={index}
@@ -351,8 +393,8 @@ const Dashboard = () => {
                         onModify={() => handleUpdateNoteClick(nota)}
                         onDelete={() => handleDeleteNoteClick(nota)}
                       />
-                  ))
-                ) : (
+                    ))
+                  )  : (
                   <div className="flex flex-col items-center gap-[1vh] pt-[10vh]">
                     <SvgIcon
                       color="#777777b9"

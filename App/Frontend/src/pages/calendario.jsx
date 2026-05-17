@@ -16,6 +16,7 @@ import Form from '../components/forms/form';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { isCFValid, isOraInizioValid, isOraFineValid, isModuleValid, isClassroomValid, isDateValid2, isPlaceNameValid, isDescriptionValid, isDateValid } from '../utils/validators';
+import { useToast } from '../components/common/toastProvider';
 
 const Calendario = () => {
   const { user, loading } = useAuth();
@@ -37,6 +38,7 @@ const Calendario = () => {
   const [selectedNota, setSelectedNota] = useState(null);
   const LessonFormRef = useRef();
   const NoteFormRef = useRef();
+  const { showToast } = useToast();
 
   const meseAnno = activeDate.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
   const mesePrecedente = () => setActiveDate(new Date(activeDate.getFullYear(), activeDate.getMonth() - 1, 1));
@@ -75,10 +77,12 @@ const Calendario = () => {
   const handleNewLesson = async (formData) => {
     try {
       await lezioniService.createLezione(formData);
+      showToast('Lezione aggiunta con successo', 'success');
       await fetchLezioni();
       setShowNewLessonModal(false);
     } catch (error) {
       console.error('Errore:', error);
+      showToast('Errore: ' + error.message, 'error');
     }
   };
 
@@ -89,39 +93,44 @@ const Calendario = () => {
 
   const handleDeleteLessonClick = (lezione) => {
     setSelectedLezione(lezione);
-    console.log('Lezione selezionata per eliminazione:', lezione);
     setShowDeleteLessonModal(true);
   };
 
   const handleUpdateLesson = async (formdata) => {
     try {
       await lezioniService.updateLezione(selectedLezione.id, formdata);
+      showToast('Lezione aggiornata con successo', 'success');
       await fetchLezioni();
       setShowUpdateLessonModal(false);
       setSelectedLezione(null);
     } catch (error) {
       console.error('Errore:', error);
+      showToast('Errore: ' + error.message, 'error');
     }
   };
 
   const handleDeleteLesson = async () => {
     try {
       await lezioniService.deleteLezione(selectedLezione.id);
+      showToast('Lezione eliminata con successo', 'success');
       await fetchLezioni();
       setShowDeleteLessonModal(false);
       setSelectedLezione(null);
     } catch (error) {
       console.error('Errore:', error);
+      showToast('Errore: ' + error.message, 'error');
     }
   };
 
   const handleNewNote = async (formData) => {
     try {
       await lezioniService.createNota(formData);
+      showToast('Nota aggiunta con successo', 'success');
       await fetchLezioni();
       setShowNewNoteModal(false);
     } catch (error) {
       console.error('Errore:', error);
+      showToast('Errore: ' + error.message, 'error');
     }
   };
 
@@ -132,29 +141,32 @@ const Calendario = () => {
 
   const handleDeleteNoteClick = (nota) => {
     setSelectedNota(nota);
-    console.log('Nota selezionata per eliminazione:', nota);
     setShowDeleteNoteModal(true);
   };
 
   const handleUpdateNote = async (formdata) => {
     try {
       await lezioniService.updateNota(selectedNota.id, formdata);
+      showToast('Nota aggiornata con successo', 'success');
       await fetchLezioni();
       setShowUpdateNoteModal(false);
       setSelectedNota(null);
     } catch (error) {
       console.error('Errore:', error);
+      showToast('Errore: ' + error.message, 'error');
     }
   };
 
   const handleDeleteNote = async () => {
     try {
       await lezioniService.deleteNota(selectedNota.id);
+      showToast('Nota eliminata con successo', 'success');
       await fetchLezioni();
       setShowDeleteNoteModal(false);
       setSelectedNota(null);
     } catch (error) {
       console.error('Errore:', error);
+      showToast('Errore: ' + error.message, 'error');
     }
   };
 
@@ -334,10 +346,37 @@ const Calendario = () => {
               </div>
               ) : (
               <div className="space-y-[1vh] overflow-y-auto h-full pr-2 flex-1">
-                { lezioniDelGiorno.length > 0 ? (
+                { lezioniDelGiorno.length > 0 && noteDelGiorno.length > 0 ? (
+                    <>
+                      {noteDelGiorno.map((nota, index) => (
+                        <NoteTag
+                          key={`nota-${index}`}
+                          titolo={nota.titolo}
+                          descrizione={nota.descrizione}
+                          data={nota.data}
+                          onModify={() => handleUpdateNoteClick(nota)}
+                          onDelete={() => handleDeleteNoteClick(nota)}
+                        />
+                      ))}
+                      {lezioniDelGiorno.map((lezione, index) => (
+                        <LessonTag
+                          key={`lezione-${index}`}
+                          modulo={lezione.modulo}
+                          data={lezione.data}
+                          oraInizio={lezione.orainizio}
+                          oraFine={lezione.orafine}
+                          colore={lezione.colore_progetto}
+                          aula={lezione.aula}
+                          docente={lezione.docente}
+                          onModify={() => handleUpdateLessonClick(lezione)}
+                          onDelete={() => handleDeleteLessonClick(lezione)} 
+                        />
+                      ))}
+                    </>
+                  ) : lezioniDelGiorno.length > 0 ? (
                     lezioniDelGiorno.map((lezione, index) => (
                       <LessonTag
-                        key={index}
+                        key={`lezione-${index}`}
                         modulo={lezione.modulo}
                         data={lezione.data}
                         oraInizio={lezione.orainizio}

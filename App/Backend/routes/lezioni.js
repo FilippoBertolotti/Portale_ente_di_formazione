@@ -6,6 +6,7 @@ import {
   updateLezione,
   deleteLezione,
   getAllNote,
+  getComingNote,
   createNota,
   updateNota,
   deleteNota
@@ -20,6 +21,7 @@ router.use(isAdmin, isCoordinatore);
 router.get('/', getAllLezioni);
 router.get('/note', getAllNote);
 router.get('/coming', getComingLezioni);
+router.get('/coming/note', getComingNote);
 router.post('/', isAdminOrCoordinatore, createLezione);
 router.post('/nota', createNota);
 router.put('/:id', isAdminOrCoordinatore, updateLezione);

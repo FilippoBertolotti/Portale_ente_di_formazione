@@ -1,130 +1,238 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import pool from '../config/database.js';
+import Groq from 'groq-sdk';
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_KEY);
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-const AVAILABLE_ENDPOINTS = `
-Endpoint disponibili:
-- GET /api/studenti → tutti gli studenti
-- GET /api/studenti/:search → cerca studenti per nome
-- GET /api/studenti/anno/:anno → studenti per anno accademico
-- GET /api/studenti/codice/:codice → studenti per codice progetto
-- GET /api/studenti/conta → numero totale studenti
-- GET /api/docenti → tutti i docenti
-- GET /api/docenti/conta → numero totale docenti
-- GET /api/progetti → tutti i corsi attivi
-- GET /api/progetti/anno/:anno → corsi per anno
-- GET /api/progetti/codice/:codice → corso specifico
-- GET /api/moduli → tutti i moduli
-- GET /api/moduli/anno/:anno → moduli per anno
-- GET /api/moduli/codice/:codice → moduli per corso
-- GET /api/aule → tutte le aule
-- GET /api/aule/sedi → tutte le sedi
-- GET /api/lezioni → prossime lezioni
-- GET /api/lezioni/note → tutte le note
-POST (creazione):
-- POST /api/lezioni → crea una nuova lezione
-  Richiede nel body: { data, orainizio, orafine, idmodulo, idaula, cfdocente }
-- POST /api/lezioni/nota → aggiunge una nota
-  Richiede nel body: { data, titolo, descrizione }
+// ─── Configurazione ───────────────────────────────────────────────────────────
+
+const BASE_URL = 'http://localhost:5000';
+
+const ENDPOINTS_INFO = `
+GET  /api/studenti                    → tutti gli studenti
+GET  /api/studenti/:search            → cerca studenti per nome/cognome
+GET  /api/studenti/anno/:anno         → studenti per anno accademico
+GET  /api/studenti/codice/:codice     → studenti per codice corso
+GET  /api/studenti/conta              → numero totale studenti
+GET  /api/docenti                     → tutti i docenti
+GET  /api/docenti/conta               → numero totale docenti
+GET  /api/progetti                    → tutti i corsi attivi
+GET  /api/progetti/anno/:anno         → corsi per anno
+GET  /api/progetti/codice/:codice     → corso specifico
+GET  /api/moduli                      → tutti i moduli
+GET  /api/moduli/anno/:anno           → moduli per anno
+GET  /api/moduli/codice/:codice       → moduli per corso
+GET  /api/aule                        → tutte le aule
+GET  /api/aule/sedi                   → tutte le sedi
+GET  /api/lezioni                     → prossime lezioni
+GET  /api/lezioni/note                → tutte le note
+POST /api/lezioni                     → crea lezione   body: { data, orainizio, orafine, idmodulo, idaula, cfdocente }
+POST /api/lezioni/nota                → crea nota       body: { data, titolo, descrizione }
+POST /api/studenti                    → crea studente   body: { cf, nome, cognome, email, dataNascita, codiceCorso, annoAccademico }
 `;
 
-const callGoogleAI = async (systemPrompt, userMessage) => {
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-3-flash-preview',
-    systemInstruction: systemPrompt,
-  });
+// ─── Helper ───────────────────────────────────────────────────────────────────
 
-  const result = await model.generateContent(userMessage);
-  return result.response.text().trim();
+const llm = async (system, user, json = false) => {
+  const res = await groq.chat.completions.create({
+    model: 'llama-3.3-70b-versatile',
+    temperature: 0.1,
+    messages: [
+      { role: 'system', content: system },
+      { role: 'user',   content: user   }
+    ]
+  });
+  const text = res.choices[0].message.content.trim();
+  if (!json) return text;
+  // Estrae il primo blocco JSON dalla risposta
+  const match = text.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error(`Nessun JSON trovato: ${text}`);
+  return JSON.parse(match[0]);
 };
+
+const apiFetch = async (endpoint, auth, method = 'GET', body = null) => {
+  const opts = {
+    method,
+    headers: { Authorization: auth, 'Content-Type': 'application/json' }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res  = await fetch(`${BASE_URL}${endpoint}`, opts);
+  return res.json();
+};
+
+// Matching fuzzy locale: cerca la voce più simile senza chiamate AI aggiuntive
+const fuzzyMatch = (query, items, fields) => {
+  if (!query || !items?.length) return null;
+  const q = query.toLowerCase().trim();
+  return items.find(item =>
+    fields.some(f => {
+      const val = String(item[f] ?? '').toLowerCase();
+      return val.includes(q) || q.includes(val) || q.split(' ').some(w => w.length > 2 && val.includes(w));
+    })
+  ) ?? null;
+};
+
+// ─── Fase 1: capisce l'intenzione ─────────────────────────────────────────────
+
+const analyzeIntent = async (message) => {
+  const system = `
+Sei un analizzatore di intenzioni per un sistema scolastico.
+Dati gli endpoint disponibili:
+${ENDPOINTS_INFO}
+
+Rispondi SOLO con JSON valido, nessun markdown.
+Formato per lettura dati:
+{ "type": "get", "endpoint": "/api/...", "params": {} }
+
+Formato per creazione lezione:
+{ "type": "post_lezione", "data": "YYYY-MM-DD", "orainizio": "HH:MM", "orafine": "HH:MM", "modulo_hint": "nome modulo", "aula_hint": "nome aula", "docente_hint": "nome docente" }
+
+Formato per creazione nota:
+{ "type": "post_nota", "data": "YYYY-MM-DD", "titolo": "...", "descrizione": "..." }
+
+Formato per creazione studente:
+{ "type": "post_studente", "cf": "RSSMRA85M01H501Z", "nome": "Mario", "cognome": "Rossi", "email": "mario.rossi@example.com", "dataNascita": "YYYY-MM-DD", "codiceCorso": "PROJ001", "annoAccademico": 1 }
+
+Formato se non capisci:
+{ "type": "unknown" }
+
+Per le date relative: oggi è ${new Date().toISOString().split('T')[0]}, domani è ${new Date(Date.now() + 86400000).toISOString().split('T')[0]}.
+Converti sempre le date in formato YYYY-MM-DD.
+  `;
+
+  return llm(system, message, true);
+};
+
+// ─── Fase 2: risolve gli ID per le lezioni ────────────────────────────────────
+
+const resolveLezioneBody = async (intent, auth) => {
+  // Recupera in parallelo tutti i dati necessari
+  const [moduliRes, auleRes, docentiRes] = await Promise.all([
+    apiFetch('/api/moduli',  auth),
+    apiFetch('/api/aule',    auth),
+    apiFetch('/api/docenti', auth)
+  ]);
+
+  const moduli  = moduliRes.data  ?? [];
+  const aule    = auleRes.data    ?? [];
+  const docenti = docentiRes.data ?? [];
+
+  // Matching locale senza ulteriori chiamate AI
+  const modulo  = fuzzyMatch(intent.modulo_hint,  moduli,  ['descrizione']);
+  const aula    = fuzzyMatch(intent.aula_hint,    aule,    ['descrizione', 'nome_sede']);
+  const docente = fuzzyMatch(intent.docente_hint, docenti, ['nomecompletoqualifica', 'nomeCompleto', 'cognome']);
+
+  const missing = [
+    !modulo  && `modulo "${intent.modulo_hint}"`,
+    !aula    && `aula "${intent.aula_hint}"`,
+    !docente && `docente "${intent.docente_hint}"`
+  ].filter(Boolean);
+
+  if (missing.length > 0) {
+    return { error: `Non riesco a trovare: ${missing.join(', ')}. Puoi essere più preciso?` };
+  }
+
+  return {
+    data:       intent.data,
+    orainizio:  intent.orainizio,
+    orafine:    intent.orafine,
+    idmodulo:   modulo.id,
+    idaula:     aula.id,
+    cfdocente:  docente.cf
+  };
+};
+
+// ─── Fase 3: formatta la risposta finale ──────────────────────────────────────
+
+const formatAnswer = async (rawAnswer) => {
+  const system = `
+Sei un assistente scolastico. Trasforma la risposta grezza in testo HTML leggibile in italiano.
+Regole:
+- Usa <b> per nomi importanti e titoli
+- Per liste usa • su righe separate (una per riga, con <br> alla fine di ogni voce)
+- Non mostrare mai ID numerici, codici fiscali o strutture JSON
+- Sii conciso e naturale
+- Se è una conferma di operazione, sii positivo e diretto
+  `;
+  return llm(system, rawAnswer);
+};
+
+// ─── Controller principale ────────────────────────────────────────────────────
 
 export const chat = async (req, res) => {
   const { message } = req.body;
+  const auth = req.headers.authorization;
 
   try {
-    // 1. Google AI sceglie l'endpoint
-    const routingSystem = `
-      Sei un assistente che mappa domande in linguaggio naturale a endpoint REST.
-      ${AVAILABLE_ENDPOINTS}
-      Rispondi SOLO con un JSON nel formato:
-      { "endpoint": "/api/...", "method": "GET", "body": null }
-      Per le POST includi il body con i dati estratti dal messaggio dell'utente risolvendo i dati mancanti per il corretto completamento con altre richieste sugli endpoint necessari, matchando le nformazioni date 
-      con quelle presenti sul db non inventando niente, senza violare i vincoli chiedendo informazioni aggiuntive quando tu le ritenga necessarie o non sia sicuro dei dati trovanti con il matchin (chiedendo per esempio nome o cognome di un docente per una ricerca più accurata) evitando il più possibile stati di errore dovuti ad inserimnti errati.
-      In caso di presenza di moduli, docenti, docenti, aule o qualsiasi altro dato richiedemte informazioni specifiche per essere identificati e inseriti correttamente nel body di una POST, fai tutte le richieste necessarie agli endpoint GET per recuperare i dati necessari e fai un matching con le informazioni date dall'utente per identificare l'ID corretto da inserire nel body della POST. 
-      Per la creazione si utilizzano le chiamate in post con body popolato come negli esempi qui sotto:
-      Esempio POST lezione: { "endpoint": "/api/lezioni", "method": "POST", "body": { "data": "2026-05-16", "orainizio": "09:00", "orafine": "11:00", "idmodulo": 1, "idaula": 2, "cfdocente": "RSSMRA80A01H501Z" } }
-      Esempio POST nota: { "endpoint": "/api/lezioni/nota", "method": "POST", "body": { "data": "2026-05-16", "titolo": "Riunione", "descrizione": "Riunione di staff" } }
-      Senza markdown, senza spiegazioni, solo JSON valido.
-    `;
+    // 1. Analisi intenzione
+    const intent = await analyzeIntent(message);
+    console.log('[AGENT] Intent:', JSON.stringify(intent));
 
-    const answerSystem = `
-      Sei un assistente scolastico che risponde in italiano in modo chiaro.
-      Regole di formattazione:
-      - Non usare virgole per separare nomi in una lista andnado a capo dopo ogni elelento con tag <br> e dopo l'intestazione con tag <br>
-      - Racchiudi tutto in tag html per il grassetto per indicare titiolo o nomi importanti e non utilizzare mai gli **
-      - Sii conciso ma completo
-      - Non mostrare mai dati tecnici, ID o JSON
-      Esempio di risposta corretta per una lista utilizzando sempre tag html per il grassetto e per la creazione di liste:
-      "I docenti presenti sono:
-      • Mario Rossi – Matematica
-      • Anna Bianchi – Italiano"
-    `;
+    let rawAnswer;
 
-    const routingText = await callGoogleAI(routingSystem, message);
+    // 2. Esegui l'azione in base al tipo
+    switch (intent.type) {
 
-    let endpoint, method, body;
-    try {
-      ({ endpoint, method = 'GET', body = null } = JSON.parse(routingText));
-    } catch {
-      return res.status(400).json({ status: 'error', message: 'Impossibile interpretare la domanda' });
-    }
-
-    // Chiama l'endpoint con metodo e body corretti
-    const fetchOptions = {
-      method: method,
-      headers: {
-        Authorization: req.headers.authorization,
-        'Content-Type': 'application/json'
+      case 'get': {
+        // Lettura semplice
+        const data = await apiFetch(intent.endpoint, auth);
+        const system = `
+Sei un assistente scolastico. Rispondi in italiano in modo chiaro e naturale.
+Non mostrare ID, codici fiscali o JSON.
+Per liste usa elenchi con "•".
+        `;
+        const prompt = `
+Domanda: "${message}"
+Dati: ${JSON.stringify(data.data?.slice(0, 25) ?? data)}
+Rispondi in modo naturale.
+        `;
+        rawAnswer = await llm(system, prompt);
+        break;
       }
-    };
 
-    if (method === 'POST' && body) {
-      fetchOptions.body = JSON.stringify(body);
-    }
+      case 'post_lezione': {
+        // Risoluzione ID + creazione lezione
+        const body = await resolveLezioneBody(intent, auth);
 
-    const apiResult = await fetch(`http://localhost:5000${endpoint}`, fetchOptions);
+        if (body.error) {
+          rawAnswer = body.error;
+          break;
+        }
 
-    if (!apiResult.ok) {
-      return res.status(500).json({ status: 'error', message: 'Errore nel recupero dei dati' });
-    }
+        console.log('[AGENT] POST /api/lezioni body:', body);
+        const result = await apiFetch('/api/lezioni', auth, 'POST', body);
+        console.log('[AGENT] Risultato POST:', result);
 
-    const data = await apiResult.json();
-
-    // Per le POST dai una conferma senza dati da analizzare
-    const answerPrompt = method === 'POST'
-      ? `
-      L'utente ha chiesto: "${message}"
-      L'operazione è andata a buon fine. Conferma in italiano in modo naturale.
-    `: `
-      L'utente ha chiesto: "${message}"
-      I dati disponibili sono: ${JSON.stringify(data.data?.slice(0, 20))}
-      Rispondi in italiano usando elenchi puntati con "•" per liste di elementi.
-      Raggruppa i dati in modo leggibile. Evita virgole per separare persone o elementi.
-    `;
-
-    const answer = await callGoogleAI(answerSystem, answerPrompt);
-
-    res.json({
-      status: 'success',
-      data: {
-        answer,
-        rows: data.data
+        rawAnswer = result.status === 'success'
+          ? `Lezione creata con successo per il ${intent.data} dalle ${intent.orainizio} alle ${intent.orafine}.`
+          : `Errore nella creazione: ${result.message}`;
+        break;
       }
-    });
+
+      case 'post_nota': {
+        const body = {
+          data:        intent.data,
+          titolo:      intent.titolo,
+          descrizione: intent.descrizione
+        };
+        console.log('[AGENT] POST /api/lezioni/nota body:', body);
+        const result = await apiFetch('/api/lezioni/nota', auth, 'POST', body);
+
+        rawAnswer = result.status === 'success'
+          ? `Nota "${intent.titolo}" aggiunta per il ${intent.data}.`
+          : `Errore nella creazione della nota: ${result.message}`;
+        break;
+      }
+
+      default:
+        rawAnswer = 'Non ho capito la richiesta. Puoi riformularla?';
+    }
+
+    // 3. Formattazione HTML della risposta
+    const answer = await formatAnswer(rawAnswer);
+
+    res.json({ status: 'success', data: { answer } });
 
   } catch (error) {
-    console.error('Errore chat:', error);
-    res.status(500).json({ status: 'error', message: 'Errore nella risposta' });
+    console.error('[AGENT] Errore:', error.message);
+    res.status(500).json({ status: 'error', message: 'Errore nella risposta del assistente.' });
   }
 };

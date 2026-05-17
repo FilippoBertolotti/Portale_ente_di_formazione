@@ -33,7 +33,7 @@ export const dashboardService = {
       auleService.getCountA(),
       auleService.getCountS(),
       lezioniService.getComingLezioni(),
-      lezioniService.getAllNote(),
+      lezioniService.getComingNote(),
       progettiService.getAll(),
       auleService.getAllSedi(),
       auleService.getAllAule(),
