@@ -6,13 +6,13 @@ import Logo from "../../assets/images/logobianco.png";
 const Sidebar = () => {
 
     return (
-        <div className="py-[2vh] flex flex-col justify-center h-[100%] items-center">
+        <div className="lg:py-[2vh] py-[0.2rem] flex lg:flex-col justify-center w-[100%] h-[100%] items-center bg-[#2A7BB3] lg:bg-none lg:relative rounded-t-[30px] lg:rounded-none z-40">
             {/* Logo */}
-            <div className="w-[100%] h-[10%] flex justify-center items-center">
+            <div className="w-[100%] h-[10%] lg:flex justify-center items-center hidden">
                 <Image className="w-[70%] mx-auto" src={Logo} />
             </div>
             {/* Navigazione */}
-            <div className="w-full h-[80%] flex flex-col justify-center">
+            <div className="w-[80%] md:w-[50%] lg:w-[100%] lg:h-[80%] h-[100%] flex lg:flex-col justify-center">
                 <SidebarButton
                     icon={<SvgIcon
                         color="#ffffff"
@@ -75,7 +75,7 @@ const Sidebar = () => {
                 />
             </div>
             {/* Logout */}
-            <div className="w-[100%] h-[10%] flex justify-center items-center">
+            <div className="w-[100%] h-[10%] flex justify-center items-center lg:block hidden">
                 <SidebarButton
                     icon={<SvgIcon
                         color="#efa134"
