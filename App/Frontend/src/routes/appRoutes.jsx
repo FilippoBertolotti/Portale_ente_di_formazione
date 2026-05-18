@@ -6,7 +6,7 @@ import Dashboard from '../pages/dashboard';
 import Studenti from '../pages/studenti';
 import Docenti from '../pages/docenti';
 import Aule from '../pages/aule';
-import Loader from '../components/common/Loader';
+import Loader from '../components/common/loader';
 import Calendario from '../pages/calendario';
 
 const AppRoutes = () => {

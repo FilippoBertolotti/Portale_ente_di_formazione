@@ -12,7 +12,7 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { studentiService } from '../../services/studentiService';
-import Loader from '../common/Loader';
+import Loader from '../common/loader';
 
 // Registra componenti Chart.js
 ChartJS.register(

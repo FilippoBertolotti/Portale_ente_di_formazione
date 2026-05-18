@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { auleService } from '../services/auleService';
-import Loader from '../components/common/Loader';
+import Loader from '../components/common/loader';
 import Header from '../components/common/header';
 import { useAuth } from '../hooks/useAuth';
 import Container from '../components/common/container';

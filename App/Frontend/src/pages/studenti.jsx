@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { progettiService } from '../services/progettiService';
 import { studentiService } from '../services/studentiService';
-import Loader from '../components/common/Loader';
+import Loader from '../components/common/loader';
 import Header from '../components/common/header';
 import { useAuth } from '../hooks/useAuth';
 import Container from '../components/common/container';

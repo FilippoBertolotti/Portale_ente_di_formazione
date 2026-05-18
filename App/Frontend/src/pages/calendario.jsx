@@ -1,4 +1,4 @@
-import Loader from '../components/common/Loader';
+import Loader from '../components/common/loader';
 import Header from '../components/common/header';
 import Container from '../components/common/container';
 import LessonTag from '../components/common/lessonTag';

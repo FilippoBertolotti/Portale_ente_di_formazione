@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { progettiService } from '../services/progettiService';
 import { moduliService } from '../services/moduliService';
 import { docentiService } from '../services/docentiService';
-import Loader from '../components/common/Loader';
+import Loader from '../components/common/loader';
 import Header from '../components/common/header';
 import { useAuth } from '../hooks/useAuth';
 import Container from '../components/common/container';

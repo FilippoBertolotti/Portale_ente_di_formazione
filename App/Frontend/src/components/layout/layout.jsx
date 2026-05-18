@@ -1,5 +1,11 @@
 import Sidebar from "./sidebar";
+import { useAuth } from '../../hooks/useAuth';
 const Layout = ({ children }) => {
+    const { user } = useAuth();
+
+      if (!user) {
+          return <>{children}</>;
+      }
     return (
         <>
             <div className="h-[100vh] w-[100vw] bg-[#FFF] md:bg-[#2A7BB3] md:pt-[1rem] md:px-[1rem] lg:hidden lg:block relative flex flex-col justify-center relative">
