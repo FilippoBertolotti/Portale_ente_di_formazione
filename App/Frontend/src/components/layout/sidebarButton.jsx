@@ -39,7 +39,7 @@ const SidebarButton = forwardRef(({
     return (
         <>
             <div
-                className={`h-[100%] lg:h-fit flex justify-center items-center lg:py-[0.5rem] py-[0.2rem] w-[100%] hover:bg-[#efa134] hover:bg-opacity-10 hover:cursor-pointer lg:pr-2 ${isThisPage ? 'border-b-4 lg:border-b-0 lg:border-l-4 border-[#efa134]' : 'pb-1 lg:pl-1'}`}
+                className={`h-[100%] xl:h-fit flex justify-center items-center xl:py-[0.5rem] py-[0.2rem] w-[100%] hover:bg-[#efa134] hover:bg-opacity-10 hover:cursor-pointer xl:pr-2 ${isThisPage ? 'border-b-4 xl:border-b-0 xl:border-l-4 border-[#efa134]' : 'pb-1 xl:pl-1'}`}
                 title={title}
                 onClick={handleClick}
                 ref={ref}

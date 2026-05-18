@@ -294,8 +294,8 @@ const Studenti = () => {
         title="Nuovo Studente"
         confirmText="Aggiungi"
         buttonType="modify"
-        w='60%'
-        wMax='100%'
+        w='w-[80%] xl:w-[60%]'
+        wMax='max-w-[100%]'
       >
         <Form
           ref={StudentFormRef}
@@ -327,8 +327,8 @@ const Studenti = () => {
         title="Modifica Studente"
         confirmText="Aggiorna"
         buttonType="modify"
-        w='60%'
-        wMax='100%'
+        w='w-[80%] xl:w-[60%]'
+        wMax='max-w-[100%]'
       >
         <Form
           ref={StudentFormRef}

@@ -11,11 +11,7 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, children, confir
             ></div>
 
             <div
-                className="relative bg-white rounded-[30px] shadow-2xl mx-4 animate-scale-in"
-                style={{
-                    maxWidth: wMax || 'md',
-                    width: w || 'full'
-                }}
+                className={`relative bg-white rounded-[30px] shadow-2xl mx-4 animate-scale-in ${w || 'w-full'} ${wMax || 'max-w-md'}`}
             >
                 <div className="p-6 flex flex-col gap-6">
                     <div>

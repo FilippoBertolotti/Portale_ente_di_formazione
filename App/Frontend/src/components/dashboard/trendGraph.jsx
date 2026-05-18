@@ -174,7 +174,7 @@ const TrendGraph = () => {
 
     if (error) {
         return (
-            <div className="flex items-center justify-center h-[100%] w-[100%]">
+            <div className="flex items-center justify-center h-[90%] w-[100%]">
                 <p className="text-red-500 text-center">{error}</p>
             </div>
         );
@@ -182,15 +182,15 @@ const TrendGraph = () => {
 
     if (!chartData || chartData.labels.length === 0) {
         return (
-            <div className="flex items-center justify-center h-[100%] w-[100%]">
+            <div className="flex items-center justify-center h-[90%] w-[100%]">
                 <p className="text-gray-500 text-center">Nessun dato disponibile</p>
             </div>
         );
     }
 
     return (
-        <div className="bg-white rounded-[30px] p-[1vh] h-full w-full">
-            <div className="relative w-full h-full">
+        <div className="bg-white rounded-[30px] p-[1vh] h-[95%] w-full">
+            <div className="relative w-full h-[100%]">
                 <Line data={chartData} options={options} />
             </div>
         </div>

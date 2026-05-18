@@ -28,7 +28,7 @@ const Button = forwardRef(({
   // Mappa delle dimensioni
   const sizes = {
     small: 'text-sm px-2 py-2',
-    medium: 'px-[1.5vh] py-2 text-base',
+    medium: 'px-[1.5vh] py-2 text-[1rem] xl:text-[0.8rem]',
     large: 'px-[2vh] py-4 text-lg'
   };
 

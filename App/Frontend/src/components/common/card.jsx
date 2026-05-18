@@ -1,6 +1,6 @@
 import SvgIcon from "../../assets/icons/svgIcon";
 
-const Card = ({ title, value, subtitle, bgColor, iconPath, iconPath2, size = 'large' }) => {
+const Card = ({ title, value, subtitle, bgColor, iconPath, iconPath2, size = 'large', className }) => {
     
     const sizes = {
         small: {
@@ -12,10 +12,10 @@ const Card = ({ title, value, subtitle, bgColor, iconPath, iconPath2, size = 'la
             padding: 'p-[1vw]'              
         },
         large: {
-            title: 'text-[1vw]',           
-            value: 'text-[1.5vw]',           
+            title: 'text-[1rem] xl:text-[1vw]',           
+            value: 'text-[1.5rem] xl:text-[1.5vw]',           
             subtitle: 'text-[0.7vw]',      
-            iconContainer: 'w-[4vw] h-[4.5vw]',
+            iconContainer: 'w-[4rem] xl:w-[4vw] h-[4.2rem] xl:h-[4.5vw]',
             iconWidth: '50%',
             padding: 'p-[1vw]'
         }
@@ -24,7 +24,7 @@ const Card = ({ title, value, subtitle, bgColor, iconPath, iconPath2, size = 'la
     const currentSize = sizes[size] || sizes.large;
 
     return (
-        <div className={`w-full flex justify-between items-center bg-${bgColor} bg-opacity-40 rounded-[30px] ${currentSize.padding} h-auto`}>
+        <div className={`w-full flex justify-between items-center bg-${bgColor} bg-opacity-40 rounded-[30px] ${currentSize.padding} h-auto ${className || ''}`}>
             <div className="flex flex-col justify-center h-full">
                 <p className={`text-[#777777] font-bold -mb-[0.5vh] ${currentSize.title}`}>
                     {title}
@@ -33,7 +33,7 @@ const Card = ({ title, value, subtitle, bgColor, iconPath, iconPath2, size = 'la
                     {value}
                 </p>
                 {subtitle && (
-                    <p className={`text-[#777777] font-normal -mt-[0.5vh] ${currentSize.subtitle}`}>
+                    <p className={`text-[#777777] font-normal -mt-[0.5vh] ${currentSize.subtitle} hidden xl:block`}>
                         {subtitle}
                     </p>
                 )}

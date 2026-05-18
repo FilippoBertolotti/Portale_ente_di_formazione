@@ -501,8 +501,8 @@ const Progetti = () => {
         title="Nuovo Corso"
         confirmText="Aggiungi"
         buttonType="modify"
-        w='60%'
-        wMax='100%'
+        w='w-[80%] xl:w-[60%]'
+        wMax='max-w-[100%]'
       >
         <Form
           ref={CourseFormRef}
@@ -542,8 +542,8 @@ const Progetti = () => {
         title="Aggiorna Corso"
         confirmText="Aggiorna"
         buttonType="modify"
-        w='60%'
-        wMax='100%'
+        w='w-[80%] xl:w-[60%]'
+        wMax='max-w-[100%]'
       >
         <Form
           ref={CourseFormRef}
@@ -596,8 +596,8 @@ const Progetti = () => {
         title="Nuovo Modulo"
         confirmText="Aggiungi"
         buttonType="modify"
-        w='60%'
-        wMax='100%'
+        w='w-[80%] xl:w-[60%]'
+        wMax='max-w-[100%]'
       >
         <Form
           ref={ModuleFormRef}
@@ -641,8 +641,8 @@ const Progetti = () => {
         title="Modifica Modulo"
         confirmText="Aggiorna"
         buttonType="modify"
-        w='60%'
-        wMax='100%'
+        w='w-[80%] xl:w-[60%]'
+        wMax='max-w-[100%]'
       >
         <Form
           ref={ModuleFormRef}

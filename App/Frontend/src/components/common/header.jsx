@@ -7,10 +7,10 @@ const Header = ({
     subtitle
 }) => {
     return (
-        <div className="relative flex items-center w-full justify-between mb-[2vh]">
+        <div className="relative flex items-center w-full justify-between">
           <div>
-            <h1 className="text-[4.5vh] font-bold text-black">{title}</h1>
-            <p className="text-[#777777] font-bold text-[2.5vh] -mt-[1rem]">{subtitle}</p>
+            <h1 className="text-[2.3rem] lg:text-[2.8rem] font-bold text-black">{title}</h1>
+            <p className="text-[#777777] font-bold text-[1.2rem] lg:text-[1.6rem] -mt-[0.5rem] md:-mt-[1rem]">{subtitle}</p>
           </div>
           <ChatBox />
           <div className="fit-content">

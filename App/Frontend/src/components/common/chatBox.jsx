@@ -59,7 +59,7 @@ const ChatBox = () => {
                     />
 
                     {/* Chat panel */}
-                    <div className="relative w-[40%] bg-white rounded-[30px] shadow-2xl flex flex-col overflow-hidden"
+                    <div className="relative w-[80%] xl:w-[40%] bg-white rounded-[30px] shadow-2xl flex flex-col overflow-hidden"
                         style={{ height: '70vh' }}
                     >
                         {/* Header panel */}

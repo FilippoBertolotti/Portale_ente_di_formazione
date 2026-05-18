@@ -425,8 +425,8 @@ const Calendario = () => {
         title="Nuova Lezione"
         confirmText="Aggiungi"
         buttonType="modify"
-        w='60%'
-        wMax='100%'
+        w='w-[80%] xl:w-[60%]'
+        wMax='max-w-[100%]'
       >
         <Form
           ref={LessonFormRef}
@@ -461,8 +461,8 @@ const Calendario = () => {
         title="Modifica Lezione"
         confirmText="Aggiorna"
         buttonType="modify"
-        w='60%'
-        wMax='100%'
+        w='w-[80%] xl:w-[60%]'
+        wMax='max-w-[100%]'
       >
         <Form
           ref={LessonFormRef}
@@ -515,8 +515,8 @@ const Calendario = () => {
         title="Nuova Nota"
         confirmText="Aggiungi"
         buttonType="modify"
-        w='60%'
-        wMax='100%'
+        w='w-[80%] xl:w-[60%]'
+        wMax='max-w-[100%]'
       >
         <Form
           ref={NoteFormRef}
@@ -544,8 +544,8 @@ const Calendario = () => {
         title="Modifica Nota"
         confirmText="Aggiorna"
         buttonType="modify"
-        w='60%'
-        wMax='100%'
+        w='w-[80%] xl:w-[60%]'
+        wMax='max-w-[100%]'
       >
         <Form
           ref={NoteFormRef}
