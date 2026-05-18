@@ -76,13 +76,15 @@ const Calendario = () => {
 
   const handleNewLesson = async (formData) => {
     try {
-      await lezioniService.createLezione(formData);
-      showToast('Lezione aggiunta con successo', 'success');
+      const response = await lezioniService.createLezione(formData);
+      const msg = response?.data?.message || 'Lezione aggiunta con successo';
+      showToast(msg, 'success');
       await fetchLezioni();
       setShowNewLessonModal(false);
     } catch (error) {
       console.error('Errore:', error);
-      showToast('Errore: ' + error.message, 'error');
+      const errorMsg = error.response?.data?.message || 'Errore durante la creazione';
+      showToast(errorMsg, 'error');
     }
   };
 
@@ -98,39 +100,45 @@ const Calendario = () => {
 
   const handleUpdateLesson = async (formdata) => {
     try {
-      await lezioniService.updateLezione(selectedLezione.id, formdata);
-      showToast('Lezione aggiornata con successo', 'success');
+      const response = await lezioniService.updateLezione(selectedLezione.id, formdata);
+      const msg = response?.data?.message || 'Lezione aggiornata con successo';
+      showToast(msg, 'success');
       await fetchLezioni();
       setShowUpdateLessonModal(false);
       setSelectedLezione(null);
     } catch (error) {
       console.error('Errore:', error);
-      showToast('Errore: ' + error.message, 'error');
+      const errorMsg = error.response?.data?.message || 'Errore durante l\'aggiornamento';
+      showToast(errorMsg, 'error');
     }
   };
 
   const handleDeleteLesson = async () => {
     try {
-      await lezioniService.deleteLezione(selectedLezione.id);
-      showToast('Lezione eliminata con successo', 'success');
+      const response = await lezioniService.deleteLezione(selectedLezione.id);
+      const msg = response?.data?.message || 'Lezione eliminata con successo';
+      showToast(msg, 'success');
       await fetchLezioni();
       setShowDeleteLessonModal(false);
       setSelectedLezione(null);
     } catch (error) {
       console.error('Errore:', error);
-      showToast('Errore: ' + error.message, 'error');
+      const errorMsg = error.response?.data?.message || 'Errore durante l\'eliminazione';
+      showToast(errorMsg, 'error');
     }
   };
 
   const handleNewNote = async (formData) => {
     try {
-      await lezioniService.createNota(formData);
-      showToast('Nota aggiunta con successo', 'success');
+      const response = await lezioniService.createNota(formData);
+      const msg = response?.data?.message || 'Nota aggiunta con successo';
+      showToast(msg, 'success');
       await fetchLezioni();
       setShowNewNoteModal(false);
     } catch (error) {
       console.error('Errore:', error);
-      showToast('Errore: ' + error.message, 'error');
+      const errorMsg = error.response?.data?.message || 'Errore durante la creazione';
+      showToast(errorMsg, 'error');
     }
   };
 
@@ -146,27 +154,31 @@ const Calendario = () => {
 
   const handleUpdateNote = async (formdata) => {
     try {
-      await lezioniService.updateNota(selectedNota.id, formdata);
-      showToast('Nota aggiornata con successo', 'success');
+      const response = await lezioniService.updateNota(selectedNota.id, formdata);
+      const msg = response?.data?.message || 'Nota aggiornata con successo';
+      showToast(msg, 'success');
       await fetchLezioni();
       setShowUpdateNoteModal(false);
       setSelectedNota(null);
     } catch (error) {
       console.error('Errore:', error);
-      showToast('Errore: ' + error.message, 'error');
+      const errorMsg = error.response?.data?.message || 'Errore durante l\'aggiornamento';
+      showToast(errorMsg, 'error');
     }
   };
 
   const handleDeleteNote = async () => {
     try {
-      await lezioniService.deleteNota(selectedNota.id);
-      showToast('Nota eliminata con successo', 'success');
+      const response = await lezioniService.deleteNota(selectedNota.id);
+      const msg = response?.data?.message || 'Nota eliminata con successo';
+      showToast(msg, 'success');
       await fetchLezioni();
       setShowDeleteNoteModal(false);
       setSelectedNota(null);
     } catch (error) {
       console.error('Errore:', error);
-      showToast('Errore: ' + error.message, 'error');
+      const errorMsg = error.response?.data?.message || 'Errore durante l\'eliminazione';
+      showToast(errorMsg, 'error');
     }
   };
 

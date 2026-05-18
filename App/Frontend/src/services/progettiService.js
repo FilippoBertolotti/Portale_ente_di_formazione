@@ -28,16 +28,16 @@ export const progettiService = {
 
   create: async (progetto) => {
     const response = await api.post('/progetti', progetto);
-    return response.data;
+    return response;
   },
 
   update: async (codice, progetto) => {
     const response = await api.put(`/progetti/${codice}`, progetto);
-    return response.data;
+    return response;
   },
 
   delete: async (codice) => {
     const response = await api.delete(`/progetti/${codice}`);
-    return response.data;
+    return response;
   },
 };

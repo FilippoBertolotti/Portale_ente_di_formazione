@@ -138,13 +138,16 @@ const Studenti = () => {
 
   const handleNewStudent = async (formData) => {
     try {
-      await studentiService.create(formData);
-      showToast('Studente aggiunto con successo', 'success');
-      fetchStudente(); // Ricarica la lista degli studenti dopo l'aggiunta
+      const response = await studentiService.create(formData);
+      const msg = response?.data?.message || 'Studente aggiunto con successo';
+      showToast(msg, 'success');
+      fetchStudente();
       setShowNewStudentModal(false);
     } catch (error) {
       console.error('Errore:', error);
-      showToast('Errore: ' + error.message, 'error');
+      // Recupera il messaggio d'errore inviato dal backend express
+      const errorMsg = error.response?.data?.message || 'Errore durante la creazione';
+      showToast(errorMsg, 'error');
     }
   };
 
@@ -160,27 +163,31 @@ const Studenti = () => {
 
   const handleUpdateStudent = async (formdata) => {
     try {
-      await studentiService.update(selectedStudente.cf, formdata);
+      const response = await studentiService.update(selectedStudente.cf, formdata);
+      const msg = response?.data?.message || 'Studente aggiornato con successo';
+      showToast(msg, 'success');
       await fetchStudente();
       setShowUpdateStudentModal(false);
       setSelectedStudente(null);
-      showToast('Studente aggiornato con successo', 'success');
     } catch (error) {
       console.error('Errore:', error);
-      showToast('Errore: ' + error.message, 'error');
+      const errorMsg = error.response?.data?.message || 'Errore durante l\'aggiornamento';
+      showToast(errorMsg, 'error');
     }
   };
 
   const handleDeleteStudent = async () => {
     try {
       await studentiService.delete(selectedStudente.cf);
-      showToast('Studente eliminato con successo', 'success');
+      const msg = response?.data?.message || 'Studente eliminato con successo';
+      showToast(msg, 'success');
       await fetchStudente();
       setShowDeleteStudentModal(false);
       setSelectedStudente(null);
     } catch (error) {
       console.error('Errore:', error);
-      showToast('Errore: ' + error.message, 'error');
+      const errorMsg = error.response?.data?.message || 'Errore durante l\'eliminazione';
+      showToast(errorMsg, 'error');
     }
   };
 
@@ -301,13 +308,13 @@ const Studenti = () => {
           ref={StudentFormRef}
           onSubmit={handleNewStudent}
           onCancel={() => setShowNewStudentModal(false)}
-          fields={['cf', 'nome', 'cognome', 'email', 'dataNascita', 'corso', 'annoAccademico']}
+          fields={['cf', 'nome', 'cognome', 'email', 'dataNascita', 'codiceCorso', 'annoAccademico']}
           labels={['Codice Fiscale', 'Nome', 'Cognome', 'Email', 'Data di Nascita', 'Corso', 'Anno Accademico']}
           types={['text', 'text', 'text', 'email', 'date', 'select', 'select']}
           placeholders={['BNCDVD92M22H501V', 'Davida', 'Bianchi', 'davida.bianchi@email.it', '24/05/1992', 'Informatica, Economia, ...', '1']}
           validators={[isCFValid, isNameValid, isSurnameValid, isEmailValid, isDateValid, isCourseValid, isAcademicYearValid]}
           options={{
-            corso: Array.isArray(progetti)
+            codiceCorso: Array.isArray(progetti)
               ? progetti.map(p => ({ value: p.codice, label: p.descrizione }))
               : []
           }}
@@ -315,7 +322,7 @@ const Studenti = () => {
             ['cf'],
             ['nome', 'cognome'],
             ['dataNascita', 'email'],
-            ['corso', 'annoAccademico']
+            ['codiceCorso', 'annoAccademico']
           ]}
         />
       </ConfirmationModal>
@@ -334,13 +341,13 @@ const Studenti = () => {
           ref={StudentFormRef}
           onSubmit={handleUpdateStudent}
           onCancel={() => setShowUpdateStudentModal(false)}
-          fields={['cf', 'nome', 'cognome', 'email', 'dataNascita', 'corso', 'annoAccademico']}
+          fields={['cf', 'nome', 'cognome', 'email', 'dataNascita', 'codiceCorso', 'annoAccademico']}
           labels={['Codice Fiscale', 'Nome', 'Cognome', 'Email', 'Data di Nascita', 'Corso', 'Anno Accademico']}
           types={['text', 'text', 'text', 'email', 'date', 'select', 'select']}
           placeholders={['BNCDVD92M22H501V', 'Davida', 'Bianchi', 'davida.bianchi@email.it', '24/05/1992', 'Informatica, Economia, ...', '1']}
           validators={[isCFValid, isNameValid, isSurnameValid, isEmailValid, isDateValid, isCourseValid, isAcademicYearValid]}
           options={{
-            corso: Array.isArray(progetti)
+            codiceCorso: Array.isArray(progetti)
               ? progetti.map(p => ({ value: p.codice, label: p.descrizione }))
               : []
           }}
@@ -348,7 +355,7 @@ const Studenti = () => {
             ['cf'],
             ['nome', 'cognome'],
             ['dataNascita', 'email'],
-            ['corso', 'annoAccademico']
+            ['codiceCorso', 'annoAccademico']
           ]}
           defaultValues={{
             cf: selectedStudente?.cf || '',
@@ -358,7 +365,7 @@ const Studenti = () => {
             dataNascita: selectedStudente?.dataNascita
               ? new Date(selectedStudente.dataNascita).toLocaleDateString('en-CA')
               : '',
-            corso: selectedStudente?.codiceprogetto || '',
+            codiceCorso: selectedStudente?.codiceprogetto || '',
             annoAccademico: selectedStudente?.annoaccademico || ''
           }}
         />

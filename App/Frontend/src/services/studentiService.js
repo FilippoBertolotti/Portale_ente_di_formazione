@@ -53,16 +53,16 @@ export const studentiService = {
 
   create: async (studente) => {
     const response = await api.post('/studenti', studente);
-    return response.status;
+    return response;
   },
 
   update: async (cf, studente) => {
     const response = await api.put(`/studenti/${cf}`, studente);
-    return response.data;
+    return response;
   },
 
   delete: async (cf) => {
     const response = await api.delete(`/studenti/${cf}`);
-    return response.data;
+    return response;
   },
 };

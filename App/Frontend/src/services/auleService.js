@@ -54,7 +54,7 @@ export const auleService = {
 
   createA: async (aula) => {
     const response = await api.post('/aule', aula);
-    return response;
+    return response.data;
   },
 
   updateA: async (id, aula) => {
@@ -64,12 +64,12 @@ export const auleService = {
 
   deleteA: async (id) => {
     const response = await api.delete(`/aule/aula/${id}`);
-    return response;
+    return response.data;
   },
 
   createS: async (sede) => {
     const response = await api.post('/aule/sede', sede);
-    return response;
+    return response.data;
   },
 
   updateS: async (id, sede) => {
@@ -79,6 +79,6 @@ export const auleService = {
 
   deleteS: async (id) => {
     const response = await api.delete(`/aule/sede/${id}`);
-    return response;
+    return response.data;
   }
 };

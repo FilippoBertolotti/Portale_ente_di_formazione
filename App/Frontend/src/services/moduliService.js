@@ -23,16 +23,16 @@ export const moduliService = {
 
   create: async (progetto) => {
     const response = await api.post('/moduli', progetto);
-    return response.data;
+    return response;
   },
 
   update: async (id, dati) => {
     const response = await api.put(`/moduli/${id}`, dati);
-    return response.data;
+    return response;
   },
 
   delete: async (id) => {
     const response = await api.delete(`/moduli/${id}`);
-    return response.data;
+    return response;
   },
 };

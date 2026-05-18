@@ -183,13 +183,15 @@ const Docenti = () => {
 
     const handleNewTeacher = async (formData) => {
         try {
-            await docentiService.create(formData);
+            const response = await docentiService.create(formData);
+            const msg = response?.data?.message || 'Docente creato con successo';
+            showToast(msg, 'success');
             await fetchDocente();
             setShowNewTeacherModal(false);
-            showToast('Docente creato con successo', 'success');
         } catch (error) {
             console.error('Errore:', error);
-            showToast('Errore: ' + error.message, 'error');
+            const errorMsg = error.response?.data?.message || 'Errore durante la creazione';
+            showToast(errorMsg, 'error');
         }
     };
 

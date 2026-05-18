@@ -19,26 +19,26 @@ export const lezioniService = {
   },
   createLezione: async (lezioneData) => {
     const response = await api.post('/lezioni', lezioneData);
-    return response.data;
+    return response;
   },
   createNota: async (notaData) => {
     const response = await api.post('/lezioni/nota', notaData);
-    return response.data;
+    return response;
   },
   updateLezione: async (id, lezioneData) => {
     const response = await api.put(`/lezioni/${id}`, lezioneData);
-    return response.data;
+    return response;
   },
   updateNota: async (id, notaData) => {
     const response = await api.put(`/lezioni/nota/${id}`, notaData);
-    return response.data;
+    return response;
   },
   deleteLezione: async (id) => {
     const response = await api.delete(`/lezioni/${id}`);
-    return response.data;
+    return response;
   },
   deleteNota: async (id) => {
     const response = await api.delete(`/lezioni/nota/${id}`);
-    return response.data;
+    return response;
   }
 };

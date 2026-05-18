@@ -179,15 +179,17 @@ const Aule = () => {
 
     const handleNewClassroom = async (formData) => {
         try {
-            await auleService.createA(formData);
-            showToast('Aula creata con successo', 'success');
+            const response = await auleService.createA(formData);
+            const msg = response?.data?.message || 'Aula creata con successo';
+            showToast(msg, 'success');
             await fetchAula();
             await fetchStats();
             await fetchRiepilogo();
             setShowNewClassroomModal(false);
         } catch (error) {
             console.error('Errore:', error);
-            showToast('Errore: ' + error.message, 'error');
+            const errorMsg = error.response?.data?.message || 'Errore durante la creazione';
+            showToast(errorMsg, 'error');
         }
     };
 
@@ -203,8 +205,9 @@ const Aule = () => {
 
     const handleUpdateClassroom = async (formData) => {
         try {
-            await auleService.updateA(selectedAula.id, formData);
-            showToast('Aula aggiornata con successo', 'success');
+            const response = await auleService.updateA(selectedAula.id, formData);
+            const msg = response?.data?.message || 'Aula aggiornata con successo';
+            showToast(msg, 'success');
             setselectedAula(null);
             await fetchAula();
             await fetchStats();
@@ -212,14 +215,16 @@ const Aule = () => {
             setShowUpdateClassroomModal(false);
         } catch (error) {
             console.error('Errore:', error);
-            showToast('Errore: ' + error.message, 'error');
+            const errorMsg = error.response?.data?.message || 'Errore durante l\'aggiornamento';
+            showToast(errorMsg, 'error');
         }
     };
 
     const handleDeleteClassroom = async () => {
         try {
-            await auleService.deleteA(selectedAula.id);
-            showToast('Aula eliminata con successo', 'success');
+            const response = await auleService.deleteA(selectedAula.id);
+            const msg = response?.data?.message || 'Aula eliminata con successo';
+            showToast(msg, 'success');
             setselectedAula(null);
             await fetchAula();
             await fetchStats();
@@ -227,28 +232,32 @@ const Aule = () => {
             setShowDeleteClassroomModal(false);
         } catch (error) {
             console.error('Errore:', error);
-            showToast('Errore: ' + error.message, 'error');
+            const errorMsg = error.response?.data?.message || 'Errore durante l\'eliminazione';
+            showToast(errorMsg, 'error');
         }
     };
 
     const handleNewSite = async (formData) => {
         try {
-            await auleService.createS(formData);
-            showToast('Sede creata con successo', 'success');
+            const response = await auleService.createS(formData);
+            const msg = response?.data?.message || 'Sede creata con successo';
+            showToast(msg, 'success');
             await fetchSedi();
             await fetchRiepilogo();
             await fetchAula();
             setShowNewSiteModal(false);
         } catch (error) {
             console.error('Errore:', error);
-            showToast('Errore: ' + error.message, 'error');
+            const errorMsg = error.response?.data?.message || 'Errore durante la creazione';
+            showToast(errorMsg, 'error');
         }
     };
 
     const handleUpdateSite = async (formData) => {
         try {
-            await auleService.updateS(selectedSede, formData);
-            showToast('Sede aggiornata con successo', 'success');
+            const response = await auleService.updateS(selectedSede, formData);
+            const msg = response?.data?.message || 'Sede aggiornata con successo';
+            showToast(msg, 'success');
             await fetchSedi();
             await fetchAula();
             await fetchStats();
@@ -256,14 +265,16 @@ const Aule = () => {
             setShowUpdateSiteModal(false);
         } catch (error) {
             console.error('Errore:', error);
-            showToast('Errore: ' + error.message, 'error');
+            const errorMsg = error.response?.data?.message || 'Errore durante l\'aggiornamento';
+            showToast(errorMsg, 'error');
         }
     };
 
     const handleDeleteSite = async () => {
         try {
-            await auleService.deleteS(selectedSede);
-            showToast('Sede eliminata con successo', 'success');
+            const response = await auleService.deleteS(selectedSede);
+            const msg = response?.data?.message || 'Sede eliminata con successo';
+            showToast(msg, 'success');
             await fetchSedi();
             await fetchRiepilogo();
             await fetchAula();
@@ -272,7 +283,8 @@ const Aule = () => {
             setShowDeleteSiteModal(false);
         } catch (error) {
             console.error('Errore:', error);
-            showToast('Errore: ' + error.message, 'error');
+            const errorMsg = error.response?.data?.message || 'Errore durante l\'eliminazione';
+            showToast(errorMsg, 'error');
         }
     };
 

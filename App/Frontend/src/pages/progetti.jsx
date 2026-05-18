@@ -162,80 +162,96 @@ const Progetti = () => {
 
   const handleNewModule = async (formData) => {
     try {
-      await moduliService.create(formData);
-      showToast('Modulo creato con successo', 'success');
+      const response = await moduliService.create(formData);
+      const msg = response?.data?.message || 'Modulo creato con successo';
+      showToast(msg, 'success');
       await fetchModulo();
       await fetchProgetti();
       setShowNewModuleModal(false);
     } catch (error) {
       console.error('Errore:', error);
-      showToast('Errore: ' + error.message, 'error');
+      const errorMsg = error.response?.data?.message || 'Errore durante la creazione';
+      showToast(errorMsg, 'error');
     }
   };
 
   const handleNewCourse = async (formData) => {
     try {
-      await progettiService.create(formData);
-      showToast('Corso creato con successo', 'success');
+      const response = await progettiService.create(formData);
+      const msg = response?.data?.message || 'Corso creato con successo';
+      showToast(msg, 'success');
       await fetchModulo();
       await fetchProgetti();
       setShowNewCourseModal(false);
     } catch (error) {
       console.error('Errore:', error);
-      showToast('Errore: ' + error.message, 'error');
+      const errorMsg = error.response?.data?.message || 'Errore durante la creazione';
+      showToast(errorMsg, 'error');
     }
   };
 
   const handleDeleteCourse = async () => {
     try {
       await progettiService.delete(selectedProgetto);
-      showToast('Corso eliminato con successo', 'success');
+      const response = await progettiService.delete(selectedProgetto);
+      const msg = response?.data?.message || 'Corso eliminato con successo';
+      showToast(msg, 'success');
       await fetchProgetti();
       setSelectedProgetto(null);
       setShowDeleteCourseModal(false);
     } catch (error) {
       console.error('Errore:', error);
-      showToast('Errore: ' + error.message, 'error');
+      const errorMsg = error.response?.data?.message || 'Errore durante l\'eliminazione';
+      showToast(errorMsg, 'error');
     }
   };
 
   const handleUpdateCourse = async (formData) => {
     try {
       await progettiService.update(selectedProgetto, formData);
-      showToast('Corso aggiornato con successo', 'success');
+      const response = await progettiService.update(selectedProgetto, formData);
+      const msg = response?.data?.message || 'Corso aggiornato con successo';
+      showToast(msg, 'success');
       await fetchProgetti();
       setShowUpdateCourseModal(false);
     } catch (error) {
       console.error('Errore:', error);
-      showToast('Errore: ' + error.message, 'error');
+      const errorMsg = error.response?.data?.message || 'Errore durante l\'aggiornamento';
+      showToast(errorMsg, 'error');
     }
   };
 
   const handleDeleteModule = async () => {
     try {
       await moduliService.delete(selectedModulo.id);
-      showToast('Modulo eliminato con successo', 'success');
+      const response = await moduliService.delete(selectedModulo.id);
+      const msg = response?.data?.message || 'Modulo eliminato con successo';
+      showToast(msg, 'success');
       await fetchModulo();
       await fetchProgetti();
       setSelectedModulo(null);
       setShowDeleteModuleModal(false);
     } catch (error) {
       console.error('Errore:', error);
-      showToast('Errore: ' + error.message, 'error');
+      const errorMsg = error.response?.data?.message || 'Errore durante l\'eliminazione';
+      showToast(errorMsg, 'error');
     }
   };
 
   const handleUpdateModule = async (formData) => {
     try {
       await moduliService.update(selectedModulo.id, formData);
-      showToast('Modulo aggiornato con successo', 'success');
+      const response = await moduliService.update(selectedModulo.id, formData);
+      const msg = response?.data?.message || 'Modulo aggiornato con successo';
+      showToast(msg, 'success');
       await fetchModulo();
       await fetchProgetti();
       setSelectedModulo(null);
       setShowUpdateModuleModal(false);
     } catch (error) {
       console.error('Errore:', error);
-      showToast('Errore: ' + error.message, 'error');
+      const errorMsg = error.response?.data?.message || 'Errore durante l\'aggiornamento';
+      showToast(errorMsg, 'error');
     }
   };
 
