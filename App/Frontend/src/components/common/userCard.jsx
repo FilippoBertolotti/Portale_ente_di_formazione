@@ -77,7 +77,7 @@ const UserCard = ({ user }) => {
                         className="absolute top-[110%] right-0 z-50"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="bg-white rounded-[30px] p-6 w-[90vw] max-w-md shadow-xl">
+                        <div className="bg-white border border-[#E0E6EB] rounded-[30px] p-6 w-[90vw] max-w-md shadow-xl">
                             <div className="flex justify-between items-start mb-4">
                                 <h2 className="text-xl font-bold text-gray-800">{user.nome} {user.cognome}</h2>
                                 <button
