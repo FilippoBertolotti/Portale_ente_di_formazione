@@ -275,7 +275,7 @@ const Progetti = () => {
 
   const riepilogo = useMemo(() => {
     // Caso 1: Progetto specifico selezionato
-    if (selectedProgetto) {
+    if (selectedProgetto && !selectedAnno) {
       const progetto = progetti.find(p => p.codice === selectedProgetto);
       if (progetto) {
         return {
@@ -293,7 +293,7 @@ const Progetti = () => {
     }
 
     // Caso 2: Solo anno selezionato - USA I MODULI, non i progetti!
-    if (selectedAnno && selectedProgetto && moduli && moduli.length > 0) {
+    if (selectedAnno && selectedProgetto && moduli) {
       const progetto = progetti.find(p => p.codice === selectedProgetto);
       // Calcola i totali aggregando i moduli
       return {
