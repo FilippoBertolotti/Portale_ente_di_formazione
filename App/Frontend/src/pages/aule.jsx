@@ -22,7 +22,7 @@ const AttivaCell = ({ value }) => {
                 className={`w-full rounded-full px-[1vh] py-[0.3vh] text-xs ${value ? 'text-green-600' : 'text-red-600'} w-full`}
             >
                 <span className='hidden 2xl:block'>{value ? 'Disponibile' : 'In Manutenzione'}</span>
-                <span className='hidden'></span>
+                <span className='hidden'>ciao</span>
             </div>
         </div>
     );
