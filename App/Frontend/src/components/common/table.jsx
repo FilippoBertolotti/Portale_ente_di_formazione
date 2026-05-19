@@ -1,6 +1,7 @@
 import { forwardRef } from 'react';
 import Button from './button';
 import SvgIcon from '../../assets/icons/svgIcon';
+import { useAuth } from '../../hooks/useAuth';
 
 const Table = forwardRef(({
     headers = [],
@@ -14,9 +15,11 @@ const Table = forwardRef(({
     centerFromIndex = 1,
     onModify = () => {},
     onDelete = () => {},
-    className = ''
+    className = '',
+    noShow = []
 }, ref) => {
     const colors = ['#EFA667', '#76A1CF'];
+    const { user } = useAuth();
     return (
         <div className={`border border-[#E0E6EB] bg-white rounded-[30px] w-full h-full overflow-hidden flex flex-col ${className}`}>
             <div className="overflow-y-auto">
@@ -25,13 +28,13 @@ const Table = forwardRef(({
                         <tr>
                             {Array.isArray(headers) && headers.map((header, index) => (
                                 <th
-                                    className={`text-${index >= centerFromIndex && centered ? 'center' : 'left'} py-[1vh] px-[2vh] text-[#000000] font-normal text-sm`}
+                                    className={`text-${index >= centerFromIndex && centered ? 'center' : 'left'} py-[1vh] px-[2vh] text-[#000000] font-normal text-sm ${noShow.includes(header) ? 'hidden' : ''}`}
                                     key={index}
                                 >
                                     {header}
                                 </th>
                             ))}
-                            <th className='text-center py-[1vh] px-[2vh] text-[#000000] font-normal text-sm'>Azioni</th>
+                            <th className={`text-center py-[1vh] px-[2vh] text-[#000000] font-normal text-sm ${user.livello !== 0 ? 'hidden' : ''}`}>Azioni</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -40,7 +43,7 @@ const Table = forwardRef(({
                                 <tr key={index} className='border-t-2 border-[#EDEDED]'>
                                     {Array.isArray(labels) && labels.map((label, labelIndex) => (
                                         <td
-                                            className={`text-${labelIndex >= centerFromIndex && centered ? 'center' : 'left'} p-[1vw] text-[#000000] font-bold text-[1rem] w-fit`}
+                                            className={`text-${labelIndex >= centerFromIndex && centered ? 'center' : 'left'} p-[1vw] text-[#000000] font-bold text-[1rem] w-fit ${noShow.includes(label) ? 'hidden' : ''}`}
                                             key={labelIndex}
                                         >
                                             {labelIndex === labels.length - 1 && pill ? (

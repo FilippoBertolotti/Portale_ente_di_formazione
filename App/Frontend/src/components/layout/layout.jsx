@@ -36,7 +36,7 @@ const Layout = ({ children }) => {
                 user.livello == 1 || user.livello == 2 ? (
                     <div className="h-[100vh] w-[100vw] overflow-hidden bg-[#2A7BB3] flex py-[1rem] pr-[1rem] hidden xl:flex">
                         <aside className="w-[5vw]">
-                            <Sidebar buttons={['calendario', 'progetti']}/>
+                            <Sidebar buttons={['calendario', 'progetti', 'aule']}/>
                         </aside>
                         <div className="flex space-x-[1rem] w-[95vw]">
                         <div className="bg-white w-[80%] flex justify-center p-[1vw] rounded-[30px] overflow-hidden">

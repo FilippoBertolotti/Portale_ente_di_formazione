@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import SvgIcon from '../../assets/icons/svgIcon';
+import { useAuth } from '../../hooks/useAuth';
 
-const Select = ({ title, placeholder, options = [], value, error, onChange, className, classNameLa }) => {
+const Select = ({ title, placeholder, options = [], value, error, onChange, className, classNameLa, disable = false }) => {
     const [isOpen, setIsOpen] = useState(false);
     const ref = useRef(null);
+    const { user } = useAuth();
 
     const selected = options.find(o => o.value === value);
 
@@ -24,13 +26,20 @@ const Select = ({ title, placeholder, options = [], value, error, onChange, clas
             )}
             <div className="relative" >
                 <button
-                    onClick={(e) => {e.preventDefault(); setIsOpen(prev => !prev);}}
-                    className={`w-full flex justify-between items-center border border-[#E0E6EB] bg-white rounded-[30px] px-4 py-3 text-left
+                    onClick={(e) => {
+                        if (user.livello === 0 || !disable) {
+                            e.preventDefault();
+                            setIsOpen(prev => !prev);
+                        }
+                    }}
+                    className={`w-full flex justify-between items-center border border-[#E0E6EB] rounded-[30px] px-4 py-3 text-left
                         ${error
                             ? 'border-red-500 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.1)]'
-                            : 'border-[#E0E6EB] focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)]'
+                            : user.livello === 0 || !disable
+                                ? 'border-[#E0E6EB] focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)]'
+                                : 'border-[#E0E6EB] focus:none cursor-not-allowed'
                         }
-                    `}
+                        ${user.livello === 0 || !disable ? 'bg-white' : 'bg-gray-100'}`}
                 >
                     <span className={`text-base ${selected ? 'text-black font-bold' : 'text-[#777777]'}`}>
                         {selected ? selected.label : placeholder}

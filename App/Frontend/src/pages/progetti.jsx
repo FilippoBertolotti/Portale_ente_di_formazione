@@ -40,7 +40,7 @@ const Progetti = () => {
   const fetchProgetti = async () => {
     try {
       setLoading(true);
-      const response = selectedAnno ? await progettiService.getByCodiceAnno(selectedProgetto, selectedAnno) : await progettiService.getAll();
+      const response = selectedProgetto ? await progettiService.getByCodice(selectedProgetto) : await progettiService.getAll();
       let progettiData = [];
 
       if (Array.isArray(response)) {
@@ -57,6 +57,12 @@ const Progetti = () => {
       }
 
       setProgetti(progettiData);
+      console.log('Progetti caricati:', progettiData);
+      if(user.livello !== 0){
+        setSelectedProgetto(user.codiceprogetto);
+        console.log("Anno accademico utente:", user.annoaccademico);
+        setSelectedAnno(user.annoaccademico);
+      }
       setError('');
 
     } catch (err) {
@@ -118,7 +124,9 @@ const Progetti = () => {
   useEffect(() => {
     fetchProgetti();
     fetchAnni();
-    fetchDocenti();
+    if (user.livello === 0) {
+      fetchDocenti();
+    }
   }, []);
 
   const fetchModulo = async () => {
@@ -267,7 +275,7 @@ const Progetti = () => {
 
   const riepilogo = useMemo(() => {
     // Caso 1: Progetto specifico selezionato
-    if (selectedProgetto && !selectedAnno) {
+    if (selectedProgetto) {
       const progetto = progetti.find(p => p.codice === selectedProgetto);
       if (progetto) {
         return {
@@ -323,7 +331,7 @@ const Progetti = () => {
         ) : (
           <div className='grid grid-cols-12 gap-[1vw] flex-1 min-h-0'>
             <div className='col-span-9 flex flex-col gap-[1vw] h-full overflow-hidden'>
-              <Container className="flex flex-col h-full overflow-hidden p-[1vw] gap-[1vw]">
+              <Container className="flex flex-col h-full overflow-hidden p-[1vw] gap-[1rem]">
                 <div className="flex gap-[1vw] items-end">
                   <Select
                     title="Corso"
@@ -332,6 +340,7 @@ const Progetti = () => {
                     value={selectedProgetto}
                     onChange={setSelectedProgetto}
                     className="w-[40%]"
+                    disable={user.livello !== 0}
                   />
                   <Select
                     title="Anno"
@@ -340,8 +349,9 @@ const Progetti = () => {
                     value={selectedAnno}
                     onChange={setSelectedAnno}
                     className="w-[20%]"
+                    disable={user.livello !== 0}
                   />
-                  {(selectedAnno || selectedProgetto) &&
+                  {((selectedAnno || selectedProgetto) && user.livello === 0) ?
                     <div className='pb-[0.5vh]'>
                       <Button variant="noBg" size="small" onClick={() => { setSelectedProgetto(null); setSelectedAnno(null); }} className="shrink-0" title="Rimuovi filtri">
                         <SvgIcon
@@ -353,6 +363,8 @@ const Progetti = () => {
                         />
                       </Button>
                     </div>
+                    : 
+                    <div><span className="text-[0.7vw] font-normal whitespace-nowrap">Coordinatore: </span>{riepilogo?.coordinatoreNomeCompleto || '...'}</div>
                   }
                 </div>
                 <Table
@@ -370,12 +382,13 @@ const Progetti = () => {
               </Container>
             </div>
             <div className='col-span-3 h-full flex flex-col gap-[1vw] overflow-hidden'>
-              <Container title="Azioni Rapide" className="h-[30%]">
-                <div className='grid grid-cols-2 gap-[1vw]'>
-                  <Button
-                    variant="primary"
-                    size="medium"
-                    icon={<SvgIcon
+              {user.livello === 0 && (
+                <Container title="Azioni Rapide" className="h-[30%]">
+                  <div className='grid grid-cols-2 gap-[1vw]'>
+                    <Button
+                      variant="primary"
+                      size="medium"
+                      icon={<SvgIcon
                       color='#FFFFFF'
                       width="2.5vh"
                       height="2.5vh"
@@ -432,8 +445,8 @@ const Progetti = () => {
                     Elimina Corso
                   </Button>
                 </div>
-              </Container>
-              <Container title={selectedAnno ? `Riepilogo Anno ${selectedAnno}` : 'Riepilogo'} className=" h-full overflow-hidden" button={<div className='text-black text-[0.9vw] font-bold'><span className="text-[0.7vw] font-normal whitespace-nowrap">Coordinatore: </span>{riepilogo?.coordinatoreNomeCompleto || '...'}</div>}>
+              </Container>)}
+              <Container title={selectedAnno ? `Riepilogo Anno ${selectedAnno}` : 'Riepilogo'} className=" h-full overflow-hidden" button={user.livello === 0 ?<div className='text-black text-[0.9vw] font-bold'><span className="text-[0.7vw] font-normal whitespace-nowrap">Coordinatore: </span>{riepilogo?.coordinatoreNomeCompleto || '...'}</div> : null }>
                 <div className='flex flex-col space-y-[2vh] h-full overflow-hidden'>
                   <div className='h-[47%] w-full items-stretch grid grid-cols-2 gap-[1vw] overflow-hidden'>
                     <Card

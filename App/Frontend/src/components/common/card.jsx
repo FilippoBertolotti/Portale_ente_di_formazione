@@ -1,7 +1,9 @@
 import SvgIcon from "../../assets/icons/svgIcon";
+import { useAuth } from "../../hooks/useAuth";
 
 const Card = ({ title, value, subtitle, bgColor, iconPath, iconPath2, size = 'large', className }) => {
-    
+    const { user } = useAuth();
+
     const sizes = {
         small: {
             title: 'text-[0.6vw]',   
@@ -24,11 +26,19 @@ const Card = ({ title, value, subtitle, bgColor, iconPath, iconPath2, size = 'la
     const currentSize = sizes[size] || sizes.large;
 
     return (
-        <div className={`w-full flex justify-between items-center bg-${bgColor} bg-opacity-40 rounded-[30px] ${currentSize.padding} h-auto ${className || ''}`}>
-            <div className="flex flex-col justify-center h-full">
+        <div className={`w-full flex ${user.livello !== 0 ? 'flex-col' : 'items-center'} bg-${bgColor} bg-opacity-40 rounded-[30px] ${currentSize.padding} h-auto ${className || ''}`}>
+            {user.livello !== 0 && (
                 <p className={`text-[#777777] font-bold -mb-[0.5vh] ${currentSize.title}`}>
                     {title}
                 </p>
+            )}
+            <div className={`flex justify-center h-full ${user.livello !== 0 ? 'flex justify-between h-full items-center space-x-[1rem]' : ''}`}>
+            <div className="flex flex-col justify-center h-full">
+                {user.livello === 0 && (
+                    <p className={`text-[#777777] font-bold -mb-[0.5vh] ${currentSize.title}`}>
+                        {title}
+                    </p>
+                )}
                 <p className={`font-black ${currentSize.value}`}>
                     {value}
                 </p>
@@ -46,6 +56,7 @@ const Card = ({ title, value, subtitle, bgColor, iconPath, iconPath2, size = 'la
                     color='white'
                     translate={false}
                 />
+            </div>
             </div>
         </div>
     );

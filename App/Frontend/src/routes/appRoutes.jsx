@@ -54,6 +54,15 @@ const AppRoutes = () => {
           </ProtectedRoute>
         } 
       />
+
+      <Route 
+        path="/aule" 
+        element={
+          <ProtectedRoute>
+            <Aule />
+          </ProtectedRoute>
+        } 
+      />
       
       {/* Route solo admin */}
       <Route 
@@ -79,15 +88,6 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute allowedLevels={[0]}>
             <Docenti />
-          </ProtectedRoute>
-        } 
-      />
-
-      <Route 
-        path="/aule" 
-        element={
-          <ProtectedRoute allowedLevels={[0]}>
-            <Aule />
           </ProtectedRoute>
         } 
       />

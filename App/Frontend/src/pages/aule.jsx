@@ -58,15 +58,15 @@ const Aule = () => {
             const auleData = response.data;
 
             let filtered = selectedSede
-            ? auleData.filter(d => {
-                // Se selectedSede è la stringa 'Non Specificata'
-                if (selectedSede === 'Non Specificata') {
-                    return d.idsede === null;
-                }
-                // Altrimenti confronto normale (entrambi numeri)
-                return d.idsede === selectedSede;
-            })
-            : auleData;
+                ? auleData.filter(d => {
+                    // Se selectedSede è la stringa 'Non Specificata'
+                    if (selectedSede === 'Non Specificata') {
+                        return d.idsede === null;
+                    }
+                    // Altrimenti confronto normale (entrambi numeri)
+                    return d.idsede === selectedSede;
+                })
+                : auleData;
 
             filtered = selectedPiano
                 ? filtered.filter(d =>
@@ -289,7 +289,7 @@ const Aule = () => {
         }
     };
 
-    
+
     return (
         <div className="flex flex-col h-full w-full">
             <Header user={user} title="Aule" subtitle="Aule, sedi e capienze disponibili" />
@@ -347,6 +347,7 @@ const Aule = () => {
                                     <Table
                                         headers={['Nome Aula', 'Sede', 'Piano', 'Capienza', 'N. Postazioni PC', 'Stato', 'Prenotazioni']}
                                         labels={['descrizione', 'nome_sede', 'piano', 'capienza', 'numeropc', 'attiva', 'prenotazioni']}
+                                        noShow={['prenotazioni', 'Prenotazioni']}
                                         data={aule}
                                         pill={true}
                                         centered={true}
@@ -363,7 +364,7 @@ const Aule = () => {
                             </div>
                         </div>
                         <div className='col-span-3 h-full flex flex-col gap-[1vw] overflow-hidden'>
-                            <Container title="Azioni Rapide" className="h-[30%]">
+                            {user.livello === 0 && (<Container title="Azioni Rapide" className="h-[30%]">
                                 <div className='grid grid-cols-2 gap-[1vw]'>
                                     <Button
                                         variant="primary"
@@ -419,12 +420,12 @@ const Aule = () => {
                                             path2='M25.875 6.16666H20.9271C20.858 6.16666 20.7918 6.13922 20.7429 6.09039C20.6941 6.04155 20.6667 5.97531 20.6667 5.90624V4.60416C20.6667 3.9135 20.3923 3.25112 19.9039 2.76274C19.4155 2.27437 18.7532 2 18.0625 2H12.8542C12.1635 2 11.5011 2.27437 11.0127 2.76274C10.5244 3.25112 10.25 3.9135 10.25 4.60416V5.90624C10.25 5.97531 10.2226 6.04155 10.1737 6.09039C10.1249 6.13922 10.0586 6.16666 9.98958 6.16666H5.04167C4.7654 6.16666 4.50045 6.27641 4.3051 6.47176C4.10975 6.66711 4 6.93206 4 7.20832C4 7.48459 4.10975 7.74954 4.3051 7.94489C4.50045 8.14024 4.7654 8.24999 5.04167 8.24999H25.875C26.1513 8.24999 26.4162 8.14024 26.6116 7.94489C26.8069 7.74954 26.9167 7.48459 26.9167 7.20832C26.9167 6.93206 26.8069 6.66711 26.6116 6.47176C26.4162 6.27641 26.1513 6.16666 25.875 6.16666ZM12.3333 5.90624V4.60416C12.3333 4.46603 12.3882 4.33355 12.4859 4.23588C12.5836 4.1382 12.716 4.08333 12.8542 4.08333H18.0625C18.2006 4.08333 18.3331 4.1382 18.4308 4.23588C18.5284 4.33355 18.5833 4.46603 18.5833 4.60416V5.90624C18.5833 5.97531 18.5559 6.04155 18.507 6.09039C18.4582 6.13922 18.392 6.16666 18.3229 6.16666H12.5937C12.5247 6.16666 12.4584 6.13922 12.4096 6.09039C12.3608 6.04155 12.3333 5.97531 12.3333 5.90624Z'
                                         />}
                                         disabled={!selectedSede}
-                                        onClick = {() => setShowDeleteSiteModal(true)}
+                                        onClick={() => setShowDeleteSiteModal(true)}
                                     >
                                         Elimina Sede
                                     </Button>
                                 </div>
-                            </Container>
+                            </Container>)}
                             <Container title={selectedSede && selectedSede !== 'Non Specificata' ? `Infromazioni ${sedi.find(s => s.id === selectedSede)?.nome}` : 'Informazioni Aggiuntive'} className=" h-full overflow-hidden">
                                 <div className=' flex flex-col space-y-[4vh] justify-between h-full overflow-hidden'>
                                     <div className='h-[47%] w-full items-stretch grid grid-cols-2 gap-[1vw] overflow-hidden'>
@@ -561,7 +562,7 @@ const Aule = () => {
                     fields={['descrizione', 'capienza', 'numeropc', 'idsede', 'piano', 'attiva']}
                     labels={['Nome', 'Capienza', 'Numero PC', 'Sede', 'Piano', 'Stato']}
                     types={['text', 'number', 'number', 'select', 'text', 'select']}
-                    placeholders={['Aula 101', '50', '10', 'Sede A', 'Piano Terra, Primo Piano...','Seleziona uno stato']}
+                    placeholders={['Aula 101', '50', '10', 'Sede A', 'Piano Terra, Primo Piano...', 'Seleziona uno stato']}
                     validators={[
                         isPlaceNameValid,
                         isCapacityValid,
