@@ -32,6 +32,13 @@ export const login = async (req, res) => {
       });
     }
 
+    if(user.livello === 1){
+      const progettoResult = await pool.query(
+        'SELECT codiceprogetto FROM STUDENTE WHERE cf = $1',
+        [user.cf]
+      );
+      user.codiceprogetto = progettoResult.rows[0].codiceprogetto;
+    }
     // Crea il token JWT
     const token = jwt.sign(
       {
@@ -39,7 +46,8 @@ export const login = async (req, res) => {
         nome: user.nome,
         cognome: user.cognome,
         email: user.email,
-        livello: user.livello
+        livello: user.livello,
+        codiceprogetto: user.codiceprogetto || null
       },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRE || '1d' }
@@ -55,6 +63,7 @@ export const login = async (req, res) => {
         cognome: user.cognome,
         email: user.email,
         livello: user.livello,
+        codiceprogetto: user.codiceprogetto || null,
         dataNascita: user.datanascita
       }
     });

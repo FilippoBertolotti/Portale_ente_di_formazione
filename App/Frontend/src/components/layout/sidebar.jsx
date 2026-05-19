@@ -3,10 +3,12 @@ import SidebarButton from "./sidebarButton";
 import Image from "../common/image";
 import Logo from "../../assets/images/logobianco.png";
 
-const Sidebar = () => {
+const Sidebar = ({
+    buttons = ['dashboard', 'calendario', 'progetti', 'studenti', 'docenti', 'aule']
+}) => {
 
     return (
-        <div className="xl:py-[2vh] py-[0.2rem] flex xl:flex-col justify-center w-[100%] h-[100%] items-center bg-[#2A7BB3] xl:bg-none xl:relative rounded-t-[30px] xl:rounded-none z-40">
+        <div className={`xl:py-[2vh] py-[0.2rem] flex xl:flex-col justify-center h-[100%] items-center bg-[#2A7BB3] xl:bg-none xl:relative rounded-t-[30px] xl:rounded-none z-40`}>
             {/* Logo */}
             <div className="w-[100%] h-[10%] xl:flex justify-center items-center hidden">
                 <Image className="w-[70%] mx-auto" src={Logo} />
@@ -21,6 +23,7 @@ const Sidebar = () => {
                     title="Dashboard"
                     percorso="/dashboard"
                     type="button"
+                    className={buttons.includes('dashboard') ? '' : 'hidden'}
                 />
                 <SidebarButton
                     icon={<SvgIcon
@@ -32,6 +35,7 @@ const Sidebar = () => {
                     title="Calendario"
                     percorso="/calendario"
                     type="button"
+                    className={buttons.includes('calendario') ? '' : 'hidden'}
                 />
                 <SidebarButton
                     icon={<SvgIcon
@@ -42,6 +46,7 @@ const Sidebar = () => {
                     title="Corsi"
                     percorso="/progetti"
                     type="button"
+                    className={buttons.includes('progetti') ? '' : 'hidden'}
                 />
                 <SidebarButton
                     icon={<SvgIcon
@@ -52,6 +57,7 @@ const Sidebar = () => {
                     title="Studenti"
                     percorso="/studenti"
                     type="button"
+                    className={buttons.includes('studenti') ? '' : 'hidden'}
                 />
                 <SidebarButton
                     icon={<SvgIcon
@@ -62,6 +68,7 @@ const Sidebar = () => {
                     title="Docenti"
                     percorso="/docenti"
                     type="button"
+                    className={buttons.includes('docenti') ? '' : 'hidden'}
                 />
                 <SidebarButton
                     icon={<SvgIcon
@@ -72,6 +79,7 @@ const Sidebar = () => {
                     title="Aule e Sedi"
                     percorso="/aule"
                     type="button"
+                    className={buttons.includes('aule') ? '' : 'hidden'}
                 />
             </div>
             {/* Logout */}

@@ -63,7 +63,7 @@ const Table = forwardRef(({
                                         </td>
                                     ))}
                                     <td className='p-[1vw] align-middle'>
-                                        <div className='flex gap-[1vh] items-center justify-center h-full'>
+                                        <div className={`flex gap-[1vh] items-center justify-center h-full ${user.livello !== 0 ? 'hidden' : ''}`}>
                                             <Button variant="modify" size="small" onClick={() => onModify(dato)}>
                                                 <SvgIcon
                                                     color='#ffffff'

@@ -2,6 +2,7 @@ import express from 'express';
 import {
   getComingLezioni,
   getAllLezioni,
+  getByProgetto,
   createLezione,
   updateLezione,
   deleteLezione,
@@ -16,12 +17,12 @@ import { authenticateToken, isAdmin, isAdminOrCoordinatore, isCoordinatore } fro
 const router = express.Router();
 
 router.use(authenticateToken);
-router.use(isAdmin, isCoordinatore);
 
 router.get('/', getAllLezioni);
 router.get('/note', getAllNote);
 router.get('/coming', getComingLezioni);
 router.get('/coming/note', getComingNote);
+router.get('/progetto/:codiceProgetto', getByProgetto);
 router.post('/', isAdminOrCoordinatore, createLezione);
 router.post('/nota', createNota);
 router.put('/:id', isAdminOrCoordinatore, updateLezione);

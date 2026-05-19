@@ -56,6 +56,34 @@ export const getAllLezioni = async (req, res) => {
     }
 };
 
+export const getByProgetto = async (req, res) => {
+    const { codiceProgetto } = req.params;
+    try {
+        const result = await pool.query(`
+            SELECT l.id, l.data, l.orainizio, l.orafine, m.descrizione AS modulo, p.colore AS colore_progetto,a.id as idaula, a.descrizione AS aula, u.cognome AS docente, u.cf as cfdocente
+            FROM lezione l
+            JOIN modulo m ON l.idmodulo = m.id
+            JOIN progetto p ON m.codiceprogetto = p.codice
+            JOIN aula a ON l.idaula = a.id
+            JOIN docente d ON l.cfdocente = d.cf
+            JOIN utente u ON d.cf = u.cf
+            WHERE p.codice = $1
+            ORDER BY l.data, l.orainizio;
+            `, [codiceProgetto]);
+        res.json({
+            status: 'success',
+            count: result.rows.length,
+            data: result.rows
+        });
+    } catch (error) {
+        console.error('Errore get lezioni:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Errore nel recupero delle prossime lezioni'
+        });
+    }
+};
+
 export const getAllNote = async (req, res) => {
     const cfUtente = req.user.cf; // Ottieni il CF dell'utente autenticato
     try {

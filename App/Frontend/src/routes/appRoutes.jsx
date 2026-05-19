@@ -9,25 +9,111 @@ import Aule from '../pages/aule';
 import Loader from '../components/common/loader';
 import Calendario from '../pages/calendario';
 
+// Componente per proteggere le route
+const ProtectedRoute = ({ children, allowedLevels = [] }) => {
+  const { user } = useAuth();
+  
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  if (allowedLevels.length > 0 && !allowedLevels.includes(user.livello)) {
+    return <Navigate to="/calendario" replace />;
+  }
+  
+  return children;
+};
+
 const AppRoutes = () => {
   const { user, loading } = useAuth();
   
-  // Aspetta che il controllo auth sia completato
   if (loading) {
     return <Loader />;
   }
 
   return (
-        <Routes>
-          <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Login />} /> {/*user ? <Navigate to="/progetti" /> : */}
-          <Route path="/progetti" element={user ? <Progetti /> : <Navigate to="/login" />} />
-          <Route path="/studenti" element={user ? <Studenti /> : <Navigate to="/login" />} />
-          <Route path="/docenti" element={user ? <Docenti /> : <Navigate to="/login" />} />
-          <Route path="/aule" element={user ? <Aule /> : <Navigate to="/login" />} />
-          <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" />} />
-          <Route path="/calendario" element={user ? <Calendario /> : <Navigate to="/login" />} />
-          <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} /> {/*user ? <Navigate to="/progetti" /> : <Login /> */}
-        </Routes>
+    <Routes>
+      {/* Route pubbliche */}
+      <Route path="/login" element={<Login />} />
+      
+      {/* Route protette */}
+      <Route 
+        path="/calendario" 
+        element={
+          <ProtectedRoute>
+            <Calendario />
+          </ProtectedRoute>
+        } 
+      />
+      
+      <Route 
+        path="/progetti" 
+        element={
+          <ProtectedRoute>
+            <Progetti />
+          </ProtectedRoute>
+        } 
+      />
+      
+      {/* Route solo admin */}
+      <Route 
+        path="/dashboard" 
+        element={
+          <ProtectedRoute allowedLevels={[0]}>
+            <Dashboard />
+          </ProtectedRoute>
+        } 
+      />
+      
+      <Route 
+        path="/studenti" 
+        element={
+          <ProtectedRoute allowedLevels={[0]}>
+            <Studenti />
+          </ProtectedRoute>
+        } 
+      />
+      
+      <Route 
+        path="/docenti" 
+        element={
+          <ProtectedRoute allowedLevels={[0]}>
+            <Docenti />
+          </ProtectedRoute>
+        } 
+      />
+
+      <Route 
+        path="/aule" 
+        element={
+          <ProtectedRoute allowedLevels={[0]}>
+            <Aule />
+          </ProtectedRoute>
+        } 
+      />
+      
+      {/* Redirect basati sul ruolo */}
+      <Route 
+        path="/" 
+        element={
+          <Navigate 
+            to={user ? (user.livello === 0 ? "/dashboard" : "/calendario") : "/login"} 
+            replace 
+          />
+        } 
+      />
+      
+      {/* Catch-all */}
+      <Route 
+        path="*" 
+        element={
+          <Navigate 
+            to={user ? (user.livello === 0 ? "/dashboard" : "/calendario") : "/login"} 
+            replace 
+          />
+        } 
+      />
+    </Routes>
   );
 };
 

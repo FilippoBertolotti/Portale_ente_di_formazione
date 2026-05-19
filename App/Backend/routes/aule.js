@@ -19,7 +19,6 @@ import { authenticateToken, isAdmin } from '../middleware/auth.js';
 const router = express.Router();
 
 router.use(authenticateToken);
-router.use(isAdmin);
 
 router.get('/', getAllAule);
 router.get('/sedi', getAllSedi);

@@ -7,7 +7,8 @@ const SidebarButton = forwardRef(({
     icon,
     title,
     percorso,
-    type
+    type,
+    className
 }, ref) => {
     const navigate = useNavigate();
     const { logout, user } = useAuth();
@@ -39,7 +40,7 @@ const SidebarButton = forwardRef(({
     return (
         <>
             <div
-                className={`h-[100%] xl:h-fit flex justify-center items-center xl:py-[0.5rem] py-[0.2rem] w-[100%] hover:bg-[#efa134] hover:bg-opacity-10 hover:cursor-pointer xl:pr-2 ${isThisPage ? 'border-b-4 xl:border-b-0 xl:border-l-4 border-[#efa134]' : 'pb-1 xl:pl-1'}`}
+                className={`h-[100%] xl:h-fit flex justify-center items-center xl:py-[0.5rem] py-[0.2rem] w-[100%] hover:bg-[#efa134] hover:bg-opacity-10 hover:cursor-pointer xl:pr-2 ${isThisPage ? 'border-b-4 xl:border-b-0 xl:border-l-4 border-[#efa134]' : 'pb-1 xl:pl-1'} ${className}`}
                 title={title}
                 onClick={handleClick}
                 ref={ref}

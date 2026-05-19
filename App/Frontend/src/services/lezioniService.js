@@ -5,6 +5,10 @@ export const lezioniService = {
     const response = await api.get('/lezioni');
     return response.data;
   },
+  getByProgetto: async (codiceProgetto) => {
+    const response = await api.get(`/lezioni/progetto/${codiceProgetto}`);
+    return response.data;
+  },
   getAllNote: async () => {
     const response = await api.get('/lezioni/note');
     return response.data;

@@ -6,9 +6,9 @@ import Button from "./button";
 const UserCard = ({ user }) => {
     const livelloText = {
         0: 'Amministratore',
-        1: 'Coordinatore',
+        1: 'Studente',
         2: 'Docente',
-        3: 'Studente'
+        3: 'Coordinatore'
     }
     const [openWindow, setOpenWindow] = useState(false);
     const { logout } = useAuth();
