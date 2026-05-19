@@ -41,7 +41,7 @@ const UserCard = ({ user }) => {
     }, [openWindow]);
 
     return (
-        <div className="relative z-10" onClick={() => setOpenWindow(true)}>
+        <div className="relative z-30" onClick={() => setOpenWindow(true)}>
             {/* Trigger button */}
             <div
                 className="flex items-center justify-center space-x-[1rem] px-[1rem] py-[0.5rem] lg:bg-[#F5F7F9] lg:border lg:border-[#E0E6EB] rounded-[30px] cursor-pointer hover:bg-gray-50 transition-colors"
@@ -67,7 +67,7 @@ const UserCard = ({ user }) => {
                 <>
                     {/* Overlay trasparente per chiudere cliccando fuori */}
                     <div
-                        className="fixed inset-0 z-50 lg:hidden"
+                        className="fixed inset-0 z-10 lg:hidden"
                         onClick={() => setOpenWindow(false)}
                     />
 
@@ -77,7 +77,7 @@ const UserCard = ({ user }) => {
                         className="absolute top-[110%] right-0 z-50"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="bg-white border border-[#E0E6EB] rounded-[30px] p-6 w-[90vw] max-w-md shadow-xl">
+                        <div className="bg-white border border-[#E0E6EB] rounded-[30px] p-6 w-[40vw] xl:w-[70vw] max-w-md shadow-xl">
                             <div className="flex justify-between items-start mb-4">
                                 <h2 className="text-xl font-bold text-gray-800">{user.nome} {user.cognome}</h2>
                                 <button

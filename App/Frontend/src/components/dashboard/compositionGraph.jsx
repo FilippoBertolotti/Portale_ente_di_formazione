@@ -78,9 +78,9 @@ const CompositionGraph = () => {
     if (error) return <div className="text-red-500">{error}</div>;
     if (!chartData) return null;
     return (
-        <div style={{ height: '100%' }}>
-            <Pie data={chartData} options={options} />
-        </div>
+      <div style={{ height: '100%', width: '100%', position: 'relative' }}>
+        <Pie data={chartData} options={options} />
+      </div>
     );
 };
 

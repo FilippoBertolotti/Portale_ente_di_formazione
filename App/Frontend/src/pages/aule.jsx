@@ -17,12 +17,13 @@ import { useToast } from '../components/common/toastProvider';
 const AttivaCell = ({ value }) => {
     return (
         <div className="flex items-center px-[0.2vw]">
-            <span
+            <div
                 style={{ backgroundColor: value ? '#F0FDF4' : '#FEF2F2' }}
                 className={`w-full rounded-full px-[1vh] py-[0.3vh] text-xs ${value ? 'text-green-600' : 'text-red-600'} w-full`}
             >
-                {value ? 'Disponibile' : 'In Manutenzione'}
-            </span>
+                <span className='hidden 2xl:block'>{value ? 'Disponibile' : 'In Manutenzione'}</span>
+                <span className='hidden'></span>
+            </div>
         </div>
     );
 };
@@ -326,7 +327,7 @@ const Aule = () => {
                                                 options={piani.map(piano => ({ value: piano.piano, label: piano.piano }))}
                                                 value={selectedPiano}
                                                 onChange={setSelectedPiano}
-                                                className="w-[20%]"
+                                                className="w-[30%]"
                                             />
 
                                             <div className='pb-[0.5vh]'>
@@ -334,8 +335,8 @@ const Aule = () => {
                                                     <SvgIcon
                                                         viewBox='0 0 24 24'
                                                         color='#D64541'
-                                                        width="1.5vh"
-                                                        height="1.5vh"
+                                                        width="1.2rem"
+                                                        height="1.2rem"
                                                         path1="M20.6523 4.34438C21.1819 3.73729 21.0976 2.83557 20.4601 2.33115C19.8227 1.82672 18.8759 1.90708 18.3463 2.51417L12 9.76804L5.65373 2.51417C5.1241 1.90708 4.17731 1.82673 3.53987 2.33115C2.90243 2.83558 2.81806 3.73729 3.3477 4.34438L10.0455 12L3.3477 19.6556C2.81806 20.2627 2.90243 21.1644 3.53987 21.6689C4.17731 22.1733 5.1241 22.0929 5.65373 21.4858L12 14.232L18.3463 21.4858C18.8759 22.0929 19.8227 22.1733 20.4601 21.6689C21.0976 21.1644 21.1819 20.2627 20.6523 19.6556L13.9545 12L20.6523 4.34438Z"
                                                     />
                                                 </Button>
@@ -500,8 +501,8 @@ const Aule = () => {
                 title="Nuova Aula"
                 confirmText="Aggiungi"
                 buttonType="modify"
-                w='60%'
-                wMax='100%'
+                w='w-[80%] xl:w-[60%]'
+                wMax='max-w-[100%]'
             >
                 <Form
                     ref={ClassroomFormRef}
@@ -550,8 +551,8 @@ const Aule = () => {
                 title="Modifica Aula"
                 confirmText="Aggiorna"
                 buttonType="modify"
-                w='60%'
-                wMax='100%'
+                w='w-[80%] xl:w-[60%]'
+                wMax='max-w-[100%]'
             >
                 <Form
                     ref={ClassroomFormRef}
@@ -619,8 +620,8 @@ const Aule = () => {
                 title="Nuova Sede"
                 confirmText="Aggiungi"
                 buttonType="modify"
-                w='60%'
-                wMax='100%'
+                w='w-[80%] xl:w-[60%]'
+                wMax='max-w-[100%]'
             >
                 <Form
                     ref={SiteFormRef}
@@ -654,8 +655,8 @@ const Aule = () => {
                 title="Aggiorna Sede"
                 confirmText="Aggiorna"
                 buttonType="modify"
-                w='60%'
-                wMax='100%'
+                w='w-[80%] xl:w-[60%]'
+                wMax='max-w-[100%]'
             >
                 <Form
                     ref={SiteFormRef}

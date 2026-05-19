@@ -428,7 +428,9 @@ const Dashboard = () => {
 
             </Container>
             <Container title='Composizione Iscrizioni' className="col-span-3 h-full overflow-hidden hidden xl:flex">
-              <CompositionGraph key={`${refreshKey}`} />
+              <div className="w-full flex-1 min-h-0 relative flex items-center justify-center">
+                <CompositionGraph key={`${refreshKey}`} />
+              </div>
             </Container>
           </div>
         </div>

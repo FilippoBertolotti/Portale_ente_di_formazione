@@ -2,7 +2,7 @@ const ProgressBar = ({ title, hoursTot, hoursMade, colore }) => {
     const percentage = hoursTot > 0 ? Math.floor(Math.min((hoursMade / hoursTot) * 100, 100)) : 0;
     return (
         <div className="flex flex-col w-full">
-            {title && <span className="mb-1 ml-[1vw] text-[1.4rem] xl:text-sm font-semibold">{title}</span>}
+            {title && <span className="mb-1 ml-[1vw] text-[1rem] xl:text-sm font-semibold">{title}</span>}
             <div className="grid grid-cols-9 items-center gap-x-[0.5vw]">
                 <div className="relative flex items-center bg-white rounded-[30px] border border-[#E0E6EB] col-span-8 overflow-hidden ">
                     <span className="absolute w-[100%] z-[30] text-center font-bold text-[1.2rem] xl:text-xs">{percentage}%</span>
@@ -12,7 +12,7 @@ const ProgressBar = ({ title, hoursTot, hoursMade, colore }) => {
                 </div>
 
                 <div className="col-span-1 flex justify-center">
-                    <p className="text-[1.5rem] xl:text-[1.2rem] text-black font-bold text-center whitespace-nowrap">{Math.floor(hoursMade)}/{hoursTot ? hoursTot : 0}h</p>
+                    <p className="text-[1.2rem] md:text-[1rem] text-black font-bold text-center whitespace-nowrap">{Math.floor(hoursMade)}/{hoursTot ? hoursTot : 0}h</p>
                 </div>
             </div>
         </div>

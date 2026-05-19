@@ -21,7 +21,7 @@ const Table = forwardRef(({
         <div className={`border border-[#E0E6EB] bg-white rounded-[30px] w-full h-full overflow-hidden flex flex-col ${className}`}>
             <div className="overflow-y-auto">
                 <table className="w-full text-left">
-                    <thead className="sticky top-0 bg-white z-10">
+                    <thead className="sticky top-0 bg-white z-20">
                         <tr>
                             {Array.isArray(headers) && headers.map((header, index) => (
                                 <th

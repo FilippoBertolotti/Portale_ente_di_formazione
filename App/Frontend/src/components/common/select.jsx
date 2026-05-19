@@ -60,7 +60,7 @@ const Select = ({ title, placeholder, options = [], value, error, onChange, clas
                             <div
                                 key={index}
                                 onClick={() => { onChange?.(option.value); setIsOpen(false); }}
-                                className={`py-[1vh] px-[2vh] text-[1.5vh] cursor-pointer hover:bg-[#F5F7F9]
+                                className={`py-[1vh] px-[2vh] text-[1rem] cursor-pointer hover:bg-[#F5F7F9]
                                     ${value === option.value ? 'font-bold text-[#2B7BB4]' : 'text-black'}`}
                             >
                                 {option.label}
