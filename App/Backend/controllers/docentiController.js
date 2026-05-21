@@ -11,7 +11,8 @@ export const getAllDocenti = async (req, res) => {
               TO_CHAR(u.datanascita, 'DD/MM/YYYY') AS "dataNascita",
               u.email || '\n' || d.telefono AS "contatti",
               STRING_AGG(DISTINCT p.descrizione || ' ' || m.anno || '\n' || m.descrizione, '\n')  AS "corsoModulo",
-              STRING_AGG(DISTINCT p.codice || ':' || m.anno, '\n') AS "codiciProgettiAnni"
+              STRING_AGG(DISTINCT p.codice || ':' || m.anno, '\n') AS "codiciProgettiAnni",
+              p.codice
             FROM utente u
             JOIN docente d ON u.cf = d.cf
             JOIN posseduto po ON po.cfdocente = d.cf
@@ -19,7 +20,7 @@ export const getAllDocenti = async (req, res) => {
             LEFT JOIN cattedra c ON c.cfdocente = d.cf
             LEFT JOIN modulo m ON m.id = c.idmodulo
             LEFT JOIN progetto p ON m.codiceprogetto = p.codice
-            GROUP BY u.cf, u.nome, u.cognome, u.datanascita, u.email, d.telefono
+            GROUP BY u.cf, u.nome, u.cognome, u.datanascita, u.email, d.telefono, p.codice
             ORDER BY u.cognome, u.nome;
         `);
         res.json({

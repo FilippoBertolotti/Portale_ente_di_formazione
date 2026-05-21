@@ -2,6 +2,7 @@ import { forwardRef } from 'react';
 import Button from './button';
 import SvgIcon from '../../assets/icons/svgIcon';
 import { useAuth } from '../../hooks/useAuth';
+import { authService } from '../../services/authService';
 
 const Table = forwardRef(({
     headers = [],
@@ -34,7 +35,7 @@ const Table = forwardRef(({
                                     {header}
                                 </th>
                             ))}
-                            <th className={`text-center py-[1vh] px-[2vh] text-[#000000] font-normal text-sm ${user.livello !== 0 ? 'hidden' : ''}`}>Azioni</th>
+                            <th className={`text-center py-[1vh] px-[2vh] text-[#000000] font-normal text-sm ${user.livello !== 0 && (!data || data.length === 0 || !authService.haCodiceProgetto(data[0]?.codiceprogetto || '')) ? 'hidden' : ''}`}>Azioni</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -66,7 +67,7 @@ const Table = forwardRef(({
                                         </td>
                                     ))}
                                     <td className='p-[1vw] align-middle'>
-                                        <div className={`flex gap-[1vh] items-center justify-center h-full ${user.livello !== 0 ? 'hidden' : ''}`}>
+                                        <div className={`flex gap-[1vh] items-center justify-center h-full ${user.livello !== 0 && !authService.haCodiceProgetto(dato.codiceprogetto) ? 'hidden' : ''}`}>
                                             <Button variant="modify" size="small" onClick={() => onModify(dato)}>
                                                 <SvgIcon
                                                     color='#ffffff'

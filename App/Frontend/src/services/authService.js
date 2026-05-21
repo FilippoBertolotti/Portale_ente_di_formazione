@@ -31,4 +31,23 @@ export const authService = {
   isAuthenticated: () => {
     return !!localStorage.getItem('token');
   },
+  haCodiceProgetto: (codiceCercato) => {
+    const user = authService.getCurrentUser();
+    // Gestione caso user.codiceProgetto sia undefined/null
+    if (!user.codicecoordinatore) return false;
+
+    const codice = codiceCercato.trim();
+
+    // Se è un array, controlla se include il codice
+    if (Array.isArray(user.codicecoordinatore)) {
+      return user.codicecoordinatore.map((codice) => codice.trim()).includes(codice);
+    }
+
+    // Se è una stringa singola, confronta direttamente
+    if (typeof user.codicecoordinatore === 'string') {
+      return user.codicecoordinatore.trim() === codice;
+    }
+
+    return false;
+  }
 };

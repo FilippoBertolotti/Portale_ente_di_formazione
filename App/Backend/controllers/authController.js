@@ -37,9 +37,47 @@ export const login = async (req, res) => {
         'SELECT codiceprogetto, annoaccademico FROM STUDENTE WHERE cf = $1',
         [user.cf]
       );
-      user.codiceprogetto = progettoResult.rows[0].codiceprogetto;
-      user.annoaccademico = progettoResult.rows[0].annoaccademico;
+      if (progettoResult.rows.length > 0) {
+        user.codiceprogetto = progettoResult.rows[0].codiceprogetto;
+        user.annoaccademico = progettoResult.rows[0].annoaccademico;
+      } else {
+        user.codiceprogetto = null;
+        user.annoaccademico = null;
+      }
+    } else if(user.livello === 2){
+      const docenteResult = await pool.query(`
+        SELECT DISTINCT TRIM(p.codice) as codice FROM DOCENTE d 
+        LEFT JOIN CATTEDRA c ON d.cf = c.cfdocente
+        JOIN MODULO m ON c.idmodulo = m.id
+        JOIN PROGETTO p ON m.codiceprogetto = p.codice
+        WHERE TRIM(d.cf) = TRIM($1)
+         `,[user.cf]);
+      user.codiceprogetto = docenteResult.rows.length > 0 
+      ? docenteResult.rows.map(row => row.codice)
+      : null;
+    } else if(user.livello === 3){
+      const docenteResult = await pool.query(`
+        SELECT DISTINCT TRIM(p.codice) as codice FROM DOCENTE d 
+        LEFT JOIN CATTEDRA c ON d.cf = c.cfdocente
+        JOIN MODULO m ON c.idmodulo = m.id
+        JOIN PROGETTO p ON m.codiceprogetto = p.codice
+        WHERE TRIM(d.cf) = TRIM($1)
+      `, [user.cf]);
+
+      const coordinatoreResult = await pool.query(`
+        SELECT DISTINCT TRIM(codice) AS codice FROM PROGETTO
+        WHERE TRIM(cfcoordinatore) = TRIM($1)
+      `, [user.cf]);
+        
+      user.codiceprogetto = docenteResult.rows.length > 0 
+      ? docenteResult.rows.map(row => row.codice)
+      : null;
+
+      user.codicecoordinatore = coordinatoreResult.rows.length > 0
+      ? coordinatoreResult.rows.map(row => row.codice)
+      : null;
     }
+
     // Crea il token JWT
     const token = jwt.sign(
       {
@@ -49,7 +87,8 @@ export const login = async (req, res) => {
         email: user.email,
         livello: user.livello,
         codiceprogetto: user.codiceprogetto || null,
-        annoaccademico: user.annoaccademico || null
+        annoaccademico: user.annoaccademico || null,
+        codicecoordinatore: user.codicecoordinatore || null
       },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRE || '1d' }
@@ -67,6 +106,7 @@ export const login = async (req, res) => {
         livello: user.livello,
         codiceprogetto: user.codiceprogetto || null,
         annoaccademico: user.annoaccademico || null,
+        codicecoordinatore: user.codicecoordinatore || null,
         dataNascita: user.datanascita
       }
     });

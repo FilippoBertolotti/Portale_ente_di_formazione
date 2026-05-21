@@ -353,6 +353,7 @@ const Dashboard = () => {
                         colore={lezione.colore_progetto}
                         aula={lezione.aula}
                         docente={lezione.docente}
+                        progetto= {lezione.codice}
                         onModify={() => handleUpdateLessonClick(lezione)}
                         onDelete={() => handleDeleteLessonClick(lezione)}
                       />
@@ -369,6 +370,7 @@ const Dashboard = () => {
                       colore={lezione.colore_progetto}
                       aula={lezione.aula}
                       docente={lezione.docente}
+                      progetto= {lezione.codice}
                       onModify={() => handleUpdateLessonClick(lezione)}
                       onDelete={() => handleDeleteLessonClick(lezione)}
                     />
@@ -560,19 +562,19 @@ const Dashboard = () => {
           ref={LessonFormRef}
           onSubmit={handleNewLesson}
           onCancel={() => setShowNewLessonModal(false)}
-          fields={['data', 'orainizio', 'orafine', 'idmodulo', 'idaula', 'cfdocente']}
-          labels={['Data', 'Ora Inizio', 'Ora Fine', 'Modulo', 'Aula', 'Docente']}
+          fields={['data', 'orainizio', 'orafine', 'idmodulo', 'idaula', 'codiceprogetto']}
+          labels={['Data', 'Ora Inizio', 'Ora Fine', 'Modulo', 'Aula', 'Progetto']}
           types={['date', 'time', 'time', 'select', 'select', 'select']}
-          placeholders={[null, null, null, 'Seleziona un modulo', 'Seleziona un aula', 'Seleziona un docente']}
-          validators={[isDateValid2, isOraInizioValid, isOraFineValid, isModuleValid, isClassroomValid, isCFValid]}
+          placeholders={[null, null, null, 'Seleziona un modulo', 'Seleziona un aula', 'Seleziona un progetto']}
+          validators={[isDateValid2, isOraInizioValid, isOraFineValid, isModuleValid, isClassroomValid, isCourseValid]}
           options={{
             idmodulo: Array.isArray(v('allModuli')) ? v('allModuli').map(m => ({ value: m.id, label: m.descrizione })) : [],
             idaula: Array.isArray(v('allAule')) ? v('allAule').map(a => ({ value: a.id, label: a.descrizione })) : [],
-            cfdocente: Array.isArray(v('allDocenti')) ? v('allDocenti').map(d => ({ value: d.cf, label: d.nomeCompleto })) : []
+            codiceprogetto: Array.isArray(v('allProgetti')) ? v('allProgetti').map(p => ({ value: p.codice, label: p.descrizione })) : []
           }}
           layout={[
+            ['codiceprogetto'],
             ['idmodulo', 'idaula'],
-            ['cfdocente'],
             ['data'],
             ['orainizio', 'orafine']
           ]}
@@ -596,19 +598,19 @@ const Dashboard = () => {
           ref={LessonFormRef}
           onSubmit={handleUpdateLesson}
           onCancel={() => setShowUpdateLessonModal(false)}
-          fields={['data', 'orainizio', 'orafine', 'idmodulo', 'idaula', 'cfdocente']}
-          labels={['Data', 'Ora Inizio', 'Ora Fine', 'Modulo', 'Aula', 'Docente']}
+          fields={['data', 'orainizio', 'orafine', 'idmodulo', 'idaula', 'codiceprogetto']}
+          labels={['Data', 'Ora Inizio', 'Ora Fine', 'Modulo', 'Aula', 'Progetto']}
           types={['date', 'time', 'time', 'select', 'select', 'select']}
-          placeholders={[null, null, null, 'Seleziona un modulo', 'Seleziona un aula', 'Seleziona un docente']}
-          validators={[isDateValid2, isOraInizioValid, isOraFineValid, isModuleValid, isClassroomValid, isCFValid]}
+          placeholders={[null, null, null, 'Seleziona un modulo', 'Seleziona un aula', 'Seleziona un progetto']}
+          validators={[isOraInizioValid, isOraFineValid, isModuleValid, isClassroomValid, isCourseValid]}
           options={{
             idmodulo: Array.isArray(v('allModuli')) ? v('allModuli').map(m => ({ value: m.id, label: m.descrizione })) : [],
             idaula: Array.isArray(v('allAule')) ? v('allAule').map(a => ({ value: a.id, label: a.descrizione })) : [],
-            cfdocente: Array.isArray(v('allDocenti')) ? v('allDocenti').map(d => ({ value: d.cf, label: d.nomeCompleto })) : []
+            codiceprogetto: Array.isArray(v('allProgetti')) ? v('allProgetti').map(p => ({ value: p.codice, label: p.descrizione })) : []
           }}
           layout={[
             ['idmodulo', 'idaula'],
-            ['cfdocente'],
+            ['codiceprogetto'],
             ['data'],
             ['orainizio', 'orafine']
           ]}
@@ -620,7 +622,7 @@ const Dashboard = () => {
             orafine: selectedLezione?.orafine ? selectedLezione.orafine.substring(0, 5) : '',
             idmodulo: Array.isArray(v('allModuli')) ? v('allModuli').find(m => m.descrizione === selectedLezione?.modulo)?.id : '',
             idaula: selectedLezione?.idaula || '',
-            cfdocente: selectedLezione?.cfdocente || ''
+            codiceprogetto: selectedLezione?.codice || ''
           }}
         />
       </ConfirmationModal>

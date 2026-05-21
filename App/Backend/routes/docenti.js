@@ -4,12 +4,11 @@ import {
   getCountDocenti,
   createDocente
 } from '../controllers/docentiController.js';
-import { authenticateToken, isAdmin } from '../middleware/auth.js';
+import { authenticateToken, isAdmin, isCoordinatore } from '../middleware/auth.js';
 
 const router = express.Router();
 
 router.use(authenticateToken);
-router.use(isAdmin);
 
 router.get('/', getAllDocenti);
 router.get('/conta', getCountDocenti);

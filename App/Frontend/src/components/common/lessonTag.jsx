@@ -1,8 +1,9 @@
 import SvgIcon from '../../assets/icons/svgIcon';
 import Button from './button';
 import { useAuth } from '../../hooks/useAuth';
+import { authService } from '../../services/authService';
 
-const LessonTag = ({ modulo, data, oraInizio, oraFine, colore, aula, docente, onModify, onDelete }) => {
+const LessonTag = ({ modulo, data, oraInizio, oraFine, colore, aula, docente, progetto, onModify, onDelete }) => {
     const { user } = useAuth();
 
     const formatDate = (data) => {
@@ -58,7 +59,7 @@ const LessonTag = ({ modulo, data, oraInizio, oraFine, colore, aula, docente, on
                         <span className="font-normal text-[1rem] xl:text-xs">{aula}</span>
                     </div>
                 </div>
-                {user.livello == 0 && (
+                {(user.livello == 0 || authService.haCodiceProgetto(progetto)) && (
                     <div className='flex gap-[0.5vh]'>
                         <Button variant="modify" size="small" onClick={onModify}>
                             <SvgIcon

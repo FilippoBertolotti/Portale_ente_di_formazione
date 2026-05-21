@@ -3,17 +3,30 @@ import pool from '../config/database.js';
 export const getComingLezioni = async (req, res) => {
     try {
         const result = await pool.query(`
-            SELECT l.id, l.data, l.orainizio, l.orafine, m.descrizione AS modulo, p.colore AS colore_progetto,a.id as idaula, a.descrizione AS aula, u.cognome AS docente, u.cf as cfdocente
+            SELECT 
+                l.id, 
+                l.data, 
+                l.orainizio, 
+                l.orafine, 
+                m.descrizione AS modulo, 
+                p.codice, 
+                p.colore AS colore_progetto,
+                a.id as idaula, 
+                a.descrizione AS aula, 
+                STRING_AGG(DISTINCT u.cognome, ', ') AS docente,
+                STRING_AGG(DISTINCT u.cf, ', ') AS cfdocente
             FROM lezione l
             JOIN modulo m ON l.idmodulo = m.id
-            JOIN progetto p ON m.codiceprogetto = p.codice
+            JOIN progetto p ON l.codiceprogetto = p.codice
             JOIN aula a ON l.idaula = a.id
-            JOIN docente d ON l.cfdocente = d.cf
+            JOIN cattedra c ON m.id = c.idmodulo
+            JOIN docente d ON c.cfdocente = d.cf
             JOIN utente u ON d.cf = u.cf
             WHERE 
                 (l.data > CURRENT_DATE AND l.data <= CURRENT_DATE + INTERVAL '7 days')
                 OR
                 (l.data = CURRENT_DATE AND l.orafine >= CURRENT_TIME)
+            GROUP BY l.id, m.descrizione, p.codice, p.colore, a.id, a.descrizione
             ORDER BY l.data, l.orainizio;
             `);
         res.json({
@@ -33,13 +46,26 @@ export const getComingLezioni = async (req, res) => {
 export const getAllLezioni = async (req, res) => {
     try {
         const result = await pool.query(`
-            SELECT l.id, l.data, l.orainizio, l.orafine, m.descrizione AS modulo, p.colore AS colore_progetto,a.id as idaula, a.descrizione AS aula, u.cognome AS docente, u.cf as cfdocente
+            SELECT 
+                l.id, 
+                l.data, 
+                l.orainizio, 
+                l.orafine, 
+                m.descrizione AS modulo, 
+                p.codice, 
+                p.colore AS colore_progetto,
+                a.id as idaula, 
+                a.descrizione AS aula, 
+                STRING_AGG(DISTINCT u.cognome, ', ') AS docente,
+                STRING_AGG(DISTINCT u.cf, ', ') AS cfdocente
             FROM lezione l
             JOIN modulo m ON l.idmodulo = m.id
-            JOIN progetto p ON m.codiceprogetto = p.codice
+            JOIN progetto p ON l.codiceprogetto = p.codice
             JOIN aula a ON l.idaula = a.id
-            JOIN docente d ON l.cfdocente = d.cf
+            JOIN cattedra c ON m.id = c.idmodulo
+            JOIN docente d ON c.cfdocente = d.cf
             JOIN utente u ON d.cf = u.cf
+            GROUP BY l.id, m.descrizione, p.codice, p.colore, a.id, a.descrizione
             ORDER BY l.data, l.orainizio;
             `);
         res.json({
@@ -60,14 +86,27 @@ export const getByProgetto = async (req, res) => {
     const { codiceProgetto } = req.params;
     try {
         const result = await pool.query(`
-            SELECT l.id, l.data, l.orainizio, l.orafine, m.descrizione AS modulo, p.colore AS colore_progetto,a.id as idaula, a.descrizione AS aula, u.cognome AS docente, u.cf as cfdocente
+            SELECT
+                l.id, 
+                l.data, 
+                l.orainizio, 
+                l.orafine, 
+                m.descrizione AS modulo, 
+                p.codice, 
+                p.colore AS colore_progetto,
+                a.id as idaula, 
+                a.descrizione AS aula, 
+                STRING_AGG(DISTINCT u.cognome, ', ') AS docente,
+                STRING_AGG(DISTINCT u.cf, ', ') AS cfdocente
             FROM lezione l
             JOIN modulo m ON l.idmodulo = m.id
-            JOIN progetto p ON m.codiceprogetto = p.codice
+            JOIN progetto p ON l.codiceprogetto = p.codice
             JOIN aula a ON l.idaula = a.id
-            JOIN docente d ON l.cfdocente = d.cf
+            JOIN cattedra c ON m.id = c.idmodulo
+            JOIN docente d ON c.cfdocente = d.cf
             JOIN utente u ON d.cf = u.cf
             WHERE p.codice = $1
+            GROUP BY l.id, m.descrizione, p.codice, p.colore, a.id, a.descrizione
             ORDER BY l.data, l.orainizio;
             `, [codiceProgetto]);
         res.json({
@@ -134,14 +173,14 @@ export const getComingNote = async (req, res) => {
 
 // POST crea nuova lezione
 export const createLezione = async (req, res) => {
-    const { data, orainizio, orafine, idmodulo, idaula, cfdocente } = req.body;
+    const { data, orainizio, orafine, idmodulo, idaula, codiceprogetto } = req.body;
 
     try {
         const result = await pool.query(
-            `INSERT INTO LEZIONE (Data, OraInizio, OraFine, IdModulo, IdAula, CFDocente)
+            `INSERT INTO LEZIONE (Data, OraInizio, OraFine, IdModulo, IdAula, codiceprogetto)
        VALUES ($1, $2, $3, $4, $5, $6)
        `,
-            [data, orainizio, orafine, idmodulo, idaula, cfdocente]
+            [data, orainizio, orafine, idmodulo, idaula, codiceprogetto]
         );
 
         res.status(201).json({
@@ -162,14 +201,14 @@ export const createLezione = async (req, res) => {
 // PUT aggiorna lezione
 export const updateLezione = async (req, res) => {
     const { id } = req.params;
-    const { data, orainizio, orafine, idmodulo, idaula, cfdocente } = req.body;
+    const { data, orainizio, orafine, idmodulo, idaula, codiceprogetto } = req.body;
 
     try {
         const result = await pool.query(
             `UPDATE LEZIONE
-       SET Data = $1, OraInizio = $2, OraFine = $3, IdModulo = $4, IdAula = $5, CFDocente = $6
+       SET Data = $1, OraInizio = $2, OraFine = $3, IdModulo = $4, IdAula = $5, codiceprogetto = $6
        WHERE Id = $7`,
-            [data, orainizio, orafine, idmodulo, idaula, cfdocente, id]
+            [data, orainizio, orafine, idmodulo, idaula, codiceprogetto, id]
         );
 
         res.json({

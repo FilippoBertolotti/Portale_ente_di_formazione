@@ -20,8 +20,6 @@ export const getAllProgetti = async (req, res) => {
             (SELECT SUM(orestage) FROM MODULO WHERE CodiceProgetto = p.Codice) as ore_stage,
             (SELECT SUM(oreelearn) FROM MODULO WHERE CodiceProgetto = p.Codice) as ore_elarn
         FROM PROGETTO p
-        WHERE p.annofine >= EXTRACT(YEAR FROM CURRENT_DATE) 
-          AND p.annoinizio <= EXTRACT(YEAR FROM CURRENT_DATE)
     ),
     count_studenti AS (
         SELECT CodiceProgetto, COUNT(DISTINCT CF) as numero_studenti
@@ -297,14 +295,22 @@ export const getCompletionProgetti = async (req, res) => {
 // POST crea nuovo progetto
 export const createProgetto = async (req, res) => {
   const { codice, rer, descrizione, annoInizio, annoFine, cfCoordinatore, colore } = req.body;
-
+  const client = await pool.connect();
   try {
+    await client.query(
+      `UPDATE Utente SET livello = 3 WHERE cf = $1`,
+      [cfCoordinatore]
+    );
+
+    await client.query('BEGIN');
     const result = await pool.query(
       `INSERT INTO PROGETTO(Codice, RER, Descrizione, AnnoInizio, AnnoFine, CFCoordinatore, Colore)
        VALUES($1, $2, $3, $4, $5, $6, $7)
         `,
       [codice, rer, descrizione, annoInizio, annoFine, cfCoordinatore, colore]
     );
+
+    await client.query('COMMIT');
 
     res.status(201).json({
       status: 'success',
@@ -340,7 +346,14 @@ export const updateProgetto = async (req, res) => {
   const { codice } = req.params;
   const { rer, descrizione, annoInizio, annoFine, cfCoordinatore, colore } = req.body;
 
+  const client = await pool.connect();
   try {
+    await client.query(
+      `UPDATE Utente SET livello = 3 WHERE cf = $1`,
+      [cfCoordinatore]
+    );
+
+    await client.query('BEGIN');
     const result = await pool.query(
       `UPDATE PROGETTO 
        SET RER = $1, Descrizione = $2, AnnoInizio = $3, AnnoFine = $4, CFCoordinatore = $5, Colore = $6
@@ -348,6 +361,7 @@ export const updateProgetto = async (req, res) => {
       `,
       [rer, descrizione, annoInizio, annoFine, cfCoordinatore, colore, codice]
     );
+    await client.query('COMMIT');
 
     res.json({
       status: 'success',
@@ -368,6 +382,24 @@ export const deleteProgetto = async (req, res) => {
   const { codice } = req.params;
 
   try {
+    const utente = await pool.query(
+      `SELECT CFCoordinatore FROM PROGETTO WHERE Codice = $1`,
+      [codice]
+    );
+
+    const coordinatori = await pool.query(
+      `SELECT count(*) as coords FROM PROGETTO WHERE CFCoordinatore = $1 AND Codice != $2`,
+      [utente.rows[0].cfcoordinatore, codice]
+    );
+
+    if(coordinatori.rows[0].coords === 0 ){
+      await client.query(
+      `UPDATE Utente SET livello = 2 WHERE cf = $1`,
+      [utente.rows[0].cfcoordinatore])
+      };
+
+
+
     const result = await pool.query(
       'DELETE FROM PROGETTO WHERE Codice = $1 RETURNING *',
       [codice]

@@ -33,7 +33,7 @@ const Layout = ({ children }) => {
                     </div>
                 </>
             ) :
-                user.livello == 1 || user.livello == 2 ? (
+                user.livello >= 1 ? (
                     <div className="h-[100vh] w-[100vw] overflow-hidden bg-[#2A7BB3] flex py-[1rem] pr-[1rem] hidden xl:flex">
                         <aside className="w-[5vw]">
                             <Sidebar buttons={['calendario', 'progetti', 'aule']}/>
