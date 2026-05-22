@@ -295,7 +295,7 @@ const Aule = () => {
             <Header user={user} title="Aule" subtitle="Aule, sedi e capienze disponibili" />
 
             {error ? (
-                <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+                <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-[30px]">
                     <div className="flex items-center">
                         <span className="text-2xl mr-3">⚠️</span>
                         <div className="text-red-700 font-medium">{error}</div>

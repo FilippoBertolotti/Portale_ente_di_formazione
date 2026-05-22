@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { progettiService } from '../services/progettiService';
 import { moduliService } from '../services/moduliService';
 import { docentiService } from '../services/docentiService';
+import { authService } from '../services/authService';
 import Loader from '../components/common/loader';
 import Header from '../components/common/header';
 import { useAuth } from '../hooks/useAuth';
@@ -15,6 +16,24 @@ import ConfirmationModal from '../components/common/confirmationModal';
 import Form from '../components/forms/form';
 import { isAcademicYearValid, isCodeValid, isColorValid, isCoordinatoreValid, isDescriptionValid, isHoursValid, isProjectValid, isYearValid, } from '../utils/validators';
 import { useToast } from '../components/common/toastProvider';
+
+const DocentiCell = ({ value, values }) => {
+    const colors = ['#76A1CF', '#EFA667'];
+    return (
+      <div className="flex flex-col gap-[0.5vh] min-h-[4vh] px-[0.2vw] justify-center items-center">
+        {user.livello === 0 || authService.haCodiceProgetto(values['codiceprogetto']) && <Button variant='primary' size='small' className='w-full justify-center py-[0.3vh] text-xs'>+</Button>}
+        {String(value).split(',').map((nome, i) => (
+          <span
+            key={i}
+            style={{ backgroundColor: colors[i % 2] }}
+            className='w-full rounded-full px-[1vh] py-[0.3vh] text-xs text-white'
+          >
+            {nome.trim()}
+          </span>
+        ))}
+      </div>
+    );
+};
 
 const Progetti = () => {
   const { user } = useAuth();
@@ -384,7 +403,9 @@ const Progetti = () => {
                   headers={['Nome Modulo', 'Ore Aula', 'ProjectWork', 'E-Learning', 'Stage', 'Docenti']}
                   labels={['descrizione', 'oreaula', 'oreproject', 'oreelearn', 'orestage', 'lista_docenti']}
                   data={moduli}
-                  pill={true}
+                  customRender={{
+                    lista_docenti: (value) => <DocentiCell value={value} />
+                  }}
                   frase2="Seleziona Un Corso Per Visualizzare I Dati"
                   frase1="Nessun modulo trovato"
                   centered={true}
