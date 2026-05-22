@@ -177,19 +177,19 @@ const Studenti = () => {
   };
 
   const handleDeleteStudent = async () => {
-    try {
-      await studentiService.delete(selectedStudente.cf);
-      const msg = response?.data?.message || 'Studente eliminato con successo';
-      showToast(msg, 'success');
-      await fetchStudente();
-      setShowDeleteStudentModal(false);
-      setSelectedStudente(null);
-    } catch (error) {
-      console.error('Errore:', error);
-      const errorMsg = error.response?.data?.message || 'Errore durante l\'eliminazione';
-      showToast(errorMsg, 'error');
-    }
-  };
+  try {
+    const response = await studentiService.delete(selectedStudente.cf); 
+    const msg = response?.data?.message || 'Studente eliminato con successo';
+    showToast(msg, 'success');
+    await fetchStudente();
+    setShowDeleteStudentModal(false);
+    setSelectedStudente(null);
+  } catch (error) {
+    console.error('Errore:', error);
+    const errorMsg = error.response?.data?.message || 'Errore durante l\'eliminazione';
+    showToast(errorMsg, 'error');
+  }
+};
 
   return (
     <div className="flex flex-col h-full w-full">

@@ -246,9 +246,9 @@ const Docenti = () => {
                                             </Button>
                                         </div>
 
-                                        {/* <div className='h-full flex items-end'>
+                                        { /*<div className='h-full flex items-end'>
                                             <Input
-                                                placeholder={"Cerca studenti..."}
+                                                placeholder={"Cerca docenti..."}
                                                 value={searchTerm}
                                                 onChange={(e) => setSearchTerm(e.target.value)}
                                                 noerror={true}
@@ -342,7 +342,7 @@ const Docenti = () => {
                         ['cf'],
                         ['nome', 'cognome'],
                         ['dataNascita', 'email'],
-                        ['telefono']
+                        ['telefono', 'qualifica']
                     ]}
                 />
             </ConfirmationModal>
