@@ -21,13 +21,13 @@ export const docentiService = {
     return response;
   },
 
-//   update: async (cf, docente) => {
-//     const response = await api.put(`/docenti/${cf}`, docente);
-//     return response.data;
-//   },
+ update: async (cf, docente) => {
+     const response = await api.put(`/docenti/${cf}`, docente);
+    return response.data;
+  },
 
-//   delete: async (cf) => {
-//     const response = await api.delete(`/docenti/${cf}`);
-//     return response.data;
-//   },
+ delete: async (cf) => {
+    const response = await api.delete(`/docenti/${cf}`);
+    return response.data;
+ },
 };

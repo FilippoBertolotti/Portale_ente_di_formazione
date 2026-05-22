@@ -62,6 +62,9 @@ const Docenti = () => {
     const [selectedProgetto, setSelectedProgetto] = useState(null);
     const [selectedAnno, setSelectedAnno] = useState(null);
     const [showNewTeacherModal, setShowNewTeacherModal] = useState(false);
+    const [showUpdateTeacherModal, setShowUpdateTeacherModal] = useState(false);
+    const [showDeleteTeacherModal, setShowDeleteTeacherModal] = useState(false);
+    const [selectedDocente, setSelectedDocente] = useState(null);
     const TeacherFormRef = useRef(null);
     const { showToast } = useToast();
     // const [searchTerm, setSearchTerm] = useState('');
@@ -195,6 +198,45 @@ const Docenti = () => {
         }
     };
 
+    const handleUpdateTeacherClick = (docente) => {
+    setSelectedDocente(docente);
+    setShowUpdateTeacherModal(true);
+};
+
+    const handleUpdateTeacher = async (formData) => {
+        try {
+          const response = await docentiService.update(selectedDocente.cf, formData);
+          const msg = response?.data?.message || 'Docente aggiornato con successo';
+          showToast(msg, 'success');
+          await fetchDocente();
+          setShowUpdateTeacherModal(false);
+          setSelectedDocente(null);
+        } catch (error) {
+          console.error('Errore:', error);
+          const errorMsg = error.response?.data?.message || 'Errore durante l\'aggiornamento';
+          showToast(errorMsg, 'error');
+        }
+      };
+
+     const handleDeleteTeacherClick = (docente) => {
+    setSelectedDocente(docente);
+    setShowDeleteTeacherModal(true);
+    };
+
+    const handleDeleteTeacher = async () => {
+        try {
+            const response = await docentiService.delete(selectedDocente.cf);
+            const msg = response?.data?.message || 'Docente eliminato con successo';
+            showToast(msg, 'success');
+            await fetchDocente();
+            setShowDeleteTeacherModal(false);
+            setSelectedDocente(null);
+        } catch (error) {
+            const errorMsg = error.response?.data?.message || 'Errore durante l\'eliminazione';
+            showToast(errorMsg, 'error');
+        }
+    };
+
     return (
         <div className="flex flex-col h-full w-full">
             <Header user={user} title="Docenti" subtitle="Elenco e gestione del corpo docente" />
@@ -283,19 +325,18 @@ const Docenti = () => {
                                         onClick={() => setShowNewTeacherModal(true)}
                                     >
                                         Nuovo Docente
-                                    </Button>
+                                    </Button>   
                                 </div>
                                 <Table
                                     headers={['Nome Cognome', 'Codice Fiscale', 'Data Nascita', 'Contatti', 'Corsi e Moduli Affidati']}
-                                    labels={['nomeCompletoQualifica', 'cf', 'dataNascita', 'contatti', 'corsoModulo']}
+                                    labels={['nomeCompleto', 'cf', 'dataNascita', 'contatti', 'corsoModulo']}
                                     data={docenti}
                                     customRender={{
-                                        nomeCompletoQualifica: (value) => {
-                                            const [nome, qualifica] = value.split('\n');
+                                        nomeCompleto: (value) => {
+                                            const [nome] = value?.split('\n');
                                             return (
                                                 <div className='flex flex-col w-full'>
                                                     <span className="font-bold whitespace-nowrap">{nome}</span>
-                                                    <span className="text-sm font-normal whitespace-nowrap">Qualifiche: {qualifica}</span>
                                                 </div>
                                             );
                                         },
@@ -312,6 +353,8 @@ const Docenti = () => {
                                     }}
                                     frase1="Nessun docente trovato"
                                     className="h-full"
+                                    onModify={handleUpdateTeacherClick}  
+                                    onDelete={handleDeleteTeacherClick}  
                                 />
                             </Container>
                         </div>
@@ -333,10 +376,38 @@ const Docenti = () => {
                     ref={TeacherFormRef}
                     onSubmit={handleNewTeacher}
                     onCancel={() => setShowNewTeacherModal(false)}
-                    fields={['cf', 'nome', 'cognome', 'email', 'dataNascita', 'telefono', 'qualifica']}
-                    labels={['Codice Fiscale', 'Nome', 'Cognome', 'Email', 'Data di Nascita', 'Telefono', 'Qualifica']}
-                    types={['text', 'text', 'text', 'email', 'date', 'text', 'text']}
-                    placeholders={['BNCDVD92M22H501V', 'Davida', 'Bianchi', 'davida.bianchi@email.it', '24/05/1992', '012 345 6789', 'Data Science']}
+                    fields={['cf', 'nome', 'cognome', 'email', 'dataNascita', 'telefono']}
+                    labels={['Codice Fiscale', 'Nome', 'Cognome', 'Email', 'Data di Nascita', 'Telefono']}
+                    types={['text', 'text', 'text', 'email', 'date', 'text']}
+                    placeholders={['BNCDVD92M22H501V', 'Davida', 'Bianchi', 'davida.bianchi@email.it', '24/05/1992', '012 345 6789']}
+                    validators={[isCFValid, isNameValid, isSurnameValid, isEmailValid, isDateValid, isPhoneValid]}
+                    layout={[
+                        ['cf'],
+                        ['nome', 'cognome'],
+                        ['dataNascita', 'email'],
+                        ['telefono']
+                    ]}
+                />
+            </ConfirmationModal>
+
+            <ConfirmationModal
+                isOpen={showUpdateTeacherModal}
+                onClose={() => setShowUpdateTeacherModal(false)}
+                onConfirm={() => TeacherFormRef.current?.submit()}  // Chiama il submit del form
+                title="Aggiorna Docente"
+                confirmText="Salva"
+                buttonType="modify"
+                w='w-[80%] xl:w-[60%]'
+                wMax='max-w-[100%]'
+            >
+                <Form
+                    ref={TeacherFormRef}
+                    onSubmit={handleUpdateTeacher}
+                    onCancel={() => setShowUpdateTeacherModal(false)}
+                    fields={['cf', 'nome', 'cognome', 'email', 'dataNascita', 'telefono']}
+                    labels={['Codice Fiscale', 'Nome', 'Cognome', 'Email', 'Data di Nascita', 'Telefono']}
+                    types={['text', 'text', 'text', 'email', 'date', 'text']}
+                    placeholders={['BNCDVD92M22H501V', 'Davida', 'Bianchi', 'davida.bianchi@email.it', '24/05/1992', '012 345 6789']}
                     validators={[isCFValid, isNameValid, isSurnameValid, isEmailValid, isDateValid, isPhoneValid, isQualificationValid]}
                     layout={[
                         ['cf'],
@@ -344,8 +415,31 @@ const Docenti = () => {
                         ['dataNascita', 'email'],
                         ['telefono', 'qualifica']
                     ]}
+                    defaultValues={{
+                        cf: selectedDocente?.cf || '',
+                        nome: selectedDocente?.nome || '',
+                        cognome: selectedDocente?.cognome || '',
+                        email: selectedDocente?.email || '',
+                        dataNascita: selectedDocente?.dataNascita
+                        ? new Date(selectedDocente.dataNascita).toLocaleDateString('en-CA')
+                        : '',
+                        telefono: selectedDocente?.telefono || ''
+                    }}
                 />
             </ConfirmationModal>
+
+            <ConfirmationModal
+                isOpen={showDeleteTeacherModal}
+                onClose={() => setShowDeleteTeacherModal(false)}
+                onConfirm={handleDeleteTeacher}
+                title="Elimina Docente"
+                confirmText="Conferma"
+                buttonType="danger"
+            >
+                <p>Sei sicuro di voler eliminare questo Docente?</p>
+            </ConfirmationModal>
+
+            
         </div>
     );
 };

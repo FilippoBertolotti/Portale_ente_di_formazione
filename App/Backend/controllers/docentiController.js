@@ -7,15 +7,15 @@ export const getAllDocenti = async (req, res) => {
             SELECT 
               u.cf,
               u.nome || ' ' || u.cognome AS "nomeCompleto",
-              u.nome || ' ' || u.cognome || '\n' || STRING_AGG(DISTINCT q.materia, ', ') AS "nomeCompletoQualifica",
+              u.nome || ' ' || u.cognome || '\n' ||COALESCE(STRING_AGG(DISTINCT q.materia, ', '), '') AS "nomeCompletoQualifica",
               TO_CHAR(u.datanascita, 'DD/MM/YYYY') AS "dataNascita",
               u.email || '\n' || d.telefono AS "contatti",
               STRING_AGG(DISTINCT p.descrizione || ' ' || m.anno || '\n' || m.descrizione, '\n')  AS "corsoModulo",
               STRING_AGG(DISTINCT p.codice || ':' || m.anno, '\n') AS "codiciProgettiAnni"
             FROM utente u
             JOIN docente d ON u.cf = d.cf
-            JOIN posseduto po ON po.cfdocente = d.cf
-            JOIN qualifica q ON po.idqualifica = q.id
+            LEFT JOIN posseduto po ON po.cfdocente = d.cf
+            LEFT JOIN qualifica q ON po.idqualifica = q.id
             LEFT JOIN cattedra c ON c.cfdocente = d.cf
             LEFT JOIN modulo m ON m.id = c.idmodulo
             LEFT JOIN progetto p ON m.codiceprogetto = p.codice
@@ -79,7 +79,7 @@ export const createDocente = async (req, res) => {
     );
 
     // Inserisce i dati di qualifica
-    await client.query(
+    /*await client.query(
       `INSERT INTO QUALIFICA (materia)
              VALUES ($1)`,
       [qualifica]
@@ -89,7 +89,7 @@ export const createDocente = async (req, res) => {
       `INSERT INTO POSSEDUTO (CFDocente, IDQualifica)
              VALUES ($1, (SELECT id FROM QUALIFICA ORDER BY id DESC LIMIT 1))`,
       [cf]
-    );
+    );*/
 
     await client.query('COMMIT');
 
@@ -115,5 +115,90 @@ export const createDocente = async (req, res) => {
     });
   } finally {
     client.release();
+  }
+};
+
+export const updateDocente = async (req, res) => {
+  const { cf } = req.params;
+  const { nome, cognome, email, dataNascita, telefono} = req.body;
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Inserisce i dati anagrafici in UTENTE
+    await client.query(
+      `UPDATE UTENTE
+       SET Nome = $2, Cognome = $3, DataNascita = TO_DATE($4, 'YYYY-MM-DD'), Email = $5, Password = $6, Livello = 1
+       WHERE CF = $1`,
+      [cf, nome, cognome, dataNascita, email, cf]
+    );
+
+    // Inserisce i dati di DOCENTE
+    await client.query(
+      `UPDATE DOCENTE
+       SET Telefono = $2
+       WHERE CF = $1`,
+      [cf, telefono.replaceAll(' ', '')]
+    );
+
+    await client.query('COMMIT');
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Docente aggiornato con successo',
+    });
+
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Errore aggiornamento docente:', error);
+
+    if (error.code === '23505') {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Codice fiscale o email già esistente'
+      });
+    }
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nell\'aggiornamento del docente'
+    });
+  } finally {
+    client.release();
+  }
+};
+
+export const deleteDocente = async (req, res) => {
+  const { cf } = req.params;
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Elimina il docente da DOCENTE
+    await client.query(
+      `DELETE FROM DOCENTE WHERE CF = $1;`,
+      [cf]
+    );
+
+    // Elimina il docente da UTENTE
+    await client.query(
+      `DELETE FROM UTENTE WHERE CF = $1;`,
+      [cf]
+    );
+
+    await client.query('COMMIT');
+
+    res.json({
+      status: 'success',
+      message: 'Docente eliminato con successo'
+    });
+  } catch (error) {
+    console.error('Errore eliminazione docente:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nell\'eliminazione del docente'
+    });
   }
 };
