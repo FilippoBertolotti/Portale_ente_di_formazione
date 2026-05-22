@@ -1,5 +1,62 @@
 import pool from '../config/database.js';
 
+const controlloDocente = async (params, id) => {
+    let result;
+    if(id) {
+        result = await pool.query(`
+        SELECT COUNT(*) AS count
+        FROM lezione l
+        JOIN modulo m ON l.idmodulo = m.id
+        JOIN cattedra c ON m.id = c.idmodulo
+        JOIN docente d ON c.cfdocente = d.cf
+        WHERE l.id <> $5
+        AND l.data = $2 
+        AND (l.orainizio < $4 AND l.orafine > $3)
+        AND c.cfdocente IN (
+            -- Recupera la lista di TUTTI i CF dei docenti associati a questo modulo
+            SELECT c2.cfdocente 
+            FROM cattedra c2
+            WHERE c2.idmodulo = $1
+        );
+    `, [params.idmodulo, params.data, params.orainizio, params.orafine, id]);
+    } else {
+        result = await pool.query(`
+            SELECT COUNT(*) AS count
+            FROM lezione l
+            JOIN modulo m ON l.idmodulo = m.id
+            JOIN cattedra c ON m.id = c.idmodulo
+            JOIN docente d ON c.cfdocente = d.cf
+            WHERE l.data = $2 
+            AND (l.orainizio < $4 AND l.orafine > $3)
+            AND c.cfdocente IN (
+                -- Recupera la lista di TUTTI i CF dei docenti associati a questo modulo
+                SELECT c2.cfdocente 
+                FROM cattedra c2
+                WHERE c2.idmodulo = $1
+            );
+        `, [params.idmodulo, params.data, params.orainizio, params.orafine]);
+    }
+    return result.rows[0].count > 0;
+};
+
+const controlloAula = async (params, id) => {
+    let result;
+    if(id) {
+        result = await pool.query(`
+            SELECT COUNT(*) AS count
+            FROM lezione l
+            WHERE l.idaula = $1 AND l.data = $2 AND (l.orainizio < $4 AND l.orafine > $3) AND l.id <> $5;
+        `, [params.idaula, params.data, params.orainizio, params.orafine, id]);
+    } else {
+        result = await pool.query(`
+            SELECT COUNT(*) AS count
+            FROM lezione l
+            WHERE l.idaula = $1 AND l.data = $2 AND (l.orainizio < $4 AND l.orafine > $3);
+        `, [params.idaula, params.data, params.orainizio, params.orafine]);
+    }
+    return result.rows[0].count > 0;
+};
+
 export const getComingLezioni = async (req, res) => {
     try {
         const result = await pool.query(`
@@ -176,146 +233,166 @@ export const createLezione = async (req, res) => {
     const { data, orainizio, orafine, idmodulo, idaula, codiceprogetto } = req.body;
 
     try {
-        const result = await pool.query(
-            `INSERT INTO LEZIONE (Data, OraInizio, OraFine, IdModulo, IdAula, codiceprogetto)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       `,
-            [data, orainizio, orafine, idmodulo, idaula, codiceprogetto]
-        );
+        if (await controlloDocente(req.body)) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Il docente ha già una lezione in questo orario'
+            });
+        } else if (await controlloAula(req.body)) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'L\'aula è già occupata in questo orario'
+            });
+        } else {
+            const result = await pool.query(
+                `INSERT INTO LEZIONE (Data, OraInizio, OraFine, IdModulo, IdAula, codiceprogetto)
+                VALUES ($1, $2, $3, $4, $5, $6)
+            `,[data, orainizio, orafine, idmodulo, idaula, codiceprogetto] );
 
-        res.status(201).json({
-            status: 'success',
-            message: 'Lezione creata con successo',
-            data: result.rows[0]
-        });
-    } catch (error) {
-        console.error('Errore creazione lezione:', error);
+            res.status(201).json({
+                status: 'success',
+                message: 'Lezione creata con successo',
+                data: result.rows[0]
+            });
+        }
+        } catch (error) {
+            console.error('Errore creazione lezione:', error);
 
-        res.status(500).json({
-            status: 'error',
-            message: 'Errore nella creazione della lezione'
-        });
-    }
-};
+            res.status(500).json({
+                status: 'error',
+                message: 'Errore nella creazione della lezione'
+            });
+        }
+    };
 
-// PUT aggiorna lezione
-export const updateLezione = async (req, res) => {
-    const { id } = req.params;
-    const { data, orainizio, orafine, idmodulo, idaula, codiceprogetto } = req.body;
+    // PUT aggiorna lezione
+    export const updateLezione = async (req, res) => {
+        const { id } = req.params;
+        const { data, orainizio, orafine, idmodulo, idaula, codiceprogetto } = req.body;
+        if (await controlloDocente(req.body, id)) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Il docente ha già una lezione in questo orario'
+            });
+        } else if (await controlloAula(req.body, id)) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'L\'aula è già occupata in questo orario'
+            });
+        } else {
+            try {
+                const result = await pool.query(
+                    `UPDATE LEZIONE
+                    SET Data = $1, OraInizio = $2, OraFine = $3, IdModulo = $4, IdAula = $5, codiceprogetto = $6
+                    WHERE Id = $7
+                `,[data, orainizio, orafine, idmodulo, idaula, codiceprogetto, id]);
 
-    try {
-        const result = await pool.query(
-            `UPDATE LEZIONE
-       SET Data = $1, OraInizio = $2, OraFine = $3, IdModulo = $4, IdAula = $5, codiceprogetto = $6
-       WHERE Id = $7`,
-            [data, orainizio, orafine, idmodulo, idaula, codiceprogetto, id]
-        );
+                res.json({
+                    status: 'success',
+                    message: 'Lezione aggiornata con successo',
+                    data: result.rows[0]
+                });
+            } catch (error) {
+                console.error('Errore aggiornamento lezione:', error);
 
-        res.json({
-            status: 'success',
-            message: 'Lezione aggiornata con successo',
-            data: result.rows[0]
-        });
-    } catch (error) {
-        console.error('Errore aggiornamento lezione:', error);
+                res.status(500).json({
+                    status: 'error',
+                    message: 'Errore nell\'aggiornamento della lezione'
+                });
+            }
+        }
+    };
 
-        res.status(500).json({
-            status: 'error',
-            message: 'Errore nell\'aggiornamento della lezione'
-        });
-    }
-};
+    // DELETE elimina lezione
+    export const deleteLezione = async (req, res) => {
+        const { id } = req.params;
 
-// DELETE elimina lezione
-export const deleteLezione = async (req, res) => {
-    const { id } = req.params;
+        try {
+            await pool.query(`DELETE FROM LEZIONE WHERE Id = $1`, [id]);
 
-    try {
-        await pool.query(`DELETE FROM LEZIONE WHERE Id = $1`, [id]);
+            res.json({
+                status: 'success',
+                message: 'Lezione eliminata con successo'
+            });
+        } catch (error) {
+            console.error('Errore eliminazione lezione:', error);
 
-        res.json({
-            status: 'success',
-            message: 'Lezione eliminata con successo'
-        });
-    } catch (error) {
-        console.error('Errore eliminazione lezione:', error);
+            res.status(500).json({
+                status: 'error',
+                message: 'Errore nell\'eliminazione della lezione'
+            });
+        }
+    };
 
-        res.status(500).json({
-            status: 'error',
-            message: 'Errore nell\'eliminazione della lezione'
-        });
-    }
-};
+    export const createNota = async (req, res) => {
+        const cfUtente = req.user.cf; // Ottieni il CF dell'utente autenticato
+        const { titolo, data, descrizione } = req.body;
 
-export const createNota = async (req, res) => {
-    const cfUtente = req.user.cf; // Ottieni il CF dell'utente autenticato
-    const { titolo, data, descrizione} = req.body;
-
-    try {
-        const result = await pool.query(
-            `INSERT INTO NOTA (Titolo, Data, Descrizione, CFUtente)
+        try {
+            const result = await pool.query(
+                `INSERT INTO NOTA (Titolo, Data, Descrizione, CFUtente)
             VALUES ($1, $2, $3, $4)`,
-        [titolo, data, descrizione, cfUtente]);
+                [titolo, data, descrizione, cfUtente]);
 
-        res.status(201).json({
-            status: 'success',
-            message: 'Nota creata con successo',
-            data: result.rows[0]
-        });
-    } catch (error) {
-        console.error('Errore creazione nota:', error);
+            res.status(201).json({
+                status: 'success',
+                message: 'Nota creata con successo',
+                data: result.rows[0]
+            });
+        } catch (error) {
+            console.error('Errore creazione nota:', error);
 
-        res.status(500).json({
-            status: 'error',
-            message: 'Errore nella creazione della nota'
-        });
-    }
-};
+            res.status(500).json({
+                status: 'error',
+                message: 'Errore nella creazione della nota'
+            });
+        }
+    };
 
-export const updateNota = async (req, res) => {
-    const { id } = req.params;
-    const { titolo, data, descrizione } = req.body;
+    export const updateNota = async (req, res) => {
+        const { id } = req.params;
+        const { titolo, data, descrizione } = req.body;
 
-    try {
-        const result = await pool.query(
-            `UPDATE NOTA
+        try {
+            const result = await pool.query(
+                `UPDATE NOTA
        SET Titolo = $1, Data = $2, Descrizione = $3
        WHERE Id = $4`,
-            [titolo, data, descrizione, id]
-        );
+                [titolo, data, descrizione, id]
+            );
 
-        res.json({
-            status: 'success',
-            message: 'Nota aggiornata con successo',
-            data: result.rows[0]
-        });
-    } catch (error) {
-        console.error('Errore aggiornamento nota:', error);
+            res.json({
+                status: 'success',
+                message: 'Nota aggiornata con successo',
+                data: result.rows[0]
+            });
+        } catch (error) {
+            console.error('Errore aggiornamento nota:', error);
 
-        res.status(500).json({
-            status: 'error',
-            message: 'Errore nell\'aggiornamento della nota'
-        });
-    }
-};
+            res.status(500).json({
+                status: 'error',
+                message: 'Errore nell\'aggiornamento della nota'
+            });
+        }
+    };
 
-// DELETE elimina nota
-export const deleteNota = async (req, res) => {
-    const { id } = req.params;
+    // DELETE elimina nota
+    export const deleteNota = async (req, res) => {
+        const { id } = req.params;
 
-    try {
-        await pool.query(`DELETE FROM NOTA WHERE Id = $1`, [id]);
+        try {
+            await pool.query(`DELETE FROM NOTA WHERE Id = $1`, [id]);
 
-        res.json({
-            status: 'success',
-            message: 'Nota eliminata con successo'
-        });
-    } catch (error) {
-        console.error('Errore eliminazione nota:', error);
+            res.json({
+                status: 'success',
+                message: 'Nota eliminata con successo'
+            });
+        } catch (error) {
+            console.error('Errore eliminazione nota:', error);
 
-        res.status(500).json({
-            status: 'error',
-            message: 'Errore nell\'eliminazione della nota'
-        });
-    }
-};
+            res.status(500).json({
+                status: 'error',
+                message: 'Errore nell\'eliminazione della nota'
+            });
+        }
+    };

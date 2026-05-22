@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import SvgIcon from '../../assets/icons/svgIcon';
 import { chatService } from '../../services/chatService';
+import { useAuth } from '../../hooks/useAuth';
 
 const ChatBox = () => {
+    const { user } = useAuth();
     const [message, setMessage] = useState('');
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -123,14 +125,18 @@ const ChatBox = () => {
                     </div>
                 </div>
             ) : (
-                <div className="absolute z-10 w-[100%]">
-                    <div
-                        className="flex justify-center gap-[1vh] bg-gradient-to-r from-[#82A9D3]/50 to-[#F07F13]/50 border border-[#E0E6EB] rounded-[30px] px-[1.5vh] py-[1vh] cursor-pointer w-[15%] hover:border-[#2B7BB4] transition-all m-auto"
-                        onClick={() => setIsOpen(true)}
-                    >
-                        <span className="text-[#000000] text-sm font-normal">Chiedi all'IA</span>
-                    </div>
-                </div>
+                <>
+                    {user.livello === 0 && (
+                        <div className="absolute z-10 w-[100%]">
+                            <div
+                                className="flex justify-center gap-[1vh] bg-gradient-to-r from-[#82A9D3]/50 to-[#F07F13]/50 border border-[#E0E6EB] rounded-[30px] px-[1.5vh] py-[1vh] cursor-pointer w-[15%] hover:border-[#2B7BB4] transition-all m-auto"
+                                onClick={() => setIsOpen(true)}
+                            >
+                                <span className="text-[#000000] text-sm font-normal">Chiedi all'IA</span>
+                            </div>
+                        </div>
+                    )}
+                </>
             )}
         </>
     );

@@ -33,19 +33,29 @@ export const authService = {
   },
   haCodiceProgetto: (codiceCercato) => {
     const user = authService.getCurrentUser();
-    // Gestione caso user.codiceProgetto sia undefined/null
-    if (!user.codicecoordinatore) return false;
+    console.log('Verifica codice progetto per utente:', user, 'con codice cercato:', codiceCercato);
 
-    const codice = codiceCercato.trim();
+    // AGGIUNGI: controlla se user esiste
+    if (!user) return false;
 
-    // Se è un array, controlla se include il codice
-    if (Array.isArray(user.codicecoordinatore)) {
-      return user.codicecoordinatore.map((codice) => codice.trim()).includes(codice);
+    // CORREZIONE: usa codiceprogetto, non codicecoordinatore
+    const progettiUtente = user.codicecoordinatore;
+
+    if (!progettiUtente) return false;
+    if (!codiceCercato) return false;
+
+    // TRIM su entrambi i valori per rimuovere spazi
+    const codice = codiceCercato.toString().trim();
+
+    if (Array.isArray(progettiUtente)) {
+      // TRIM anche sui valori dell'array
+      const progettiNormalizzati = progettiUtente.map(p => p?.toString().trim());
+      console.log('Controllando codice nei progetti:', progettiNormalizzati, 'contro codice:', codice);
+      return progettiNormalizzati.includes(codice);
     }
 
-    // Se è una stringa singola, confronta direttamente
-    if (typeof user.codicecoordinatore === 'string') {
-      return user.codicecoordinatore.trim() === codice;
+    if (typeof progettiUtente === 'string') {
+      return progettiUtente.trim() === codice;
     }
 
     return false;

@@ -16,6 +16,11 @@ export const moduliService = {
     return response.data;
   },
 
+  getActiveByAnno: async (anno) => {
+    const response = await api.get(`/moduli/attiviAnno/${anno}`);
+    return response.data;
+  },
+
   getAnni: async () => {
     const response = await api.get('/moduli/anni');
     return response.data;
@@ -35,4 +40,14 @@ export const moduliService = {
     const response = await api.delete(`/moduli/${id}`);
     return response;
   },
+
+  addTeacherToModule: async (id, cfDocente) => {
+    const response = await api.post(`/moduli/${id}/teacher`, { cfDocente });
+    return response;
+  },
+
+  removeTeacherFromModule: async (id, cfDocente) => {
+    const response = await api.delete(`/moduli/${id}/teacher`, { data: { cfDocente } });
+    return response;
+  }
 };

@@ -4,7 +4,6 @@ import { chatService } from '../../services/chatService';
 
 const ChatBot = () => {
     const [message, setMessage] = useState('');
-    const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [messages, setMessages] = useState([
         { role: 'assistant', content: 'Ciao! Chiedimi qualcosa su studenti, corsi, docenti o lezioni.' }
@@ -12,13 +11,9 @@ const ChatBot = () => {
     const bottomRef = useRef(null);
     const inputRef = useRef(null);
 
-    useEffect(() => {
-        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages]);
-
-    useEffect(() => {
-        if (isOpen) inputRef.current?.focus();
-    }, [isOpen]);
+    // useEffect(() => {
+    //     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // }, [messages]);
 
     const handleChat = async (e) => {
         e?.preventDefault();
@@ -51,12 +46,6 @@ const ChatBot = () => {
             {/* Header panel */}
             <div className="flex items-center justify-between px-[2vh] py-[1.5vh] border-b border-[#E0E6EB] shrink-0">
                 <span className="font-bold text-sm">Assistente AI</span>
-                <button
-                    onClick={() => setIsOpen(false)}
-                    className="text-[#777777] hover:text-black transition-colors text-xl leading-none px-[1vh]"
-                >
-                    ×
-                </button>
             </div>
 
             {/* Messaggi */}

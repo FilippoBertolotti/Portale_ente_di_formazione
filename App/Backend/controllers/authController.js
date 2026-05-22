@@ -57,16 +57,16 @@ export const login = async (req, res) => {
       : null;
     } else if(user.livello === 3){
       const docenteResult = await pool.query(`
-        SELECT DISTINCT TRIM(p.codice) as codice FROM DOCENTE d 
+        SELECT DISTINCT p.codice as codice FROM DOCENTE d 
         LEFT JOIN CATTEDRA c ON d.cf = c.cfdocente
         JOIN MODULO m ON c.idmodulo = m.id
         JOIN PROGETTO p ON m.codiceprogetto = p.codice
-        WHERE TRIM(d.cf) = TRIM($1)
+        WHERE d.cf = $1
       `, [user.cf]);
 
       const coordinatoreResult = await pool.query(`
-        SELECT DISTINCT TRIM(codice) AS codice FROM PROGETTO
-        WHERE TRIM(cfcoordinatore) = TRIM($1)
+        SELECT DISTINCT codice AS codice FROM PROGETTO
+        WHERE cfcoordinatore = $1
       `, [user.cf]);
         
       user.codiceprogetto = docenteResult.rows.length > 0 

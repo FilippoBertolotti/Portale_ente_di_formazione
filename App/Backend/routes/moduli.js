@@ -6,7 +6,10 @@ import {
   updateModulo,
   deleteModulo,
   getAnni,
-  getByAnno
+  getByAnno,
+  addTeacherToModule,
+  removeTeacherFromModule,
+  getActiveByAnno
 } from '../controllers/moduliController.js';
 import { authenticateToken, isAdmin, isCoordinatore } from '../middleware/auth.js';
 
@@ -16,10 +19,13 @@ router.use(authenticateToken);
 
 router.get('/', getAllModuli);
 router.get('/anni', getAnni);
-router.post('/', isCoordinatore, createModulo);
 router.get('/codice/:codice', getByCodiceProgetto);
 router.get('/anno/:anno', getByAnno);
+router.get('/attiviAnno/:anno', getActiveByAnno);
+router.post('/', createModulo);
+router.post('/:id/teacher', addTeacherToModule);
 router.put('/:id', isCoordinatore || isAdmin, updateModulo);
 router.delete('/:id', isCoordinatore || isAdmin, deleteModulo);
+router.delete('/:id/teacher', removeTeacherFromModule);
 
 export default router;

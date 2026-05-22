@@ -9,9 +9,9 @@ export const getAllModuli = async (req, res) => {
             STRING_AGG(DISTINCT 'Prof. ' || u.Cognome, ', ') as lista_docenti,
             STRING_AGG(DISTINCT c.CFDocente, ', ') as cfdocente
         FROM MODULO m
-        JOIN CATTEDRA c ON c.IDModulo = m.ID
-        JOIN DOCENTE d ON c.CFDocente = d.CF
-        JOIN UTENTE u ON d.CF = u.CF
+        LEFT JOIN CATTEDRA c ON c.IDModulo = m.ID
+        LEFT JOIN DOCENTE d ON c.CFDocente = d.CF
+        LEFT JOIN UTENTE u ON d.CF = u.CF
         GROUP BY m.ID
         ORDER BY m.Anno, m.ID
     `);
@@ -41,9 +41,9 @@ export const getByCodiceProgetto = async (req, res) => {
             STRING_AGG(DISTINCT 'Prof. ' || u.Cognome, ', ') as lista_docenti,
             STRING_AGG(DISTINCT c.CFDocente, ', ') as cfdocente
         FROM MODULO m
-        JOIN CATTEDRA c ON c.IDModulo = m.ID
-        JOIN DOCENTE d ON c.CFDocente = d.CF
-        JOIN UTENTE u ON d.CF = u.CF
+        LEFT JOIN CATTEDRA c ON c.IDModulo = m.ID
+        LEFT JOIN DOCENTE d ON c.CFDocente = d.CF
+        LEFT JOIN UTENTE u ON d.CF = u.CF
         WHERE m.CodiceProgetto = $1
         GROUP BY m.ID
         ORDER BY m.Anno, m.ID
@@ -73,10 +73,45 @@ export const getByAnno = async (req, res) => {
             STRING_AGG(DISTINCT 'Prof. ' || u.Cognome, ', ') as lista_docenti,
             STRING_AGG(DISTINCT c.CFDocente, ', ') as cfdocente
         FROM MODULO m
-        JOIN CATTEDRA c ON c.IDModulo = m.ID
-        JOIN DOCENTE d ON c.CFDocente = d.CF
-        JOIN UTENTE u ON d.CF = u.CF
+        LEFT JOIN CATTEDRA c ON c.IDModulo = m.ID
+        LEFT JOIN DOCENTE d ON c.CFDocente = d.CF
+        LEFT JOIN UTENTE u ON d.CF = u.CF
         WHERE m.anno = $1
+        GROUP BY m.ID
+        ORDER BY m.Anno, m.ID
+    `, [anno]);
+
+    res.json({
+      status: 'success',
+      count: result.rows.length,
+      data: result.rows
+    });
+  } catch (error) {
+    console.error('Errore get moduli:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Errore nel recupero dei moduli'
+    });
+  }
+};
+
+
+export const getActiveByAnno = async (req, res) => {
+  const { anno } = req.params;
+
+  try {
+    const result = await pool.query(`
+        SELECT 
+            m.*,
+            STRING_AGG(DISTINCT 'Prof. ' || u.Cognome, ', ') as lista_docenti,
+            STRING_AGG(DISTINCT c.CFDocente, ', ') as cfdocente
+        FROM MODULO m
+        LEFT JOIN CATTEDRA c ON c.IDModulo = m.ID
+        LEFT JOIN DOCENTE d ON c.CFDocente = d.CF
+        LEFT JOIN UTENTE u ON d.CF = u.CF
+        JOIN PROGETTO p ON m.CodiceProgetto = p.Codice
+        WHERE m.anno = $1 AND p.annofine >= EXTRACT(YEAR FROM CURRENT_DATE) 
+        AND p.annoinizio <= EXTRACT(YEAR FROM CURRENT_DATE)
         GROUP BY m.ID
         ORDER BY m.Anno, m.ID
     `, [anno]);
@@ -220,4 +255,61 @@ export const deleteModulo = async (req, res) => {
       message: 'Errore nell\'eliminazione del modulo'
     });
   }
+};
+
+export const addTeacherToModule = async (req, res) => {
+  const { id } = req.params;
+  const { cfDocente } = req.body;
+  try {    
+    const teacherControllo = await pool.query(
+      `SELECT * FROM CATTEDRA WHERE IDModulo = $1 AND CFDocente = $2`,
+      [id, cfDocente]
+    );
+
+    if (teacherControllo.rows.length > 0) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Docente già assegnato al modulo'
+      });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO CATTEDRA (IDModulo, CFDocente) VALUES ($1, $2)`,
+      [id, cfDocente]
+    );
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Docente aggiunto al modulo con successo'
+    });
+  } catch (error) {
+    console.error('Errore aggiunta docente al modulo:', error);
+    res.status(500).json({  
+      status: 'error',
+      message: 'Errore nell\'aggiunta del docente al modulo'
+    });
+  } 
+};
+
+export const removeTeacherFromModule = async (req, res) => {
+  const { id } = req.params;
+  const { cfDocente } = req.body;
+  try {
+
+    const result = await pool.query(
+      `DELETE FROM CATTEDRA WHERE IDModulo = $1 AND CFDocente = $2`,
+      [id, cfDocente]
+    );
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Docente rimosso dal modulo con successo'
+    });
+  } catch (error) {
+    console.error('Errore rimozione docente dal modulo:', error);
+    res.status(500).json({  
+      status: 'error',
+      message: 'Errore nella rimozione del docente dal modulo'
+    });
+  } 
 };

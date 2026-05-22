@@ -17,24 +17,6 @@ import Form from '../components/forms/form';
 import { isAcademicYearValid, isCodeValid, isColorValid, isCoordinatoreValid, isDescriptionValid, isHoursValid, isProjectValid, isYearValid, } from '../utils/validators';
 import { useToast } from '../components/common/toastProvider';
 
-const DocentiCell = ({ value, values }) => {
-    const colors = ['#76A1CF', '#EFA667'];
-    return (
-      <div className="flex flex-col gap-[0.5vh] min-h-[4vh] px-[0.2vw] justify-center items-center">
-        {user.livello === 0 || authService.haCodiceProgetto(values['codiceprogetto']) && <Button variant='primary' size='small' className='w-full justify-center py-[0.3vh] text-xs'>+</Button>}
-        {String(value).split(',').map((nome, i) => (
-          <span
-            key={i}
-            style={{ backgroundColor: colors[i % 2] }}
-            className='w-full rounded-full px-[1vh] py-[0.3vh] text-xs text-white'
-          >
-            {nome.trim()}
-          </span>
-        ))}
-      </div>
-    );
-};
-
 const Progetti = () => {
   const { user } = useAuth();
   const [progetti, setProgetti] = useState([]);
@@ -51,7 +33,10 @@ const Progetti = () => {
   const [showDeleteCourseModal, setShowDeleteCourseModal] = useState(false);
   const [showDeleteModuleModal, setShowDeleteModuleModal] = useState(false);
   const [showUpdateModuleModal, setShowUpdateModuleModal] = useState(false);
+  const [showAddTeacherModal, setShowAddTeacherModal] = useState(false);
+  const [showRemoveTeacherModal, setShowRemoveTeacherModal] = useState(false);
   const [selectedModulo, setSelectedModulo] = useState(null);
+  const [selectedDocente, setSelectedDocente] = useState(null);
   const CourseFormRef = useRef(null);
   const ModuleFormRef = useRef(null);
   const { showToast } = useToast();
@@ -166,14 +151,27 @@ const Progetti = () => {
       if (selectedProgetto) {
         response = await moduliService.getByCodiceProgetto(selectedProgetto);
       } else if (selectedAnno) {
-        response = await moduliService.getByAnno(selectedAnno);
+        if(user.livello >= 2){
+          response = await moduliService.getActiveByAnno(selectedAnno);
+        } else {
+          response = await moduliService.getByAnno(selectedAnno);
+        }
       }
 
-      const moduliData =
+      let moduliData =
         response?.data ??
         response?.moduli ??
         response?.results ??
         (Array.isArray(response) ? response : []);
+
+      if(user.livello !== 0){
+        // FILTRA I MODULI IN BASE AI PROGETTI DELL'UTENTEù
+        const progettiUtente = Array.isArray(user.codiceprogetto) ? user.codiceprogetto : [user.codiceprogetto];
+        const moduliFiltrati = moduliData.filter(modulo => {
+          return progettiUtente.includes(modulo.codiceprogetto);
+        });
+        moduliData = moduliFiltrati;
+      }
 
       const filtered =
         selectedProgetto && selectedAnno
@@ -230,7 +228,6 @@ const Progetti = () => {
 
   const handleDeleteCourse = async () => {
     try {
-      await progettiService.delete(selectedProgetto);
       const response = await progettiService.delete(selectedProgetto);
       const msg = response?.data?.message || 'Corso eliminato con successo';
       showToast(msg, 'success');
@@ -246,7 +243,6 @@ const Progetti = () => {
 
   const handleUpdateCourse = async (formData) => {
     try {
-      await progettiService.update(selectedProgetto, formData);
       const response = await progettiService.update(selectedProgetto, formData);
       const msg = response?.data?.message || 'Corso aggiornato con successo';
       showToast(msg, 'success');
@@ -261,7 +257,6 @@ const Progetti = () => {
 
   const handleDeleteModule = async () => {
     try {
-      await moduliService.delete(selectedModulo.id);
       const response = await moduliService.delete(selectedModulo.id);
       const msg = response?.data?.message || 'Modulo eliminato con successo';
       showToast(msg, 'success');
@@ -278,7 +273,6 @@ const Progetti = () => {
 
   const handleUpdateModule = async (formData) => {
     try {
-      await moduliService.update(selectedModulo.id, formData);
       const response = await moduliService.update(selectedModulo.id, formData);
       const msg = response?.data?.message || 'Modulo aggiornato con successo';
       showToast(msg, 'success');
@@ -293,6 +287,40 @@ const Progetti = () => {
     }
   };
 
+  const handleAddTeacherModule  = async (formData) => {
+    try {
+      console.log('Aggiunta docente al modulo:', formData);
+      const response = await moduliService.addTeacherToModule(selectedModulo.id, formData.cfDocente);
+      const msg = response?.data?.message || 'Docente aggiunto al modulo con successo';
+      showToast(msg, 'success');
+      await fetchModulo();
+      await fetchProgetti();
+      setSelectedModulo(null);
+      setShowAddTeacherModal(false);
+    } catch (error) {
+      console.error('Errore:', error);
+      const errorMsg = error.response?.data?.message || 'Errore durante l\'aggiunta del docente';
+      showToast(errorMsg, 'error');
+    }
+  };
+
+  const handleRemoveTeacherModule = async () => {
+    try {
+      const response = await moduliService.removeTeacherFromModule(selectedModulo.id, selectedDocente);
+      const msg = response?.data?.message || 'Docente rimosso dal modulo con successo';
+      showToast(msg, 'success');
+      await fetchModulo();
+      await fetchProgetti();
+      setSelectedModulo(null);
+      setSelectedDocente(null);
+      setShowRemoveTeacherModal(false);
+    } catch (error) {
+      console.error('Errore:', error);
+      const errorMsg = error.response?.data?.message || 'Errore durante la rimozione del docente';
+      showToast(errorMsg, 'error');
+    }
+  };
+
   const handleUpdateModuleClick = (modulo) => {
     setSelectedModulo(modulo);
     setShowUpdateModuleModal(true);
@@ -301,6 +329,17 @@ const Progetti = () => {
   const handleDeleteModuleClick = (modulo) => {
     setSelectedModulo(modulo);
     setShowDeleteModuleModal(true);
+  };
+
+  const handleAddTeacherClick = (modulo) => {
+    setSelectedModulo(modulo);
+    setShowAddTeacherModal(true);
+  };
+
+  const handleRemoveTeacherClick = (modulo, index) => {
+    setSelectedModulo(modulo);
+    setSelectedDocente(modulo['cfdocente'].split(',')[index]);
+    setShowRemoveTeacherModal(true);
   };
 
   const riepilogo = useMemo(() => {
@@ -403,14 +442,15 @@ const Progetti = () => {
                   headers={['Nome Modulo', 'Ore Aula', 'ProjectWork', 'E-Learning', 'Stage', 'Docenti']}
                   labels={['descrizione', 'oreaula', 'oreproject', 'oreelearn', 'orestage', 'lista_docenti']}
                   data={moduli}
-                  customRender={{
-                    lista_docenti: (value) => <DocentiCell value={value} />
-                  }}
+                  pill={true}
                   frase2="Seleziona Un Corso Per Visualizzare I Dati"
                   frase1="Nessun modulo trovato"
                   centered={true}
+                  actionPlus={true}
+                  onActionPlus={handleAddTeacherClick}
                   onModify={handleUpdateModuleClick}
                   onDelete={handleDeleteModuleClick}
+                  pillClick={handleRemoveTeacherClick}
                   className="h-full"
                 />
               </Container>
@@ -480,7 +520,7 @@ const Progetti = () => {
                     </Button>
                   </div>
                 </Container>)}
-              <Container title={selectedAnno ? `Riepilogo Anno ${selectedAnno}` : 'Riepilogo'} className=" h-full overflow-hidden" button={user.livello === 0 ? <div className='text-black text-[0.9vw] font-bold'><span className="text-[0.7vw] font-normal whitespace-nowrap">Coordinatore: </span>{riepilogo?.coordinatoreNomeCompleto || '...'}</div> : null}>
+              <Container title={selectedAnno ? `Riepilogo Anno ${selectedAnno}` : 'Riepilogo'} className=" h-full overflow-hidden" button={user.livello !== 1 ? <div className='text-black text-[0.9rem] font-bold'><span className="text-[0.7rem] font-normal whitespace-nowrap">Coordinatore: </span>{riepilogo?.coordinatoreNomeCompleto || '...'}</div> : null}>
                 <div className='flex flex-col space-y-[2vh] h-full overflow-hidden'>
                   <div className='h-[47%] w-full items-stretch grid grid-cols-2 gap-[1vw] overflow-hidden'>
                     <Card
@@ -747,7 +787,7 @@ const Progetti = () => {
             oreElearn: selectedModulo ? selectedModulo.oreelearn : '',
             descrizione: selectedModulo ? selectedModulo.descrizione : '',
             codiceProgetto: selectedModulo ? selectedModulo.codiceprogetto : '',
-            cfDocente: selectedModulo ? selectedModulo.cfdocente.split(',')[0] : ''
+            cfDocente: selectedModulo ? selectedModulo.cfdocente?.split(',')[0] || '' : ''
           }}
         />
       </ConfirmationModal>
@@ -772,6 +812,46 @@ const Progetti = () => {
         buttonType="danger"
       >
         <p>Sei sicuro di voler eliminare questo modulo?</p>
+      </ConfirmationModal>
+
+      <ConfirmationModal
+        isOpen={showAddTeacherModal}
+        onClose={() => setShowAddTeacherModal(false)}
+        onConfirm={() => ModuleFormRef.current?.submit()}  // Chiama il submit del form
+        title="Aggiungi Docente al Modulo"
+        confirmText="Aggiungi"
+        buttonType="modify"
+        w='w-[80%] xl:w-[60%]'
+        wMax='max-w-[100%]'
+      >
+        <Form
+          ref={ModuleFormRef}
+          onSubmit={handleAddTeacherModule}
+          onCancel={() => setShowAddTeacherModal(false)}
+          fields={['cfDocente']}
+          labels={['Docente']}
+          types={['select']}
+          placeholders={['Seleziona un docente']}
+          options={{
+            cfDocente: Array.isArray(docenti)
+              ? docenti.map(d => ({ value: d.cf, label: d.nomeCompleto }))
+              : []
+          }}
+          validators={[isCoordinatoreValid]}
+          layout={[
+            ['cfDocente']
+          ]}
+        />
+      </ConfirmationModal>
+
+      <ConfirmationModal
+        isOpen={showRemoveTeacherModal}
+        onClose={() => setShowRemoveTeacherModal(false)}
+        onConfirm={handleRemoveTeacherModule}
+        title={docenti.find(d => d.cf === selectedDocente)?.nomeCompleto}
+        confirmText="Rimuovi"
+        buttonType="danger"
+      >
       </ConfirmationModal>
     </div>
   );

@@ -14,12 +14,15 @@ const Table = forwardRef(({
     frase2 = frase1,
     centered = false,
     centerFromIndex = 1,
-    onModify = () => {},
-    onDelete = () => {},
+    actionPlus = false,
+    onActionPlus = () => { },
+    onModify = () => { },
+    onDelete = () => { },
+    pillClick = () => { },
     className = '',
     noShow = []
 }, ref) => {
-    const colors = ['#EFA667', '#76A1CF'];
+    const colors = ['primary', 'secondary'];
     const { user } = useAuth();
     return (
         <div className={`border border-[#E0E6EB] bg-white rounded-[30px] w-full h-full overflow-hidden flex flex-col ${className}`}>
@@ -35,7 +38,11 @@ const Table = forwardRef(({
                                     {header}
                                 </th>
                             ))}
-                            <th className={`text-center py-[1vh] px-[2vh] text-[#000000] font-normal text-sm ${user.livello !== 0 && (!data || data.length === 0 || !authService.haCodiceProgetto(data[0]?.codiceprogetto || '')) ? 'hidden' : ''}`}>Azioni</th>
+                                                        
+                                <th className={`text-center py-[1vh] px-[2vh] text-[#000000] font-normal text-sm ${user.livello !== 0 && (!data || data.length === 0 || !authService.haCodiceProgetto(data[0]?.codiceprogetto))
+                                    ? 'hidden'
+                                    : ''
+                                }`}>Azioni</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -47,27 +54,45 @@ const Table = forwardRef(({
                                             className={`text-${labelIndex >= centerFromIndex && centered ? 'center' : 'left'} p-[1vw] text-[#000000] font-bold text-[1rem] w-fit ${noShow.includes(label) ? 'hidden' : ''}`}
                                             key={labelIndex}
                                         >
-                                            {labelIndex === labels.length - 1 && pill ? (
-                                                <div className="flex flex-col gap-[0.5vh] h-[4vh] px-[0.2vw] justify-center items-center">
+                                            {labelIndex === labels.length - 1 && pill && dato[label] ? (
+                                                <div className="flex flex-col gap-[0.5vh] min-h-[4vh] px-[0.2vw] justify-center items-center">
                                                     {String(dato[label]).split(',').map((nome, i) => (
-                                                        <span
+                                                        <Button
                                                             key={i}
-                                                            style={{ backgroundColor: colors[i % 2] }}
-                                                            className='w-full rounded-full px-[1vh] py-[0.3vh] text-xs text-white'
+                                                            variant={colors[i % 2] }
+                                                            className='w-full rounded-full px-[1vh] py-[0.3vh] text-xs text-white text-center items-center justify-center'
+                                                            onClick={() => {pillClick(dato,i)}}
                                                         >
                                                             {nome.trim()}
-                                                        </span>
+                                                        </Button>
                                                     ))}
                                                 </div>
                                             ) : customRender?.[label] ? (
-                                                customRender[label](dato[label], dato) 
+                                                customRender[label](dato[label], dato)
+                                            ) : labelIndex === labels.length - 1 && pill ?(
+                                                dato[label] || " "
                                             ) : (
                                                 dato[label]
                                             )}
                                         </td>
                                     ))}
                                     <td className='p-[1vw] align-middle'>
-                                        <div className={`flex gap-[1vh] items-center justify-center h-full ${user.livello !== 0 && !authService.haCodiceProgetto(dato.codiceprogetto) ? 'hidden' : ''}`}>
+                                        <div className={`flex gap-[1vh] items-center justify-center h-full ${user.livello !== 0 && !authService.haCodiceProgetto(dato.codiceprogetto)
+                                            ? 'hidden'
+                                            : ''
+                                            }`}>
+                                            {actionPlus && (
+                                                <Button variant="primary" size="small" onClick={() => onActionPlus(dato)}>
+                                                    <SvgIcon
+                                                        color='#ffffff'
+                                                        color2='#F07F13'
+                                                        width="15"
+                                                        height="15"
+                                                        path1="M27.0047 19.2343H15.5766C16.8733 19.1229 18.0757 18.534 18.9339 17.59C19.792 16.646 20.2401 15.4194 20.1849 14.1651C20.1297 12.9108 19.5755 11.7252 18.6374 10.8547C17.6994 9.98423 16.4496 9.49572 15.1478 9.49071H11.4147C11.9728 8.76701 12.372 7.94114 12.5878 7.06359C12.8037 6.18604 12.8317 5.27526 12.6701 4.38693C12.5085 3.49859 12.1607 2.65138 11.648 1.89709C11.1353 1.1428 10.4684 0.497281 9.68817 0L27.0047 0C27.7995 0.00113554 28.5614 0.306419 29.123 0.848812C29.6846 1.3912 30 2.12637 30 2.89286V16.3479C30 17.9421 28.6579 19.2364 27.0047 19.2364V19.2343ZM5.88623 9.495C6.43338 9.50728 6.97755 9.41395 7.48676 9.22052C7.99597 9.02708 8.45995 8.73743 8.85142 8.36859C9.24289 7.99976 9.55395 7.55918 9.76633 7.07275C9.97871 6.58632 10.0881 6.06386 10.0881 5.53607C10.0881 5.00828 9.97871 4.48582 9.76633 3.99939C9.55395 3.51297 9.24289 3.07239 8.85142 2.70355C8.45995 2.33471 7.99597 2.04506 7.48676 1.85163C6.97755 1.65819 6.43338 1.56487 5.88623 1.57714C4.81399 1.6012 3.79406 2.02886 3.04453 2.76869C2.29501 3.50851 1.87538 4.50177 1.87538 5.53607C1.87538 6.57038 2.29501 7.56363 3.04453 8.30346C3.79406 9.04328 4.81399 9.47094 5.88623 9.495ZM17.4298 14.3721C17.4298 13.155 16.4077 12.1693 15.1478 12.1693H5.88845C5.11509 12.169 4.34925 12.3157 3.63469 12.601C2.92014 12.8862 2.27089 13.3045 1.72404 13.8319C1.17719 14.3592 0.743456 14.9853 0.447637 15.6744C0.151818 16.3635 -0.000291581 17.1021 4.19611e-07 17.8479V20.43C4.19611e-07 21.57 0.959929 22.4936 2.14206 22.4936H2.52426L3.15088 28.0864C3.20948 28.6116 3.46712 29.0973 3.87434 29.4505C4.28157 29.8036 4.8097 29.9993 5.35738 30H6.47285C7.00889 29.9998 7.52678 29.8127 7.93105 29.4732C8.33532 29.1338 8.59872 28.6648 8.67269 28.1529L10.3459 16.5729H15.1455C16.4055 16.5729 17.4276 15.5871 17.4276 14.3721H17.4298Z"
+                                                        path2="M26.56 6.62V2.38H27.19V6.62H26.56ZM24.7 4.8V4.21H29.05V4.8H24.7Z"
+                                                    />
+                                                </Button> 
+                                            )}
                                             <Button variant="modify" size="small" onClick={() => onModify(dato)}>
                                                 <SvgIcon
                                                     color='#ffffff'
