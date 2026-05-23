@@ -408,22 +408,22 @@ const Docenti = () => {
                     labels={['Codice Fiscale', 'Nome', 'Cognome', 'Email', 'Data di Nascita', 'Telefono']}
                     types={['text', 'text', 'text', 'email', 'date', 'text']}
                     placeholders={['BNCDVD92M22H501V', 'Davida', 'Bianchi', 'davida.bianchi@email.it', '24/05/1992', '012 345 6789']}
-                    validators={[isCFValid, isNameValid, isSurnameValid, isEmailValid, isDateValid, isPhoneValid, isQualificationValid]}
+                    validators={[isCFValid, isNameValid, isSurnameValid, isEmailValid, isDateValid, isPhoneValid]}
                     layout={[
                         ['cf'],
                         ['nome', 'cognome'],
                         ['dataNascita', 'email'],
-                        ['telefono', 'qualifica']
+                        ['telefono']
                     ]}
                     defaultValues={{
                         cf: selectedDocente?.cf || '',
-                        nome: selectedDocente?.nome || '',
-                        cognome: selectedDocente?.cognome || '',
-                        email: selectedDocente?.email || '',
+                        nome: selectedDocente?.nomeCompleto?.split(' ')[0] || '',
+                        cognome: selectedDocente?.nomeCompleto?.split(' ')[1] || '',
+                        email: selectedDocente?.contatti?.split('\n')[0] || '',
                         dataNascita: selectedDocente?.dataNascita
                         ? new Date(selectedDocente.dataNascita).toLocaleDateString('en-CA')
                         : '',
-                        telefono: selectedDocente?.telefono || ''
+                        telefono: selectedDocente?.contatti?.split('\n')[1] || ''
                     }}
                 />
             </ConfirmationModal>
