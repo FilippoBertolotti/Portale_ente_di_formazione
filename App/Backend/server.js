@@ -66,10 +66,6 @@ app.get('/api/health', async (req, res) => {
 });
 
 // Importa le routes (da creare)
-// import authRoutes from './routes/auth.js';
-// import corsiRoutes from './routes/corsi.js';
-// app.use('/api/auth', authRoutes);
-// app.use('/api/corsi', corsiRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/progetti', progettiRoutes);
 app.use('/api/moduli', moduliRoutes);

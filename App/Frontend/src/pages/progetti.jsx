@@ -400,7 +400,7 @@ const Progetti = () => {
         ) : (
           <div className='grid grid-cols-12 gap-[1vw] flex-1 min-h-0'>
             <div className='col-span-9 flex flex-col gap-[1vw] h-full overflow-hidden'>
-              <Container className="flex flex-col h-full overflow-hidden p-[1vw] gap-[1rem]">
+              <Container className="flex flex-col h-full overflow-hidden p-[1vw]">
                 <div className="flex gap-[1vw] items-end">
                   <Select
                     title="Corso"
@@ -451,7 +451,7 @@ const Progetti = () => {
                   onModify={handleUpdateModuleClick}
                   onDelete={handleDeleteModuleClick}
                   pillClick={handleRemoveTeacherClick}
-                  className="h-full"
+                  className="flex-1"
                 />
               </Container>
             </div>
