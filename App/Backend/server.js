@@ -25,6 +25,7 @@ app.use(cors({
       'http://localhost:5173',
       'http://127.0.0.1:5173',
       'http://192.168.1.86:5173',
+      process.env.FRONTEND_URL
     ];
     // Permetti qualsiasi IP della LAN 192.168.x.x
     if (!origin || allowed.includes(origin) || /^http:\/\/192\.168\.\d+\.\d+:5173$/.test(origin)) {
