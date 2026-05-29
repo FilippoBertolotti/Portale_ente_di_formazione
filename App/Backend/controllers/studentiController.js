@@ -1,4 +1,5 @@
 import pool from '../config/database.js';
+import { parse } from 'csv-parse/sync';
 
 // GET tutti gli studenti
 export const getAllStudenti = async (req, res) => {
@@ -41,7 +42,8 @@ export const getAllStudentiSearch = async (req, res) => {
             SELECT 
               u.cf,
               u.nome || ' ' || u.cognome AS "nomeCompleto",
-              TO_CHAR(u.datanascita, 'DD/MM/YYYY') AS "dataNascita",
+              TO_CHAR(u.datanascita, 'DD/MM/YYYY') AS "FromattedDataNascita",
+              u.datanascita AS "dataNascita",
               u.email,
               p.descrizione || ' ' || s.annoaccademico AS "corso",
               s.codiceprogetto,
@@ -380,5 +382,60 @@ export const deleteStudente = async (req, res) => {
       status: 'error',
       message: 'Errore nell\'eliminazione dello studente'
     });
+  }
+};
+
+export const createStudentiFromCSV = async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ status: 'error', message: 'Nessun file caricato' });
+  }
+
+  const records = parse(req.file.buffer, {
+    columns: true,          // prima riga = intestazioni
+    skip_empty_lines: true,
+    trim: true,
+    delimiter: ','          // cambia in ',' se il tuo CSV usa la virgola
+  });
+
+  const client = await pool.connect();
+  const risultati = { successo: 0, errori: [] };
+
+  try {
+    for (const row of records) {
+      try {
+        await client.query('BEGIN');
+
+        await client.query(
+          `INSERT INTO UTENTE (CF, Nome, Cognome, DataNascita, Email, Password, Livello)
+           VALUES ($1, $2, $3, TO_DATE($4, 'YYYY-MM-DD'), $5, $6, 1)`,
+          [row.cf, row.nome, row.cognome, row.dataNascita, row.email, row.cf]
+        );
+
+        await client.query(
+          `INSERT INTO STUDENTE (CF, CodiceProgetto, AnnoAccademico, DataInserimento)
+           VALUES ($1, $2, $3, CURRENT_DATE)`,
+          [row.cf, row.codiceCorso, row.annoAccademico]
+        );
+
+        await client.query('COMMIT');
+        risultati.successo++;
+
+      } catch (err) {
+        await client.query('ROLLBACK');
+        risultati.errori.push({
+          riga: `${row.nome} ${row.cognome}`,
+          errore: err.code === '23505' ? `CF o email già esistente (${row.nome} ${row.cognome})` : err.message
+        });
+      }
+    }
+
+    res.json({
+      status: 'success',
+      message: `${risultati.successo} studenti inseriti, ${risultati.errori.length} errori`,
+      data: risultati
+    });
+
+  } finally {
+    client.release();
   }
 };

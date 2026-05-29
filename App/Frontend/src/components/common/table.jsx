@@ -32,7 +32,7 @@ const Table = forwardRef(({
                         <tr>
                             {Array.isArray(headers) && headers.map((header, index) => (
                                 <th
-                                    className={`text-${index >= centerFromIndex && centered ? 'center' : 'left'} py-[1vh] px-[2vh] text-[#000000] font-normal text-sm ${noShow.includes(header) ? 'hidden' : ''}`}
+                                    className={`text-${index >= centerFromIndex && centered ? 'center' : 'left'} py-[1vh] px-[2vh] text-[#000000] font-normal text-sm ${noShow.includes(header) ? 'hidden xl:block' : ''}`}
                                     key={index}
                                 >
                                     {header}
@@ -51,7 +51,7 @@ const Table = forwardRef(({
                                 <tr key={index} className='border-t-2 border-[#EDEDED]'>
                                     {Array.isArray(labels) && labels.map((label, labelIndex) => (
                                         <td
-                                            className={`text-${labelIndex >= centerFromIndex && centered ? 'center' : 'left'} p-[1vw] text-[#000000] font-bold text-[1rem] w-fit ${noShow.includes(label) ? 'hidden' : ''}`}
+                                            className={`text-${labelIndex >= centerFromIndex && centered ? 'center' : 'left'} p-[1vw] text-[#000000] font-bold text-[1rem] w-fit ${noShow.includes(label) ? 'hidden xl:block' : ''}`}
                                             key={labelIndex}
                                         >
                                             {labelIndex === labels.length - 1 && pill && dato[label] ? (

@@ -29,6 +29,10 @@ const Studenti = () => {
   const [showUpdateStudentModal, setShowUpdateStudentModal] = useState(false);
   const [showDeleteStudentModal, setShowDeleteStudentModal] = useState(false);
   const [selectedStudente, setSelectedStudente] = useState(null);
+  const [showCSVModal, setShowCSVModal] = useState(false);
+  const [csvFile, setCsvFile] = useState(null);
+  const [csvLoading, setCsvLoading] = useState(false);
+  const [csvResult, setCsvResult] = useState(null);
   const { showToast } = useToast();
   const StudentFormRef = useRef();
 
@@ -177,19 +181,34 @@ const Studenti = () => {
   };
 
   const handleDeleteStudent = async () => {
-  try {
-    const response = await studentiService.delete(selectedStudente.cf); 
-    const msg = response?.data?.message || 'Studente eliminato con successo';
-    showToast(msg, 'success');
-    await fetchStudente();
-    setShowDeleteStudentModal(false);
-    setSelectedStudente(null);
-  } catch (error) {
-    console.error('Errore:', error);
-    const errorMsg = error.response?.data?.message || 'Errore durante l\'eliminazione';
-    showToast(errorMsg, 'error');
-  }
-};
+    try {
+      const response = await studentiService.delete(selectedStudente.cf);
+      const msg = response?.data?.message || 'Studente eliminato con successo';
+      showToast(msg, 'success');
+      await fetchStudente();
+      setShowDeleteStudentModal(false);
+      setSelectedStudente(null);
+    } catch (error) {
+      console.error('Errore:', error);
+      const errorMsg = error.response?.data?.message || 'Errore durante l\'eliminazione';
+      showToast(errorMsg, 'error');
+    }
+  };
+
+  const handleCSVUpload = async () => {
+    if (!csvFile) return;
+    setCsvLoading(true);
+
+    try {
+      const response = await studentiService.createFromCSV(csvFile);
+      setCsvResult(response.data.data);
+      await fetchStudente();
+    } catch (err) {
+      console.error('Errore CSV:', err);
+    } finally {
+      setCsvLoading(false);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full w-full">
@@ -211,8 +230,8 @@ const Studenti = () => {
           <div className='flex-1 min-h-0'>
             <div className='flex flex-col gap-[1vw] h-full overflow-hidden'>
               <Container className="flex flex-col h-full overflow-hidden p-[1vw]">
-                <div className='grid grid-cols-7 w-full flex items-end'>
-                  <div className="col-span-6 flex gap-[1vw] items-end">
+                <div className='grid grid-cols-9 w-full flex items-end gap-[1vw]'>
+                  <div className="col-span-7 flex gap-[1vw] items-end justify-between 2xl:justify-start">
                     <Select
                       title="Corso"
                       placeholder="Seleziona un corso"
@@ -227,11 +246,11 @@ const Studenti = () => {
                       options={anni.map(anno => ({ value: anno.annoaccademico, label: "Anno " + anno.annoaccademico }))}
                       value={selectedAnno}
                       onChange={setSelectedAnno}
-                      className="w-[20%]"
+                      className="w-[25%] 2xl:w-[20%]"
                     />
 
-                    <div className='pb-[0.5vh]'>
-                      <Button variant="noBg" size="small" onClick={() => { setSelectedProgetto(null); setSelectedAnno(null); }} className={`shrink-0  ${!(selectedAnno || selectedProgetto) ? "invisible" : ''}`} title="Rimuovi filtri">
+                    <div className={`pb-[0.5vh] ${!(selectedAnno || selectedProgetto) ? "invisible" : ''}`}>
+                      <Button variant="noBg" size="small" onClick={() => { setSelectedProgetto(null); setSelectedAnno(null); }} className={`shrink-0`} title="Rimuovi filtri">
                         <SvgIcon
                           viewBox='0 0 24 24'
                           color='#D64541'
@@ -259,26 +278,42 @@ const Studenti = () => {
                             viewBox="0 0 24 24"
                           />
                         }
-                        classNameIn="focus:ring-0 focus:!border-[#E0E6EB] focus:shadow-none transition-none"
+                        classNameIn="focus:ring-0 focus:!border-[#E0E6EB] focus:shadow-none transition-none w-[30%]"
                       />
                     </div>
 
                   </div>
-                  <Button
-                    variant="secondary"
-                    size="medium"
-                    icon={<SvgIcon
-                      color='#FFFFFF'
-                      width="2.5vh"
-                      height="2.5vh"
-                      path1='M26.25 25C26.9404 25 27.5 25.5596 27.5 26.25C27.5 26.9404 26.9404 27.5 26.25 27.5H3.75C3.05965 27.5 2.5 26.9404 2.5 26.25C2.5 25.5596 3.05965 25 3.75 25H26.25ZM5.9375 2.5C7.83597 2.5 9.375 4.03902 9.375 5.9375V9.375C9.375 11.7912 11.3337 13.75 13.75 13.75H16.25C19.9685 13.75 23.0201 15.171 24.5679 16.0571C25.6955 16.7027 26.25 17.8956 26.25 19.0625V22.5H8.75V21.8225C8.58559 21.6756 8.38299 21.4906 8.1543 21.2695C7.53564 20.6715 6.71059 19.8052 5.88379 18.7305C4.2522 16.6092 2.5 13.5276 2.5 10V5.9375C2.5 4.03902 4.03902 2.5 5.9375 2.5ZM16.25 2.5C19.0114 2.5 21.25 4.73857 21.25 7.5C21.25 10.2614 19.0114 12.5 16.25 12.5C13.4886 12.5 11.25 10.2614 11.25 7.5C11.25 4.73857 13.4886 2.5 16.25 2.5Z'
-                      path2='M23.95 5.21002V0.590024H25.24V5.21002H23.95ZM22.22 3.51002V2.29002H26.98V3.51002H22.22Z'
-                    />}
-                    className="xl:px-[2vh] h-fit"
-                    onClick={() => setShowNewStudentModal(true)}
-                  >
-                    Nuovo Studente
-                  </Button>
+                  <div className="col-span-2 flex flex-col 2xl:flex-row gap-[1vh] justify-end">
+                    <Button
+                      variant="primary"
+                      size="medium"
+                      icon={<SvgIcon
+                        color='#FFFFFF'
+                        width="2.5vh"
+                        height="2.5vh"
+                        path1='M25 27.5H5V10.1074L12.6074 2.5H25V27.5ZM7.5 11.1426V25H22.5V5H13.6426L7.5 11.1426ZM16.25 18.2324L19.1163 15.3663L20.8838 17.1337L15 23.0176L9.11621 17.1337L10.8838 15.3663L13.75 18.2324V10H16.25V18.2324Z'
+                      />}
+                      className="xl:px-[2vh] h-fit"
+                      onClick={() => { setShowCSVModal(true); setCsvResult(null); setCsvFile(null); }}
+                    >
+                      Importa da CSV
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="medium"
+                      icon={<SvgIcon
+                        color='#FFFFFF'
+                        width="2.5vh"
+                        height="2.5vh"
+                        path1='M26.25 25C26.9404 25 27.5 25.5596 27.5 26.25C27.5 26.9404 26.9404 27.5 26.25 27.5H3.75C3.05965 27.5 2.5 26.9404 2.5 26.25C2.5 25.5596 3.05965 25 3.75 25H26.25ZM5.9375 2.5C7.83597 2.5 9.375 4.03902 9.375 5.9375V9.375C9.375 11.7912 11.3337 13.75 13.75 13.75H16.25C19.9685 13.75 23.0201 15.171 24.5679 16.0571C25.6955 16.7027 26.25 17.8956 26.25 19.0625V22.5H8.75V21.8225C8.58559 21.6756 8.38299 21.4906 8.1543 21.2695C7.53564 20.6715 6.71059 19.8052 5.88379 18.7305C4.2522 16.6092 2.5 13.5276 2.5 10V5.9375C2.5 4.03902 4.03902 2.5 5.9375 2.5ZM16.25 2.5C19.0114 2.5 21.25 4.73857 21.25 7.5C21.25 10.2614 19.0114 12.5 16.25 12.5C13.4886 12.5 11.25 10.2614 11.25 7.5C11.25 4.73857 13.4886 2.5 16.25 2.5Z'
+                        path2='M23.95 5.21002V0.590024H25.24V5.21002H23.95ZM22.22 3.51002V2.29002H26.98V3.51002H22.22Z'
+                      />}
+                      className="xl:px-[2vh] h-fit"
+                      onClick={() => setShowNewStudentModal(true)}
+                    >
+                      Nuovo Studente
+                    </Button>
+                  </div>
                 </div>
                 <Table
                   headers={['Nome Cognome', 'Codice Fiscale', 'Data Nascita', 'Email', 'Corso']}
@@ -286,8 +321,8 @@ const Studenti = () => {
                   data={studenti}
                   frase1="Nessuno studente trovato"
                   className="h-full"
-                  onModify = {handleUpdateStudentClick}
-                  onDelete = {handleDeleteStudentClick}
+                  onModify={handleUpdateStudentClick}
+                  onDelete={handleDeleteStudentClick}
                 />
               </Container>
             </div>
@@ -380,6 +415,53 @@ const Studenti = () => {
         buttonType="danger"
       >
         <p>Sei sicuro di voler eliminare questo studente?</p>
+      </ConfirmationModal>
+      
+      <ConfirmationModal
+        isOpen={showCSVModal}
+        onClose={() => setShowCSVModal(false)}
+        onConfirm={handleCSVUpload}
+        title="Importa Studenti da CSV"
+        confirmText={csvLoading ? 'Caricamento...' : 'Importa'}
+        buttonType="modify"
+        w='w-[80%] xl:w-[60%]'
+        wMax='max-w-[100%]'
+      >
+        {!csvResult ? (
+          <div className="flex flex-col gap-4">
+            <p className="text-sm text-[#777777]">
+              Il file CSV deve avere le colonne: <br />
+              <code className="bg-gray-100 px-2 py-1 rounded text-xs">
+                cf;nome;cognome;email;dataNascita;codiceCorso;annoAccademico
+              </code>
+            </p>
+            <input
+              type="file"
+              accept=".csv"
+              onChange={e => setCsvFile(e.target.files[0])}
+              className="border border-[#E0E6EB] rounded-[30px] px-4 py-2 text-sm"
+            />
+            {csvFile && (
+              <p className="text-sm text-green-600">File selezionato: {csvFile.name}</p>
+            )}
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            <p className="text-green-600 font-bold">✓ {csvResult.successo} studenti inseriti</p>
+            {csvResult.errori.length > 0 && (
+              <div>
+                <p className="text-red-500 font-bold mb-2">✗ {csvResult.errori.length} errori:</p>
+                <div className="max-h-[20vh] overflow-y-auto flex flex-col gap-1">
+                  {csvResult.errori.map((e, i) => (
+                    <div key={i} className="text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                      <span className="font-bold">{e.riga}</span>: {e.errore}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </ConfirmationModal>
     </div>
   );

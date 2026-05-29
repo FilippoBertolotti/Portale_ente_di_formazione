@@ -433,7 +433,7 @@ const Progetti = () => {
                       </Button>
                     </div>
                     :
-                    (user.livello < 1) && (
+                    (user.livello > 1) && (
                       <div><span className="text-[0.7vw] font-normal whitespace-nowrap">Coordinatore: </span>{riepilogo?.coordinatoreNomeCompleto || '...'}</div>
                     )
                   }
