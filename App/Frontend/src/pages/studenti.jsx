@@ -283,7 +283,7 @@ const Studenti = () => {
                     </div>
 
                   </div>
-                  <div className="col-span-2 flex flex-col 2xl:flex-row gap-[1vh] justify-end">
+                  <div className={"col-span-2 flex flex-col 2xl:flex-row gap-[1vh] justify-end" + (user.livello == 4 ? " hidden" : "")}>
                     <Button
                       variant="primary"
                       size="medium"

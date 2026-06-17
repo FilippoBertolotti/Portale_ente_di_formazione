@@ -8,7 +8,8 @@ const UserCard = ({ user }) => {
         0: 'Amministratore',
         1: 'Studente',
         2: 'Docente',
-        3: 'Coordinatore'
+        3: 'Coordinatore',
+        4: 'Test'
     }
     const [openWindow, setOpenWindow] = useState(false);
     const { logout } = useAuth();

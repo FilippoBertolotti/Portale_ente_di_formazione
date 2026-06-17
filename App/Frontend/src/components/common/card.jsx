@@ -17,7 +17,7 @@ const Card = ({ title, value, subtitle, bgColor, iconPath, iconPath2, size = 'la
             title: 'text-[1rem] xl:text-[1vw]',
             value: 'text-[1.5rem] xl:text-[1.5vw]',
             subtitle: 'text-[0.7vw]',
-            iconContainer: 'w-[4rem] xl:w-[4vw] h-[4.2rem] xl:h-[4.5vw]',
+            iconContainer: 'w-[4rem] xl:w-[3.5vw] h-[4.2rem] xl:h-[3.5vw]',
             iconWidth: '50%',
             padding: 'p-[1vw]'
         }

@@ -9,7 +9,7 @@ const Layout = ({ children }) => {
     }
     return (
         <>
-            {user.livello == 0 ? (
+            {user.livello == 0 || user.livello == 4 ? (
                 <>
                     <div className="h-[100vh] w-[100vw] bg-[#FFF] md:bg-[#2A7BB3] md:pt-[1rem] md:px-[1rem] xl:hidden relative flex flex-col justify-centerrelative">
 

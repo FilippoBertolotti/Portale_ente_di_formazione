@@ -68,7 +68,7 @@ const AppRoutes = () => {
       <Route 
         path="/dashboard" 
         element={
-          <ProtectedRoute allowedLevels={[0]}>
+          <ProtectedRoute allowedLevels={[0,4]}>
             <Dashboard />
           </ProtectedRoute>
         } 
@@ -77,7 +77,7 @@ const AppRoutes = () => {
       <Route 
         path="/studenti" 
         element={
-          <ProtectedRoute allowedLevels={[0]}>
+          <ProtectedRoute allowedLevels={[0,4]}>
             <Studenti />
           </ProtectedRoute>
         } 
@@ -86,7 +86,7 @@ const AppRoutes = () => {
       <Route 
         path="/docenti" 
         element={
-          <ProtectedRoute allowedLevels={[0]}>
+          <ProtectedRoute allowedLevels={[0,4]}>
             <Docenti />
           </ProtectedRoute>
         } 
@@ -97,7 +97,7 @@ const AppRoutes = () => {
         path="/" 
         element={
           <Navigate 
-            to={user ? (user.livello === 0 ? "/dashboard" : "/calendario") : "/login"} 
+            to={user ? (user.livello === 0 ? "/dashboard" : "/calendario") : "/calendario"} 
             replace 
           />
         } 
@@ -108,7 +108,7 @@ const AppRoutes = () => {
         path="*" 
         element={
           <Navigate 
-            to={user ? (user.livello === 0 ? "/dashboard" : "/calendario") : "/login"} 
+            to={user ? (user.livello === 0 ? "/dashboard" : "/calendario") : "/dashboard"} 
             replace 
           />
         } 

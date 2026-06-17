@@ -48,10 +48,10 @@ const Table = forwardRef(({
                     <tbody>
                         {Array.isArray(data) && data.length > 0 ? (
                             data.map((dato, index) => (
-                                <tr key={index} className='border-t-2 border-[#EDEDED]'>
+                                <tr key={index} className='border-t-2 border-[#EDEDED] w-full'>
                                     {Array.isArray(labels) && labels.map((label, labelIndex) => (
                                         <td
-                                            className={`text-${labelIndex >= centerFromIndex && centered ? 'center' : 'left'} p-[1vw] text-[#000000] font-bold text-[1rem] w-fit ${noShow.includes(label) ? 'hidden xl:block' : ''}`}
+                                            className={`text-${labelIndex >= centerFromIndex && centered ? 'center' : 'left'} p-[1vw] text-[#000000] font-bold text-[1rem] ${noShow.includes(label) ? 'hidden xl:block' : ''}`}
                                             key={labelIndex}
                                         >
                                             {labelIndex === labels.length - 1 && pill && dato[label] ? (
@@ -76,11 +76,11 @@ const Table = forwardRef(({
                                             )}
                                         </td>
                                     ))}
-                                    <td className='p-[1vw] align-middle'>
-                                        <div className={`flex gap-[1vh] items-center justify-center h-full ${user.livello !== 0 && !authService.haCodiceProgetto(dato.codiceprogetto)
+                                    <td className={`p-[1vw] align-middle ${user.livello !== 0 && !authService.haCodiceProgetto(dato.codiceprogetto)
                                             ? 'hidden'
                                             : ''
                                             }`}>
+                                        <div className="flex gap-[1vh] items-center justify-center h-full">
                                             {actionPlus && (
                                                 <Button variant="primary" size="small" onClick={() => onActionPlus(dato)}>
                                                     <SvgIcon

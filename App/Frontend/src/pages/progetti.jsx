@@ -56,7 +56,7 @@ const Progetti = () => {
       }
 
       // Livello docente/coordinatore: fetch per ogni progetto associato
-      if (user.livello >= 2) {
+      if (user.livello >= 2 && user.livello != 4) {
         const codiciProgetti = Array.isArray(user.codiceprogetto)
           ? user.codiceprogetto
           : user.codiceprogetto ? [user.codiceprogetto] : [];
@@ -151,7 +151,7 @@ const Progetti = () => {
       if (selectedProgetto) {
         response = await moduliService.getByCodiceProgetto(selectedProgetto);
       } else if (selectedAnno) {
-        if(user.livello >= 2){
+        if(user.livello >= 2 && user.livello !== 4) {
           response = await moduliService.getActiveByAnno(selectedAnno);
         } else {
           response = await moduliService.getByAnno(selectedAnno);
@@ -164,7 +164,7 @@ const Progetti = () => {
         response?.results ??
         (Array.isArray(response) ? response : []);
 
-      if(user.livello !== 0){
+      if(user.livello !== 0 && user.livello !== 4) {
         // FILTRA I MODULI IN BASE AI PROGETTI DELL'UTENTEù
         const progettiUtente = Array.isArray(user.codiceprogetto) ? user.codiceprogetto : [user.codiceprogetto];
         const moduliFiltrati = moduliData.filter(modulo => {
@@ -433,7 +433,7 @@ const Progetti = () => {
                       </Button>
                     </div>
                     :
-                    (user.livello > 1) && (
+                    (user.livello > 1 && user.livello !== 4) && (
                       <div><span className="text-[0.7vw] font-normal whitespace-nowrap">Coordinatore: </span>{riepilogo?.coordinatoreNomeCompleto || '...'}</div>
                     )
                   }

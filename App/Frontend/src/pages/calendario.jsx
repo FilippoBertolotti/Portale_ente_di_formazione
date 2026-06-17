@@ -51,7 +51,7 @@ const Calendario = () => {
   const fetchLezioni = async () => {
     try {
       setLoadingLezioni(true);
-      if (user.livello == 0) {
+      if (user.livello == 0 || user.livello == 4) {
         const data = await lezioniService.getAllLezioni();
         setLezioni(data.data || []);
         const modulidata = await moduliService.getAll();

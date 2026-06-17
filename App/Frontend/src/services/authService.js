@@ -35,10 +35,8 @@ export const authService = {
     const user = authService.getCurrentUser();
     console.log('Verifica codice progetto per utente:', user, 'con codice cercato:', codiceCercato);
 
-    // AGGIUNGI: controlla se user esiste
     if (!user) return false;
 
-    // CORREZIONE: usa codiceprogetto, non codicecoordinatore
     const progettiUtente = user.codicecoordinatore;
 
     if (!progettiUtente) return false;

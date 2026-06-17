@@ -258,7 +258,7 @@ const Dashboard = () => {
 
       <div className='xl:grid xl:grid-cols-12 xl:gap-[1vw] xl:flex-1 flex-col space-y-[1vw] xl:space-y-[0] min-h-0'>
         <div className='col-span-4 h-[60%] xl:h-full flex flex-col xl:gap-[1vw] space-y-[1vw] xl:space-y-[0] overflow-hidden order-1 xl:order-2'> {/* con order-1 dico che sarà il primo elemento */}
-          <Container title="Azioni Rapide" className="h-fit justify-center " hide={true}>
+          <Container title="Azioni Rapide" className={"h-fit justify-center " + (user.livello === 4 ? 'hidden' : '')} hide={true}>
             <div className='flex justify-between items-center xl:grid xl:grid-cols-2 gap-[1vw]'>
               <Button
                 variant="secondary"
@@ -387,7 +387,7 @@ const Dashboard = () => {
                     />
                   ))
                 ) : (
-                  <div className="flex flex-col items-center gap-[1vh] pt-[10vh]">
+                  <div className="flex flex-col items-center justify-center gap-[1vh] h-full">
                     <SvgIcon
                       color="#777777b9"
                       width="50"
