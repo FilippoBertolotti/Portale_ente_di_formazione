@@ -587,7 +587,7 @@ const Calendario = () => {
           labels={['Titolo', 'Descrizione', 'Data']}
           types={['text', 'textarea', 'date']}
           placeholders={[null, null, null]}
-          validators={[isPlaceNameValid, isDescriptionValid, isDateValid2]}
+          validators={[isPlaceNameValid]}
           layout={[
             ['titolo', 'data'],
             ['descrizione']
@@ -616,7 +616,7 @@ const Calendario = () => {
           labels={['Titolo', 'Descrizione', 'Data']}
           types={['text', 'textarea', 'date']}
           placeholders={[null, null, null]}
-          validators={[isPlaceNameValid, isDescriptionValid]}
+          validators={[isPlaceNameValid]}
           layout={[
             ['titolo', 'data'],
             ['descrizione']
